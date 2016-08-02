@@ -20,6 +20,17 @@ namespace Medidata.MAuth.Core
 {
     internal static class MAuthCoreExtensions
     {
+        /// <summary>
+        /// Calculates the payload information based on the request and the authentication information.
+        /// </summary>
+        /// <param name="request">
+        /// The request which has the information (method, url and content) for the calculation.
+        /// </param>
+        /// <param name="authInfo">
+        /// The <see cref="PrivateKeyAuthenticationInfo"/> which holds the application uuid, the time of the
+        /// signature and the private key.
+        /// </param>
+        /// <returns>A task object which will result the payload as a Base64 encoded string when completed.</returns>
         public static async Task<string> CalculatePayload(
             this HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
         {
@@ -30,6 +41,17 @@ namespace Medidata.MAuth.Core
             return Convert.ToBase64String(signer.ProcessBlock(unsignedData, 0, unsignedData.Length));
         }
 
+        /// <summary>
+        /// Verifies that the signed data is equal to the signature by using the public key of the keypair which
+        /// was used to sign the data.
+        /// </summary>
+        /// <param name="signedData">The data in its signed form.</param>
+        /// <param name="signature">The signature which the signed data generated from.</param>
+        /// <param name="publicKey">The public key used to decrypt the signed data.</param>
+        /// <returns>
+        /// If the signed data matches the signature, it returns <see langword="true"/>; otherwise it
+        /// returns <see langword="false"/>.
+        /// </returns>
         public static Task<bool> Verify(this byte[] signedData, byte[] signature, string publicKey)
         {
             Pkcs1Encoding.StrictLengthEnabled = false;
@@ -39,6 +61,16 @@ namespace Medidata.MAuth.Core
             return Task.Run(() => cipher.DoFinal(signedData).SequenceEqual(signature));
         }
 
+        /// <summary>
+        /// Composes a signature as a SHA512 hash to be signed based on the request and authentication information.
+        /// </summary>
+        /// <param name="request">
+        /// The request which has the information (method, url and content) for the signature.
+        /// </param>
+        /// <param name="authInfo">
+        /// The <see cref="AuthenticationInfo"/> which holds the application uuid and the time of the signature.
+        /// </param>
+        /// <returns>A Task object which will result the SHA512 hash of the signature when it completes.</returns>
         public static async Task<byte[]> GetSignature(this HttpRequestMessage request, AuthenticationInfo authInfo)
         {
             return 
@@ -50,6 +82,11 @@ namespace Medidata.MAuth.Core
                 .AsSHA512Hash();
         }
 
+        /// <summary>
+        /// Extracts the authentication information from a <see cref="HttpRequestMessage"/>.
+        /// </summary>
+        /// <param name="request">The request that has the authentication information.</param>
+        /// <returns>The authentication information with the payload from the request.</returns>
         public static PayloadAuthenticationInfo GetAuthenticationInfo(this HttpRequestMessage request)
         {
             var authHeader = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey);
@@ -75,6 +112,16 @@ namespace Medidata.MAuth.Core
             };
         }
 
+        /// <summary>
+        /// Adds authentication information to a <see cref="HttpRequestMessage"/>. 
+        /// </summary>
+        /// <param name="request">The request to add the information to.</param>
+        /// <param name="authInfo">
+        /// The authentication information with a private key to calculate the payload with.
+        /// </param>
+        /// <returns>
+        /// A Task object which will result the request with the authentication information added when it completes.
+        /// </returns>
         public async static Task<HttpRequestMessage> AddAuthenticationInfo(
             this HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
         {
@@ -88,6 +135,11 @@ namespace Medidata.MAuth.Core
             return request;
         }
 
+        /// <summary>
+        /// Deserializes an <see cref="ApplicationInfo"/> object from a content of a Http message. 
+        /// </summary>
+        /// <param name="content">The content to deserialize the information from.</param>
+        /// <returns>A Task object which will result the application information when it completes.</returns>
         public async static Task<ApplicationInfo> FromResponse(this HttpContent content)
         {
             var jsonObject = JObject.Parse(await content.ReadAsStringAsync());
@@ -105,16 +157,34 @@ namespace Medidata.MAuth.Core
             return (long)(value - Constants.UnixEpoch).TotalSeconds;
         }
 
+        /// <summary>
+        /// Converts a <see cref="long"/> value that is a Unix time in seconds to a UTC <see cref="DateTimeOffset"/>. 
+        /// </summary>
+        /// <param name="value">The Unix time seconds to be converted.</param>
+        /// <returns>The <see cref="DateTimeOffset"/> equivalent of the Unix time.</returns>
         public static DateTimeOffset FromUnixTimeSeconds(this long value)
         {
             return Constants.UnixEpoch.AddSeconds(value);
         }
 
+        /// <summary>
+        /// Returns the hyphenated representation of a <see cref="Guid"/> as a <see cref="string"/>. 
+        /// </summary>
+        /// <param name="uuid">The <see cref="Guid"/> to convert to the hyphenated string.</param>
+        /// <returns>The uuid in a format with hyphens.</returns>
         public static string ToHyphenString(this Guid uuid)
         {
             return uuid.ToString("D").ToLower();
         }
 
+        /// <summary>
+        /// Provides the first value with a given key from a collection of HTTP headers or a default value if the
+        /// key is not found.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value to search for.</typeparam>
+        /// <param name="headers">The collection of the HTTP headers to search in.</param>
+        /// <param name="key">The key to search in the headers collection.</param>
+        /// <returns>The value if found; otherwise a default value for the given type.</returns>
         public static TValue GetFirstValueOrDefault<TValue>(this HttpHeaders headers, string key)
         {
             IEnumerable<string> values;
@@ -124,11 +194,21 @@ namespace Medidata.MAuth.Core
                 default(TValue);
         }
 
+        /// <summary>
+        /// Provides an SHA512 hash value of a string.
+        /// </summary>
+        /// <param name="value">The value for calculating the hash.</param>
+        /// <returns>The SHA512 hash of the input value as a hex-encoded byte array.</returns>
         public static byte[] AsSHA512Hash(this string value)
         {
             return Hex.Encode(SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes(value)));
         }
 
+        /// <summary>
+        /// Provides a string PEM (ASN.1) format key as an <see cref="ICipherParameters"/> object.
+        /// </summary>
+        /// <param name="key">The PEM key in ASN.1 format.</param>
+        /// <returns>The cipher parameters extracted from the key.</returns>
         public static ICipherParameters AsCipherParameters(this string key)
         {
             using (var reader = new StringReader(key))
