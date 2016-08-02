@@ -98,6 +98,9 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="..\..\GlobalAssemblyInfo.cs">
+      <Link>Properties\GlobalAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Handlers\AssertSigningHandler.cs" />
     <Compile Include="MAuthAuthenticatorTests.cs" />
     <Compile Include="MAuthCoreExtensionsTests.cs" />
