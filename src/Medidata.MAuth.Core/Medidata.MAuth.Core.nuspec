@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata minClientVersion="2.8.0">
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Medidata Solutions, Inc.</authors>
+    <owners>$author$</owners>
+    <projectUrl>https://github.com/mdsol/mauth-client-dotnet</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <summary>$description$</summary>
+    <description>A core package for Medidata HMAC protocol implementation. This package contains the core functionality which used by the MAuth authentication protocol-specific components. This package also can be used standalone if you want to sign HTTP/HTTPS requests with Medidata MAuth keys using the .NET HttpClient message handler mechanism.</description>
+    <copyright>$copyright$</copyright>
+    <tags>medidata mauth hmac authentication core httpclient messagehandler</tags>
+  </metadata>
+</package>
