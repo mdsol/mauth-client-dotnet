@@ -9,7 +9,7 @@
     <owners>$author$</owners>
     <projectUrl>https://github.com/mdsol/mauth-client-dotnet</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <licenseUrl>https://github.com/mdsol/mauth-client-dotnet/blob/master/LICENSE.md</licenseUrl>
     <summary>$description$</summary>
     <description>A core package for Medidata HMAC protocol implementation. This package contains the core functionality which used by the MAuth authentication protocol-specific components. This package also can be used standalone if you want to sign HTTP/HTTPS requests with Medidata MAuth keys using the .NET HttpClient message handler mechanism.</description>
     <copyright>$copyright$</copyright>
