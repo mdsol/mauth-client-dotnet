@@ -84,7 +84,7 @@ namespace Medidata.MAuth.Core
                     new Uri(
                         options.MAuthServiceUrl,
                         $"{Constants.MAuthTokenRequestPath}{applicationUuid.ToHyphenString()}.json")
-                ));
+                )).ConfigureAwait(continueOnCapturedContext: false);
 
                 response.EnsureSuccessStatusCode();
 

@@ -3,7 +3,7 @@
 namespace Medidata.MAuth.Core
 {
     /// <summary>
-    /// The exception that is trhown when authentication fails for an HTTP request.
+    /// The exception that is thrown when authentication fails for an HTTP request.
     /// </summary>
     public class AuthenticationException: Exception
     {
