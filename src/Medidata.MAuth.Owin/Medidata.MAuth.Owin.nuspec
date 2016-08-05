@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata minClientVersion="2.8.0">
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Medidata Solutions, Inc.</authors>
+    <owners>$author$</owners>
+    <projectUrl>https://github.com/mdsol/mauth-client-dotnet</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/mdsol/mauth-client-dotnet/blob/master/LICENSE.md</licenseUrl>
+    <summary>$description$</summary>
+    <description>This package contains an OWIN middleware to validate signed http requests with the Medidata MAuth protocol. The middleware communicates with an MAuth server in order to confirm the validity of the request authentication header. Include this package in your OWIN-enabled web api if you want to authenticate the api requests signed with the MAuth protocol.</description>
+    <copyright>$copyright$</copyright>
+    <tags>medidata mauth hmac authentication core owin middleware webapi</tags>
+  </metadata>
+</package>
