@@ -1,5 +1,9 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using System.Net.Http;
+using System.Net.Mime;
+using System.Text;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Microsoft.Owin;
@@ -23,6 +27,9 @@ namespace Medidata.MAuth.Owin
                 if (!result.Headers.TryAddWithoutValidation(header.Key, header.Value))
                     result.Content.Headers.TryAddWithoutValidation(header.Key, header.Value);
             }
+
+            if (request.Body.CanSeek)
+                request.Body.Seek(0, SeekOrigin.Begin);
 
             return result;
         }
@@ -52,6 +59,31 @@ namespace Medidata.MAuth.Owin
                     return false;
 
                 throw;
+            }
+        }
+
+        public static async Task EnsureRequestBodyStreamSeekable(this IOwinContext context)
+        {
+            if (context.Request.Body == null || context.Request.Body == Stream.Null || context.Request.Body.CanSeek)
+                return;
+
+            var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
+            var charset = context.Request.GetContentTypeOrDefault()?.CharSet;
+            var encoding = Encoding.GetEncodings().SingleOrDefault(e => e.Name == charset)?.GetEncoding() ??
+                Encoding.UTF8;
+
+            context.Request.Body = new MemoryStream(encoding.GetBytes(body));
+        }
+
+        public static ContentType GetContentTypeOrDefault(this IOwinRequest request)
+        {
+            try
+            {
+                return new ContentType(request.ContentType);
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
     }
