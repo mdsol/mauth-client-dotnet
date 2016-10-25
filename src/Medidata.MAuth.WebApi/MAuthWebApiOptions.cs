@@ -5,7 +5,7 @@ namespace Medidata.MAuth.WebApi
     /// <summary>
     /// Contains the options used by the <see cref="MAuthAuthenticatingHandler"/>.
     /// </summary>
-    public class MAuthWebApiOptions: MAuthOptions
+    public class MAuthWebApiOptions: MAuthOptionsBase
     {
          /// <summary>
         /// Determines if the message handler should swallow all exceptions and return an empty HTTP response with a

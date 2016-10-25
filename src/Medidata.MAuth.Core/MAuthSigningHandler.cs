@@ -11,29 +11,29 @@ namespace Medidata.MAuth.Core
     /// </summary>
     public class MAuthSigningHandler: DelegatingHandler
     {
-        private readonly MAuthAuthenticator authenticator;
+        private readonly MAuthSigningOptions options;
 
         /// <summary>Gets the Uuid of the client application.</summary>
-        public Guid ClientAppUuid => authenticator.ApplicationUuid;
+        public Guid ClientAppUuid => options.ApplicationUuid;
 
         /// <summary>
         /// Initializes a new insance of the <see cref="MAuthSigningHandler"/> class with the provided
-        /// <see cref="MAuthOptions"/>.
+        /// <see cref="MAuthSigningOptions"/>.
         /// </summary>
         /// <param name="options">The options for this message handler.</param>
-        public MAuthSigningHandler(MAuthOptions options): this(options, new HttpClientHandler()) { }
+        public MAuthSigningHandler(MAuthSigningOptions options): this(options, new HttpClientHandler()) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MAuthSigningHandler"/> class with the provided
-        /// <see cref="MAuthOptions"/> and an inner <see cref="HttpMessageHandler"/>. 
+        /// <see cref="MAuthSigningOptions"/> and an inner <see cref="HttpMessageHandler"/>. 
         /// </summary>
         /// <param name="options">The options for this message handler.</param>
         /// <param name="innerHandler">
         /// The inner handler which is responsible for processing the HTTP response messages.
         /// </param>
-        public MAuthSigningHandler(MAuthOptions options, HttpMessageHandler innerHandler): base(innerHandler)
+        public MAuthSigningHandler(MAuthSigningOptions options, HttpMessageHandler innerHandler): base(innerHandler)
         {
-            authenticator = new MAuthAuthenticator(options);
+            this.options = options;
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Medidata.MAuth.Core
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
             return await base
-                .SendAsync(await authenticator.SignRequest(request), cancellationToken)
+                .SendAsync(await request.Sign(options), cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
     }

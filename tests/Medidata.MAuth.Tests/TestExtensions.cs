@@ -18,7 +18,7 @@ namespace Medidata.MAuth.Tests
         public static readonly string ServerPrivateKey = GetKeyFromResource(nameof(ServerPrivateKey)).Result;
         public static readonly string ServerPublicKey = GetKeyFromResource(nameof(ServerPublicKey)).Result;
 
-        public static MAuthOptions ServerOptions => new MAuthOptions()
+        public static MAuthOptionsBase ServerOptions => new MAuthTestOptions()
         {
             ApplicationUuid = ServerUuid,
             MAuthServiceUrl = TestUri,
@@ -26,10 +26,9 @@ namespace Medidata.MAuth.Tests
             MAuthServerHandler = new MAuthServerHandler()
         };
 
-        public static MAuthOptions ClientOptions(DateTimeOffset signedTime) => new MAuthOptions()
+        public static MAuthSigningOptions ClientOptions(DateTimeOffset signedTime) => new MAuthSigningOptions()
         {
             ApplicationUuid = ClientUuid,
-            MAuthServiceUrl = TestUri,
             PrivateKey = ClientPrivateKey,
             SignedTime = signedTime
         };

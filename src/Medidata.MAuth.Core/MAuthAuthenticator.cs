@@ -8,11 +8,11 @@ namespace Medidata.MAuth.Core
 {
     internal class MAuthAuthenticator
     {
-        private readonly MAuthOptions options;
+        private readonly MAuthOptionsBase options;
 
         public Guid ApplicationUuid => options.ApplicationUuid;
 
-        public MAuthAuthenticator(MAuthOptions options)
+        public MAuthAuthenticator(MAuthOptionsBase options)
         {
             if (options.ApplicationUuid == default(Guid))
                 throw new ArgumentException(nameof(options.ApplicationUuid));
@@ -58,24 +58,21 @@ namespace Medidata.MAuth.Core
             }
         }
 
-        public Task<HttpRequestMessage> SignRequest(HttpRequestMessage request)
-        {
-            return request.AddAuthenticationInfo(new PrivateKeyAuthenticationInfo()
-            {
-                ApplicationUuid = options.ApplicationUuid,
-                SignedTime = options.SignedTime ?? DateTimeOffset.UtcNow,
-                PrivateKey = options.PrivateKey
-            });
-        }
-
         private async Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid)
         {
-            var innerHandler = options.MAuthServerHandler ?? new WebRequestHandler()
-            {
-                CachePolicy = new RequestCachePolicy(RequestCacheLevel.Default)
-            };
+            var signingHandler = new MAuthSigningHandler(
+                options: new MAuthSigningOptions()
+                {
+                    ApplicationUuid = options.ApplicationUuid,
+                    PrivateKey = options.PrivateKey
+                },
+                innerHandler: options.MAuthServerHandler ?? new WebRequestHandler()
+                {
+                    CachePolicy = new RequestCachePolicy(RequestCacheLevel.Default)
+                }
+            );
 
-            using (var client = new HttpClient(new MAuthSigningHandler(options, innerHandler)))
+            using (var client = new HttpClient(signingHandler))
             {
                 client.Timeout = TimeSpan.FromSeconds(options.AuthenticateRequestTimeoutSeconds);
 

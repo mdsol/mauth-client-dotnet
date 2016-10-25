@@ -1,4 +1,8 @@
-﻿using System.Net;
+﻿using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Mime;
+using System.Text;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Microsoft.Owin;
@@ -18,6 +22,8 @@ namespace Medidata.MAuth.Owin
 
         public override async Task Invoke(IOwinContext context)
         {
+            await context.EnsureRequestBodyStreamSeekable();
+
             if (!options.Bypass(context.Request) &&
                 !await context.TryAuthenticate(authenticator, options.HideExceptionsAndReturnForbidden))
             {

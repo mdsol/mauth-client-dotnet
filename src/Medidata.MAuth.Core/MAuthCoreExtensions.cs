@@ -71,16 +71,13 @@ namespace Medidata.MAuth.Core
         /// The <see cref="AuthenticationInfo"/> which holds the application uuid and the time of the signature.
         /// </param>
         /// <returns>A Task object which will result the SHA512 hash of the signature when it completes.</returns>
-        public static async Task<byte[]> GetSignature(this HttpRequestMessage request, AuthenticationInfo authInfo)
-        {
-            return 
-                ($"{request.Method.Method}\n" +
-                $"{request.RequestUri.AbsolutePath}\n" +
-                $"{(request.Content != null ? await request.Content.ReadAsStringAsync() : string.Empty)}\n" +
-                $"{authInfo.ApplicationUuid.ToHyphenString()}\n" +
-                $"{authInfo.SignedTime.ToUnixTimeSeconds()}")
-                .AsSHA512Hash();
-        }
+        public static async Task<byte[]> GetSignature(this HttpRequestMessage request, AuthenticationInfo authInfo) =>
+            ($"{request.Method.Method}\n" +
+            $"{request.RequestUri.AbsolutePath}\n" +
+            $"{(request.Content != null ? await request.Content.ReadAsStringAsync() : string.Empty)}\n" +
+            $"{authInfo.ApplicationUuid.ToHyphenString()}\n" +
+            $"{authInfo.SignedTime.ToUnixTimeSeconds()}")
+            .AsSHA512Hash();
 
         /// <summary>
         /// Extracts the authentication information from a <see cref="HttpRequestMessage"/>.
@@ -136,6 +133,23 @@ namespace Medidata.MAuth.Core
         }
 
         /// <summary>
+        /// Signs an HTTP request with the MAuth-specific authentication information.
+        /// </summary>
+        /// <param name="request">The HTTP request message to sign.</param>
+        /// <param name="options">The options that contains the required information for the signing.</param>
+        /// <returns>
+        /// A Task object which will result the request signed with the authentication information when it completes.
+        /// </returns>
+        public static Task<HttpRequestMessage> Sign(
+            this HttpRequestMessage request, MAuthSigningOptions options) =>
+            request.AddAuthenticationInfo(new PrivateKeyAuthenticationInfo()
+            {
+                ApplicationUuid = options.ApplicationUuid,
+                SignedTime = options.SignedTime ?? DateTimeOffset.UtcNow,
+                PrivateKey = options.PrivateKey
+            });
+
+        /// <summary>
         /// Deserializes an <see cref="ApplicationInfo"/> object from a content of a Http message. 
         /// </summary>
         /// <param name="content">The content to deserialize the information from.</param>
@@ -152,30 +166,25 @@ namespace Medidata.MAuth.Core
         /// </summary>
         /// <param name="value">The date and time to be converted.</param>
         /// <returns>The total seconds elapsed from the Unix epoch (1970-01-01 00:00:00).</returns>
-        public static long ToUnixTimeSeconds(this DateTimeOffset value)
-        {
-            return (long)(value - Constants.UnixEpoch).TotalSeconds;
-        }
+        public static long ToUnixTimeSeconds(this DateTimeOffset value) =>
+            (long)(value - Constants.UnixEpoch).TotalSeconds;
 
         /// <summary>
         /// Converts a <see cref="long"/> value that is a Unix time in seconds to a UTC <see cref="DateTimeOffset"/>. 
         /// </summary>
         /// <param name="value">The Unix time seconds to be converted.</param>
         /// <returns>The <see cref="DateTimeOffset"/> equivalent of the Unix time.</returns>
-        public static DateTimeOffset FromUnixTimeSeconds(this long value)
-        {
-            return Constants.UnixEpoch.AddSeconds(value);
-        }
+        public static DateTimeOffset FromUnixTimeSeconds(this long value) =>
+            Constants.UnixEpoch.AddSeconds(value);
+
 
         /// <summary>
         /// Returns the hyphenated representation of a <see cref="Guid"/> as a <see cref="string"/>. 
         /// </summary>
         /// <param name="uuid">The <see cref="Guid"/> to convert to the hyphenated string.</param>
         /// <returns>The uuid in a format with hyphens.</returns>
-        public static string ToHyphenString(this Guid uuid)
-        {
-            return uuid.ToString("D").ToLower();
-        }
+        public static string ToHyphenString(this Guid uuid) =>
+            uuid.ToString("D").ToLower();
 
         /// <summary>
         /// Provides the first value with a given key from a collection of HTTP headers or a default value if the
@@ -199,10 +208,9 @@ namespace Medidata.MAuth.Core
         /// </summary>
         /// <param name="value">The value for calculating the hash.</param>
         /// <returns>The SHA512 hash of the input value as a hex-encoded byte array.</returns>
-        public static byte[] AsSHA512Hash(this string value)
-        {
-            return Hex.Encode(SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes(value)));
-        }
+        public static byte[] AsSHA512Hash(this string value) =>
+            Hex.Encode(SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes(value)));
+
 
         /// <summary>
         /// Provides a string PEM (ASN.1) format key as an <see cref="ICipherParameters"/> object.

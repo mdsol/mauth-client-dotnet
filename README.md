@@ -82,7 +82,7 @@ cases.
 ### Signing Outgoing Requests
 
 In order to sign outgoing requests, an `MAuthSigningHandler` class is provided in the Core package. this handler
-accepts an `MAuthOptions` instance which stores all the necessary settings for MAuth.
+accepts an `MAuthSigningOptions` instance which stores all the necessary settings for the signing process.
 
 An example:
 
@@ -91,7 +91,7 @@ using Medidata.MAuth.Core;
 
 public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage request)
 {
-	var signingHandler = new MAuthSigningHandler(new MAuthOptions()
+	var signingHandler = new MAuthSigningHandler(new MAuthSigningOptions()
 	{
 		ApplicationUuid = new Guid("7c872d75-986b-4c61-bb17-f2569d42bfb0"),
 		PrivateKey = File.ReadAllText("ClientPrivateKey.pem")
@@ -107,7 +107,7 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
 The example above is creating a new instance of a `HttpClient` with the handler responsible for signing the
 requests and sends the request to its designation. Finally it returns the response from the remote server.
 
-The `MAuthOptions` has the following properties to determine the required settings:
+The `MAuthSigningOptions` has the following properties to determine the required settings:
 
 | Name | Description |
 | ---- | ----------- |
@@ -238,4 +238,17 @@ so in the near future there is a possibility that we will add a new package with
 ##### What Cryptographic provider is used for the encryption/decryption?
 
 We are using the latest version (as of date 1.81) of the [BouncyCastle](https://github.com/bcgit/bc-csharp) library.
+
+##### What are the major changes in the 2.0.0 version?
+
+In this version we have only one major and a minor change: from this version the `MAuthSigningHandler` is accepting an
+`MAuthSigningOptions` instance instead of an `MAuthOptions` instance (which in turn set to be an abstract class).
+This change was necessary because the MAuthOptions object contains the `MAuthServiceUrl` property, which is not required
+for signing, but it had to be set to a valid Url nonetheless.
+
+The other underlying change is that in the OWIN middleware the infrastructure provided request body stream gets replaced
+with a `MemoryStream` in cases when the original body stream is not seekable. This change was necessary, because in
+order to authenticate the request we need to read the body, but if the body stream is not seekable we are not able to
+restore it for the subsequent middlewares to read. Typical example for this is when the OWIN selfhost infrastructure
+is used as it wraps the original stream in a non-seekable version.
 

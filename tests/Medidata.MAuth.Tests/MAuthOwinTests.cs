@@ -1,8 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Medidata.MAuth.Owin;
+using Microsoft.Owin.Hosting;
 using Microsoft.Owin.Testing;
 using Owin;
 using Xunit;
@@ -35,10 +38,9 @@ namespace Medidata.MAuth.Tests
                 app.Run(async context => await context.Response.WriteAsync("Done."));
             }))
             {
-                var signer = new MAuthAuthenticator(TestExtensions.ClientOptions(testData.SignedTime));
-
                 // Act
-                var response = await server.HttpClient.SendAsync(await signer.SignRequest(testData.Request));
+                var response = await server.HttpClient.SendAsync(
+                    await testData.Request.Sign(TestExtensions.ClientOptions(testData.SignedTime)));
 
                 // Assert
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -106,6 +108,47 @@ namespace Medidata.MAuth.Tests
 
                 Assert.Equal("The request has invalid MAuth authentication headers.", ex.Message);
                 Assert.NotNull(ex.InnerException);
+            }
+        }
+
+        [Theory]
+        [InlineData("GET")]
+        [InlineData("DELETE")]
+        [InlineData("POST")]
+        [InlineData("PUT")]
+        public async Task MAuthMiddleware_WithNonSeekableBodyStream_WillRestoreBodyStream(string method)
+        {
+            // Arrange
+            var testData = await TestData.For(method);
+            var canSeek = false;
+            var body = string.Empty;
+
+            using (var server = WebApp.Start("http://localhost:29999", app =>
+            {
+                app.UseMAuthAuthentication(options =>
+                {
+                    options.ApplicationUuid = TestExtensions.ServerUuid;
+                    options.MAuthServiceUrl = TestExtensions.TestUri;
+                    options.PrivateKey = TestExtensions.ServerPrivateKey;
+                    options.MAuthServerHandler = new MAuthServerHandler();
+                });
+
+                app.Run(async context =>
+                {
+                    canSeek = context.Request.Body.CanSeek;
+                    body = await new StreamReader(context.Request.Body).ReadToEndAsync();
+
+                    await context.Response.WriteAsync("Done.");
+                });
+            }))
+            {
+                // Act
+                var response = await new HttpClient().SendAsync(
+                    await testData.Request.Sign(TestExtensions.ClientOptions(testData.SignedTime)));
+
+                // Assert
+                Assert.True(canSeek);
+                Assert.Equal(testData.Content ?? string.Empty, body);
             }
         }
     }

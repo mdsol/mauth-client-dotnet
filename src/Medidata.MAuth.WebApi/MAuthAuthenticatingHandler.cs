@@ -28,7 +28,7 @@ namespace Medidata.MAuth.WebApi
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MAuthAuthenticatingHandler"/> class with the provided
-        /// <see cref="MAuthOptions"/> and an inner <see cref="HttpMessageHandler"/>. 
+        /// <see cref="MAuthOptionsBase"/> and an inner <see cref="HttpMessageHandler"/>. 
         /// </summary>
         /// <param name="options">The options for this message handler.</param>
         /// <param name="innerHandler">
