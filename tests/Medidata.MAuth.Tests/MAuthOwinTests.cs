@@ -35,10 +35,9 @@ namespace Medidata.MAuth.Tests
                 app.Run(async context => await context.Response.WriteAsync("Done."));
             }))
             {
-                var signer = new MAuthAuthenticator(TestExtensions.ClientOptions(testData.SignedTime));
-
                 // Act
-                var response = await server.HttpClient.SendAsync(await signer.SignRequest(testData.Request));
+                var response = await server.HttpClient.SendAsync(
+                    await testData.Request.Sign(TestExtensions.ClientOptions(testData.SignedTime)));
 
                 // Assert
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);

@@ -105,6 +105,7 @@
     <Compile Include="MAuthAuthenticatorTests.cs" />
     <Compile Include="MAuthCoreExtensionsTests.cs" />
     <Compile Include="Handlers\MAuthServerHandler.cs" />
+    <Compile Include="MAuthTestOptions.cs" />
     <Compile Include="MAuthWebApiTests.cs" />
     <Compile Include="MAuthOwinTests.cs" />
     <Compile Include="MAuthSigningHandlerTests.cs" />

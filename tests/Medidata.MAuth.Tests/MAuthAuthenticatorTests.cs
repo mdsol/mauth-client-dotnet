@@ -15,7 +15,7 @@ namespace Medidata.MAuth.Tests
         public void MAuthAuthenticator_WithInvalidOptions_WillThrowException(string mauthServiceUrl, string privateKey)
         {
             // Assert
-            Assert.Throws<ArgumentNullException>(() => new MAuthAuthenticator(new MAuthOptions()
+            Assert.Throws<ArgumentNullException>(() => new MAuthAuthenticator(new MAuthTestOptions()
             {
                 ApplicationUuid = TestExtensions.ClientUuid,
                 MAuthServiceUrl = mauthServiceUrl != null ? new Uri(mauthServiceUrl) : null,
@@ -26,7 +26,7 @@ namespace Medidata.MAuth.Tests
         [Fact]
         public void MAuthAuthenticator_WithDefaultUuid_WillThrowException()
         {
-            Assert.Throws<ArgumentException>(() => new MAuthAuthenticator(new MAuthOptions()
+            Assert.Throws<ArgumentException>(() => new MAuthAuthenticator(new MAuthTestOptions()
             {
                 ApplicationUuid = default(Guid)
             }));
@@ -69,10 +69,8 @@ namespace Medidata.MAuth.Tests
             var testData = await TestData.For(method);
             var expectedMAuthHeader = $"MWS {TestExtensions.ClientUuid.ToHyphenString()}:{testData.Payload}";
 
-            var authenticator = new MAuthAuthenticator(TestExtensions.ClientOptions(testData.SignedTime));
-
             // Act
-            var actual = await authenticator.SignRequest(testData.Request);
+            var actual = await testData.Request.Sign(TestExtensions.ClientOptions(testData.SignedTime));
 
             // Assert
             Assert.Equal(expectedMAuthHeader, actual.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey));

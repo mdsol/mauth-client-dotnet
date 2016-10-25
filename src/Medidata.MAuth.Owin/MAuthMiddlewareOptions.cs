@@ -7,7 +7,7 @@ namespace Medidata.MAuth.Owin
     /// <summary>
     /// Contains the options used by the <see cref="MAuthMiddleware"/>.
     /// </summary>
-    public class MAuthMiddlewareOptions: MAuthOptions
+    public class MAuthMiddlewareOptions: MAuthOptionsBase
     {
          /// <summary>
         /// Determines if the middleware should swallow all exceptions and return an empty HTTP response with a

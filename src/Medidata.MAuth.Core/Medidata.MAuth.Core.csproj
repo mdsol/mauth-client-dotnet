@@ -61,7 +61,8 @@
     <Compile Include="MAuthAuthenticator.cs" />
     <Compile Include="MAuthCoreExtensions.cs" />
     <Compile Include="MAuthSigningHandler.cs" />
-    <Compile Include="MAuthOptions.cs" />
+    <Compile Include="Options\MAuthOptionsBase.cs" />
+    <Compile Include="Options\MAuthSigningOptions.cs" />
     <Compile Include="Models\ApplicationInfo.cs" />
     <Compile Include="Models\PrivateKeyAuthenticationInfo.cs" />
     <Compile Include="Models\PayloadAuthenticationInfo.cs" />
