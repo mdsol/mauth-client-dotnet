@@ -12,6 +12,7 @@
     <licenseUrl>https://github.com/mdsol/mauth-client-dotnet/blob/master/LICENSE.md</licenseUrl>
     <summary>$description$</summary>
     <description>A core package for Medidata HMAC protocol implementation. This package contains the core functionality which used by the MAuth authentication protocol-specific components. This package also can be used standalone if you want to sign HTTP/HTTPS requests with Medidata MAuth keys using the .NET HttpClient message handler mechanism.</description>
+    <releaseNotes>This version introduces the MAuthSigningOptions options object instead of the MAuthOptions for the MAuthSigningHandler. With this change the handler does not need the MAuth server url for its configuration anymore.</releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>medidata mauth hmac authentication core httpclient messagehandler</tags>
   </metadata>

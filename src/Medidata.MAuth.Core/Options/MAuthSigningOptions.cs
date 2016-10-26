@@ -1,0 +1,26 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Medidata.MAuth.Core
+{
+    /// <summary>
+    /// Contains the options used by the <see cref="MAuthSigningHandler"/>.
+    /// </summary>
+    public class MAuthSigningOptions
+    {
+        /// <summary>Determines the RSA private key for the authentication requests.</summary>
+        public string PrivateKey { get; set; }
+
+        /// <summary>Determines the unique identifier used for the MAuth service authentication requests.</summary>
+        public Guid ApplicationUuid { get; set; }
+
+        /// <summary>
+        /// Determines the time when signing requests instead of the current date and time.
+        /// This property is for testing purposes only.
+        /// </summary>
+        internal DateTimeOffset? SignedTime { get; set; }
+    }
+}

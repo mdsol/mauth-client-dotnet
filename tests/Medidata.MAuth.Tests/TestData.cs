@@ -19,7 +19,7 @@ namespace Medidata.MAuth.Tests
 
         public long SignedTimeUnixSeconds => SignedTime.ToUnixTimeSeconds();
 
-        public HttpRequestMessage Request => new HttpRequestMessage(Method, "http://localhost")
+        public HttpRequestMessage Request => new HttpRequestMessage(Method, "http://localhost:29999")
         {
             Content = Content != null ? new StringContent(Content) : null
         };

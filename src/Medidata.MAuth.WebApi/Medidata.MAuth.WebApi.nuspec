@@ -12,6 +12,7 @@
     <licenseUrl>https://github.com/mdsol/mauth-client-dotnet/blob/master/LICENSE.md</licenseUrl>
     <summary>$description$</summary>
     <description>This package contains an HTTP message handler to validate signed http requests with the Medidata MAuth protocol. The handler communicates with an MAuth server in order to confirm the validity of the request authentication header. Include this package in your WebAPI application if you want to authenticate the api requests signed with the MAuth protocol.</description>
+    <releaseNotes>No major changes in this version of the WebAPI package this time.</releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>medidata mauth hmac authentication core webapi message handler</tags>
   </metadata>
