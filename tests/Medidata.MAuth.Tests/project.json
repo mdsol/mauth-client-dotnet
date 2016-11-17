@@ -1,0 +1,36 @@
+{
+  "version": "1.0.0-*",
+
+  "testRunner": "xunit",
+
+  "buildOptions": {
+    "embed": [
+      "Mocks/Keys/*.*",
+      "Mocks/Requests/*.*"
+    ]
+  },
+
+  "dependencies": {
+    "xunit": "2.2.0-beta4-build3444",
+    "dotnet-test-xunit": "2.2.0-preview2-build1029",
+    "Medidata.MAuth.Core": {
+      "target": "project"
+    },
+    "Microsoft.Owin.Hosting": "3.0.1",
+    "Microsoft.Owin.Testing": "3.0.1",
+    "Microsoft.Owin.Host.HttpListener": "3.0.1"
+  },
+
+  "frameworks": {
+    "net452": {
+      "dependencies": {
+        "Medidata.MAuth.Owin": {
+          "target": "project"
+        },
+        "Medidata.MAuth.WebApi": {
+          "target": "project"
+        }
+      }
+    }
+  }
+}
