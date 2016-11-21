@@ -15,5 +15,8 @@
     <releaseNotes>No major changes in this version of the WebAPI package this time.</releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>medidata mauth hmac authentication core webapi message handler</tags>
+    <dependencies>
+      <dependency id="Medidata.MAuth.Core" version="2.1.0" />
+    </dependencies>
   </metadata>
 </package>

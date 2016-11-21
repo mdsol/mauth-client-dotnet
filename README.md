@@ -232,8 +232,7 @@ in your project in order to make Medidata.MAuth work for you.
 
 ##### Is there an ASP.NET Core support?
 
-Currently we do not support the ASP.NET Core applications, but we built this framework with extensibility in mind,
-so in the near future there is a possibility that we will add a new package with the ASP.NET Core support.
+Yes, we support .NET Core with netstandard1.6.1.
 
 ##### What Cryptographic provider is used for the encryption/decryption?
 

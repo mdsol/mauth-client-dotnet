@@ -15,5 +15,8 @@
     <releaseNotes>This version makes possible to read the OWIN request body in the subsequent middlewares after the authentication, even if the body stream is not seekable initially.</releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>medidata mauth hmac authentication core owin middleware webapi</tags>
+    <dependencies>
+      <dependency id="Medidata.MAuth.Core" version="2.1.0" />
+    </dependencies>
   </metadata>
 </package>
