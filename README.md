@@ -234,6 +234,8 @@ in your project in order to make Medidata.MAuth work for you.
 
 Yes, we support .NET Core with netstandard1.6.1.
 
+Please make sure you have [.NET Core 1.1 SDK](https://www.microsoft.com/net/download/core) installed.
+
 ##### What Cryptographic provider is used for the encryption/decryption?
 
 We are using the latest version (as of date 1.81) of the [BouncyCastle](https://github.com/bcgit/bc-csharp) library.
