@@ -3,7 +3,7 @@
   "title": "Medidata.MAuth.Core",
   "authors": [ "Medidata Solutions, Inc." ],
   "description": "A core package for Medidata HMAC protocol implementation. This package contains the core functionality which used by the MAuth authentication protocol-specific components. This package also can be used standalone if you want to sign HTTP/HTTPS requests with Medidata MAuth keys using the .NET HttpClient message handler mechanism.",
-  "copyright": "Copyright ? Medidata Solutions, Inc. 2016",
+  "copyright": "Copyright Medidata Solutions, Inc. 2016",
   "packOptions": {
     "owners": [ "Medidata Solutions, Inc." ],
     "requireLicenseAcceptance": true,
