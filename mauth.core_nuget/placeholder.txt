@@ -1,2 +1,0 @@
-Local Medidata.MAuth.Core nuget package to be referenced by non .net core
-projects.

@@ -1,0 +1,28 @@
+﻿{
+  "version": "2.1.0-*",
+  "title": "Medidata.MAuth.WebApi",
+  "description": "This package contains an HTTP message handler to validate signed http requests with the Medidata MAuth protocol. The handler communicates with an MAuth server in order to confirm the validity of the request authentication header. Include this package in your WebAPI application if you want to authenticate the api requests signed with the MAuth protocol.",
+  "copyright": "Copyright © Medidata Solutions, Inc. 2016",
+  "authors": [ "Medidata Solutions, Inc." ],
+
+  "packOptions": {
+    "owners": [ "Medidata Solutions, Inc." ],
+    "requireLicenseAcceptance": true,
+    "projectUrl": "https://github.com/mdsol/mauth-client-dotnet",
+    "licenseUrl": "https://github.com/mdsol/mauth-client-dotnet/blob/master/LICENSE.md",
+    "summary": "An HTTP message handler for the core Medidata.MAuth module.",
+    "releaseNotes": "No major changes in this version of the WebAPI package this time.",
+    "tags": [ "medidata", "mauth", "hmac", "authentication", "core", "webapi", "message", "handler" ]
+  },
+
+  "dependencies": {
+    "Medidata.MAuth.Core": "2.1.0-*"
+  },
+
+  "frameworks": {
+    "net452": {
+      "dependencies": {
+      }
+    }
+  }
+}

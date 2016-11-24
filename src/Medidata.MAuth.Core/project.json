@@ -1,9 +1,9 @@
-{
-  "version": "2.1.0",
+﻿{
+  "version": "2.1.0-*",
   "title": "Medidata.MAuth.Core",
   "authors": [ "Medidata Solutions, Inc." ],
   "description": "A core package for Medidata HMAC protocol implementation. This package contains the core functionality which used by the MAuth authentication protocol-specific components. This package also can be used standalone if you want to sign HTTP/HTTPS requests with Medidata MAuth keys using the .NET HttpClient message handler mechanism.",
-  "copyright": "Copyright Medidata Solutions, Inc. 2016",
+  "copyright": "Copyright © Medidata Solutions, Inc. 2016",
   "packOptions": {
     "owners": [ "Medidata Solutions, Inc." ],
     "requireLicenseAcceptance": true,
@@ -12,10 +12,6 @@
     "summary": "A core package for Medidata HMAC protocol implementation. This package contains the core functionality which used by the MAuth authentication protocol-specific components. This package also can be used standalone if you want to sign HTTP/HTTPS requests with Medidata MAuth keys using the .NET HttpClient message handler mechanism.",
     "releaseNotes": "This version introduces the MAuthSigningOptions options object instead of the MAuthOptions for the MAuthSigningHandler. With this change the handler does not need the MAuth server url for its configuration anymore.",
     "tags": [ "medidata", "mauth", "hmac", "authentication", "core", "httpclient", "messagehandler" ]
-  },
-
-  "scripts": {
-    "postcompile": "dotnet pack --no-build -o %project:Directory%\\..\\..\\mauth.core_nuget"
   },
 
   "dependencies": {

@@ -19,8 +19,6 @@ namespace Medidata.MAuth.Tests
         {
             var authInfo = request.GetAuthenticationInfo();
 
-            //request.SetConfiguration(new HttpConfiguration());
-
             if (!await authInfo.Payload.Verify(
                 await request.GetSignature(authInfo),
                 TestExtensions.ServerPublicKey

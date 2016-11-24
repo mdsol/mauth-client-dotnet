@@ -53,7 +53,7 @@ namespace Medidata.MAuth.WebApi
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
             if (!await request.TryAuthenticate(authenticator, options.HideExceptionsAndReturnForbidden))
-                return request.CreateResponse(HttpStatusCode.Forbidden);
+                return new HttpResponseMessage(HttpStatusCode.Forbidden);
 
             return await base
                 .SendAsync(request, cancellationToken)
