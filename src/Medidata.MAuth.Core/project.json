@@ -20,7 +20,7 @@
   },
 
   "frameworks": {
-    "netstandard1.6": {
+    "netstandard1.4": {
       "imports": "dnxcore50",
       "dependencies": {
         "System.Net.Http": "4.3.0",
