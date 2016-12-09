@@ -1,7 +1,7 @@
 # Changes in Medidata.MAuth
 
 ## v2.1.0
-- Added support for .NET Core with netstandard1.6.1
+- Added support for .NET Core with netstandard1.4
 
 ## v2.0.0
 - **[Medidata.MAuth.Core]** The `MAuthSigningHandler` is accepting an `MAuthSigningOptions` instance instead of

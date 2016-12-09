@@ -24,12 +24,14 @@
       "imports": "dnxcore50",
       "dependencies": {
         "System.Net.Http": "4.3.0",
-        "CoreCompat.BouncyCastle": "1.8.1-beta003"
+        "Portable.BouncyCastle": "1.8.1.2"
       }
     },
     "net452": {
       "dependencies": {
-        "BouncyCastle": "1.8.1"
+        "BouncyCastle": "1.8.1",
+        "Microsoft.Net.Http": "2.2.22",
+        "System.Net.Http": "4.0.0"
       }
     }
   }

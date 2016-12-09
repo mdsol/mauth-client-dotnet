@@ -37,8 +37,6 @@ namespace Medidata.MAuth.Tests
         {
             var assembly = typeof(TestExtensions).GetTypeInfo().Assembly;
 
-            var resourceNames = assembly.GetManifestResourceNames();
-
             using (var stream = assembly.GetManifestResourceStream(resourceName))
             using (var reader = new StreamReader(stream))
             {

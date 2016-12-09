@@ -23,13 +23,12 @@ namespace Medidata.MAuth.Tests
                 await request.GetSignature(authInfo),
                 TestExtensions.ServerPublicKey
             ))
-                return new HttpResponseMessage(HttpStatusCode.Forbidden);
+                return new HttpResponseMessage(HttpStatusCode.Forbidden) { RequestMessage = request };
 
             if (!request.RequestUri.AbsolutePath.Equals(
                 $"{Constants.MAuthTokenRequestPath}{clientUuid.ToHyphenString()}.json",
                 StringComparison.OrdinalIgnoreCase))
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-
+                return new HttpResponseMessage(HttpStatusCode.NotFound) { RequestMessage = request };
 
             return new HttpResponseMessage(HttpStatusCode.OK)
             {

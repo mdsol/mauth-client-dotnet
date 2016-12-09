@@ -11,7 +11,7 @@ namespace Medidata.MAuth.WebApi
     /// A HTTP message handler to authenticate in incoming <see cref="HttpRequestMessage"/> based on its MAuth-specific
     /// authentication information.
     /// </summary>
-    public class MAuthAuthenticatingHandler: DelegatingHandler
+    public class MAuthAuthenticatingHandler : DelegatingHandler
     {
         private readonly MAuthWebApiOptions options;
         private readonly MAuthAuthenticator authenticator;
@@ -24,7 +24,7 @@ namespace Medidata.MAuth.WebApi
         /// <see cref="MAuthWebApiOptions"/>.
         /// </summary>
         /// <param name="options">The options for this message handler.</param>
-        public MAuthAuthenticatingHandler(MAuthWebApiOptions options): this(options, new HttpClientHandler()) { }
+        public MAuthAuthenticatingHandler(MAuthWebApiOptions options) : this(options, new HttpClientHandler()) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MAuthAuthenticatingHandler"/> class with the provided
@@ -53,7 +53,7 @@ namespace Medidata.MAuth.WebApi
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
             if (!await request.TryAuthenticate(authenticator, options.HideExceptionsAndReturnForbidden))
-                return new HttpResponseMessage(HttpStatusCode.Forbidden);
+                return new HttpResponseMessage(HttpStatusCode.Forbidden) { RequestMessage = request };
 
             return await base
                 .SendAsync(request, cancellationToken)

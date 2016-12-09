@@ -1,4 +1,7 @@
 ﻿using System;
+#if !NETSTANDARD1_4
+using System.Net.Cache;
+#endif
 using System.Net.Http;
 using System.Threading.Tasks;
 using Org.BouncyCastle.Crypto;
@@ -65,7 +68,15 @@ namespace Medidata.MAuth.Core
                     ApplicationUuid = options.ApplicationUuid,
                     PrivateKey = options.PrivateKey
                 },
-                innerHandler: options.MAuthServerHandler ?? new  HttpClientHandler()
+                innerHandler: options.MAuthServerHandler ??
+#if NETSTANDARD1_4
+                new HttpClientHandler()
+#else
+                new WebRequestHandler()
+                {
+                    CachePolicy = new RequestCachePolicy(RequestCacheLevel.Default)
+                }
+#endif
             );
 
             using (var client = new HttpClient(signingHandler))
