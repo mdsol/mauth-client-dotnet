@@ -35,7 +35,7 @@ namespace Medidata.MAuth.Tests
 
         public static Task<string> GetStringFromResource(string resourceName)
         {
-            var assembly = Assembly.GetExecutingAssembly();
+            var assembly = typeof(TestExtensions).GetTypeInfo().Assembly;
 
             using (var stream = assembly.GetManifestResourceStream(resourceName))
             using (var reader = new StreamReader(stream))

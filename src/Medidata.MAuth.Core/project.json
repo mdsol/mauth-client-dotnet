@@ -1,0 +1,38 @@
+﻿{
+  "version": "2.1.0-*",
+  "title": "Medidata.MAuth.Core",
+  "authors": [ "Medidata Solutions, Inc." ],
+  "description": "A core package for Medidata HMAC protocol implementation. This package contains the core functionality which used by the MAuth authentication protocol-specific components. This package also can be used standalone if you want to sign HTTP/HTTPS requests with Medidata MAuth keys using the .NET HttpClient message handler mechanism.",
+  "copyright": "Copyright © Medidata Solutions, Inc. 2016",
+  "packOptions": {
+    "owners": [ "Medidata Solutions, Inc." ],
+    "requireLicenseAcceptance": true,
+    "projectUrl": "https://github.com/mdsol/mauth-client-dotnet",
+    "licenseUrl": "https://github.com/mdsol/mauth-client-dotnet/blob/master/LICENSE.md",
+    "summary": "A core package for Medidata HMAC protocol implementation. This package contains the core functionality which used by the MAuth authentication protocol-specific components. This package also can be used standalone if you want to sign HTTP/HTTPS requests with Medidata MAuth keys using the .NET HttpClient message handler mechanism.",
+    "releaseNotes": "This version introduces the MAuthSigningOptions options object instead of the MAuthOptions for the MAuthSigningHandler. With this change the handler does not need the MAuth server url for its configuration anymore.",
+    "tags": [ "medidata", "mauth", "hmac", "authentication", "core", "httpclient", "messagehandler" ]
+  },
+
+  "dependencies": {
+    "NETStandard.Library": "1.6.1",
+    "Newtonsoft.Json": "9.0.1"
+  },
+
+  "frameworks": {
+    "netstandard1.4": {
+      "imports": "dnxcore50",
+      "dependencies": {
+        "System.Net.Http": "4.3.0",
+        "Portable.BouncyCastle": "1.8.1.2"
+      }
+    },
+    "net452": {
+      "dependencies": {
+        "BouncyCastle": "1.8.1",
+        "Microsoft.Net.Http": "2.2.22",
+        "System.Net.Http": "4.0.0"
+      }
+    }
+  }
+}

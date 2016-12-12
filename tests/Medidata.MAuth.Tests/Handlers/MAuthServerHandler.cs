@@ -1,12 +1,11 @@
-﻿using Medidata.MAuth.Core;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.Http;
+using Medidata.MAuth.Core;
+using Newtonsoft.Json;
 
 namespace Medidata.MAuth.Tests
 {
@@ -20,18 +19,16 @@ namespace Medidata.MAuth.Tests
         {
             var authInfo = request.GetAuthenticationInfo();
 
-            request.SetConfiguration(new HttpConfiguration());
-
             if (!await authInfo.Payload.Verify(
                 await request.GetSignature(authInfo),
                 TestExtensions.ServerPublicKey
             ))
-                return request.CreateResponse(HttpStatusCode.Forbidden);
+                return new HttpResponseMessage(HttpStatusCode.Forbidden) { RequestMessage = request };
 
             if (!request.RequestUri.AbsolutePath.Equals(
                 $"{Constants.MAuthTokenRequestPath}{clientUuid.ToHyphenString()}.json",
                 StringComparison.OrdinalIgnoreCase))
-                return request.CreateResponse(HttpStatusCode.NotFound);
+                return new HttpResponseMessage(HttpStatusCode.NotFound) { RequestMessage = request };
 
             return new HttpResponseMessage(HttpStatusCode.OK)
             {
