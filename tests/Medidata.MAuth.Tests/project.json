@@ -1,5 +1,9 @@
 {
-  "version": "1.0.0-*",
+  "version": "2.1.0-*",
+  "title": "Medidata.MAuth.Tests",
+  "authors": [ "Medidata Solutions, Inc." ],
+  "description": "Assembly which contains unit tests of the Medidata.MAuth framework.",
+  "copyright": "Copyright © Medidata Solutions, Inc. 2016",
 
   "testRunner": "xunit",
 
@@ -7,7 +11,10 @@
     "embed": [
       "Mocks/Keys/*.*",
       "Mocks/Requests/*.*"
-    ]
+    ],
+    "copyToOutput": {
+      "include": [ "xunit.runner.json" ]
+    }
   },
 
   "dependencies": {
