@@ -16,7 +16,9 @@
   },
 
   "dependencies": {
-    "Medidata.MAuth.Core": "2.1.0-*"
+    "Medidata.MAuth.Core": {
+      "target": "project"
+    }
   },
 
   "frameworks": {
