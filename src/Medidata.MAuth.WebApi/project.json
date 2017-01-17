@@ -1,5 +1,5 @@
 ﻿{
-  "version": "2.1.1-*",
+  "version": "2.1.2-*",
   "title": "Medidata.MAuth.WebApi",
   "description": "This package contains an HTTP message handler to validate signed http requests with the Medidata MAuth protocol. The handler communicates with an MAuth server in order to confirm the validity of the request authentication header. Include this package in your WebAPI application if you want to authenticate the api requests signed with the MAuth protocol.",
   "copyright": "Copyright © Medidata Solutions, Inc. 2017",
