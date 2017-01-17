@@ -1,5 +1,15 @@
 # Changes in Medidata.MAuth
 
+## v2.1.2
+- **[Medidata.MAuth.Core]** Fixed the .NET Framework assemblies being referenced as dependencies instead of
+framework assemblies causing unnecessary package downloads and referencing from NuGet
+- **[All]** Updated copyright year numbers to the current (2017) year
+- **[All]** Added cache-specific information to the README FAQ section
+
+## v2.1.1
+- **[Medidata.MAuth.Core]** Fixed the NetStandard.Library being a common dependency causing unnecessary package
+downloads and referencing from NuGet
+
 ## v2.1.0
 - Added support for .NET Core with netstandard1.4
 

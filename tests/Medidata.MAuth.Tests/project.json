@@ -3,7 +3,7 @@
   "title": "Medidata.MAuth.Tests",
   "authors": [ "Medidata Solutions, Inc." ],
   "description": "Assembly which contains unit tests of the Medidata.MAuth framework.",
-  "copyright": "Copyright © Medidata Solutions, Inc. 2016",
+  "copyright": "Copyright © Medidata Solutions, Inc. 2017",
 
   "testRunner": "xunit",
 

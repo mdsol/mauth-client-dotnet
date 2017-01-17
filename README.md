@@ -251,3 +251,15 @@ order to authenticate the request we need to read the body, but if the body stre
 restore it for the subsequent middlewares to read. Typical example for this is when the OWIN selfhost infrastructure
 is used as it wraps the original stream in a non-seekable version.
 
+##### Does Medidata.MAuth support caching?
+
+Yes, with the **.NET Framework** we support caching of the responses from the MAuth server in order to not overload it with client information
+requests. The caching mechanism in Medidata.MAuth is based on the
+[WebRequestHandler](https://msdn.microsoft.com/en-us/library/system.net.http.webrequesthandler(v=vs.110).aspx)'s
+caching (with the request caching policy set to
+[Default level](https://msdn.microsoft.com/en-us/library/system.net.cache.requestcachelevel(v=vs.110).aspx)), that
+utilizes the
+[Windows OS built-in WinINET caching](https://msdn.microsoft.com/en-us/library/windows/desktop/aa383928(v=vs.85).aspx),
+thus it respects all the HTTP-specific cache headers provided by the MAuth server.
+
+
