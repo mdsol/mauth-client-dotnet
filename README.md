@@ -130,7 +130,8 @@ public class Startup
 		{
 			options.ApplicationUuid = new Guid("a419de8f-d759-4db9-b9a7-c2cd14174987");
 			options.MAuthServiceUrl = new Uri("https://mauth.imedidata.com");
-			options.AuthenticateRequestTimeoutSeconds = 10;
+			options.AuthenticateRequestTimeoutSeconds = 3;
+			options.MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.Normal;
 			options.HideExceptionsAndReturnForbidden = true;
 			options.PrivateKey = File.ReadAllText("ServerPrivateKey.pem");
 			options.Bypass = (request) => request.Uri.AbsolutePath.StartsWith("/allowed");
@@ -146,7 +147,8 @@ The middleware takes an `MAuthMiddlewareOptions` instance to set up the authenti
 | **ApplicationUuid** | Determines the unique identifier of the server application used for the MAuth service authentication requests. This uuid needs to be registered with the MAuth Server in order to use it. |
 | **MAuthServiceUrl** | Determines the endpoint of the MAuth authentication service. This endpoint is used by the authentication process to verify the validity of the signed request. |
 | **PrivateKey** | Determines the RSA private key of the server application for the authentication requests. This key must be in a PEM ASN.1 format. |
-| **AuthenticateRequestTimeoutSeconds** | An optional parameter that determines the timeout in seconds for the MAuth authentication request - the MAuth component will try to reach the MAuth server for this duration before it throws an exception. If not specified, the default value will be **10 seconds**. |
+| **AuthenticateRequestTimeoutSeconds** | An optional parameter that determines the timeout in seconds for the MAuth authentication request - the MAuth component will try to reach the MAuth server for this duration before it throws an exception. If not specified, the default value will be **3 seconds**. |
+| **MAuthServiceRetryPolicy** | The policy for the retry attempts when communicating with the MAuth service. The following policies can be used: `NoRetry` (no retries), `Single` (one additional attempt), `Normal` (two additional attempts) and `Agressive` (9 additional attempts) - the default value is **Normal**. |
 | **HideExceptionsAndReturnForbidden** | An optional parameter that determines if the middleware should swallow all exceptions and return an empty HTTP response with a status code Forbidden (403) in case of any errors (including authentication and validation errors). The default is **true**. |
 | **Bypass** | Determines a function which evaluates if a given request should bypass the MAuth authentication. |
 
@@ -184,7 +186,8 @@ public static class WebApiConfig
 		{
 			ApplicationUuid = new Guid("a419de8f-d759-4db9-b9a7-c2cd14174987"),
 			MAuthServiceUrl = new Uri("https://mauth.imedidata.com"),
-			AuthenticateRequestTimeoutSeconds = 10,
+			AuthenticateRequestTimeoutSeconds = 3,
+			MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.Normal,
 			HideExceptionsAndReturnForbidden = true,
 			PrivateKey = File.ReadAllText("ServerPrivateKey.pem")
 		};
@@ -261,5 +264,12 @@ caching (with the request caching policy set to
 utilizes the
 [Windows OS built-in WinINET caching](https://msdn.microsoft.com/en-us/library/windows/desktop/aa383928(v=vs.85).aspx),
 thus it respects all the HTTP-specific cache headers provided by the MAuth server.
+
+##### The documentation for the `MAuthServiceRetryPolicy.Agressive` retry policy says that it is not recommended for production use. What is the reason for this?
+
+This policy will make the number of requests to the MAuth service to an overall 10 attempts. We believe that the chance
+to receive a successful response from the MAuth service is gradually decreasing by the number of attempts (the more
+the clients are sending requests to a presumably overloaded server the less the chance for a successful response) -
+therefore we do not recommend to use this policy in any production scenario.
 
 
