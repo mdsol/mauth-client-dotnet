@@ -34,11 +34,6 @@ namespace Medidata.MAuth.Core
 
             client = new HttpClient(signingHandler);
             client.Timeout = TimeSpan.FromSeconds(options.AuthenticateRequestTimeoutSeconds);
-
-            exception = new RetriedRequestException(
-                    "Could not get a successful response from the MAuth Service after " +
-                    $"{options.NumberOfAttemptsForMAuthServiceRequests} attempts. Please see the responses for each " +
-                    "attempt in the exception's Responses field.");
         }
 
         public async Task<HttpResponseMessage> GetSuccessfulResponse(Guid applicationUuid,
@@ -52,7 +47,9 @@ namespace Medidata.MAuth.Core
                     nameof(requestFactory)
                 );
 
-            exception.Request = exception.Request ?? request;
+            exception = exception ?? new RetriedRequestException(
+                $"Could not get a successful response from the MAuth Service after {remainingAttempts} attempts. " +
+                "Please see the responses for each attempt in the exception's Responses field.");
 
             if (remainingAttempts == 0)
                 throw exception;

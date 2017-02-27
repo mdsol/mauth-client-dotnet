@@ -62,18 +62,17 @@ namespace Medidata.MAuth.Tests
 
 
         [Theory]
-        [InlineData("GET")]
-        [InlineData("DELETE")]
-        [InlineData("POST")]
-        [InlineData("PUT")]
-        public async Task AuthenticateRequest_WithNumberOfAttempts_WillAuthenticate(string method)
+        [InlineData(MAuthServiceRetryPolicy.NoRetry)]
+        [InlineData(MAuthServiceRetryPolicy.Single)]
+        [InlineData(MAuthServiceRetryPolicy.Normal)]
+        [InlineData(MAuthServiceRetryPolicy.Agressive)]
+        public async Task AuthenticateRequest_WithNumberOfAttempts_WillAuthenticate(MAuthServiceRetryPolicy policy)
         {
             // Arrange
-            var testData = await TestData.For(method);
-            var numberOfAttempts = 3;
+            var testData = await TestData.For("GET");
 
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
-                numberOfAttempts, successAfterAttempts: numberOfAttempts - 1));
+                policy, shouldSucceedWithin: true));
 
             var signedRequest = await testData.Request.AddAuthenticationInfo(new PrivateKeyAuthenticationInfo()
             {
@@ -90,18 +89,18 @@ namespace Medidata.MAuth.Tests
         }
 
         [Theory]
-        [InlineData("GET")]
-        [InlineData("DELETE")]
-        [InlineData("POST")]
-        [InlineData("PUT")]
-        public async Task AuthenticateRequest_AfterNumberOfAttempts_WillThrowExceptionWithRequestFailure(string method)
+        [InlineData(MAuthServiceRetryPolicy.NoRetry)]
+        [InlineData(MAuthServiceRetryPolicy.Single)]
+        [InlineData(MAuthServiceRetryPolicy.Normal)]
+        [InlineData(MAuthServiceRetryPolicy.Agressive)]
+        public async Task AuthenticateRequest_AfterNumberOfAttempts_WillThrowExceptionWithRequestFailure(
+            MAuthServiceRetryPolicy policy)
         {
             // Arrange
-            var testData = await TestData.For(method);
-            var numberOfAttempts = 3;
+            var testData = await TestData.For("GET");
 
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
-                numberOfAttempts, successAfterAttempts: numberOfAttempts + 1));
+                policy, shouldSucceedWithin: false));
 
             var signedRequest = await testData.Request.AddAuthenticationInfo(new PrivateKeyAuthenticationInfo()
             {
@@ -118,7 +117,7 @@ namespace Medidata.MAuth.Tests
 
             // Assert
             Assert.NotNull(innerException);
-            Assert.Equal(numberOfAttempts, innerException.Responses.Count);
+            Assert.Equal((int)policy + 1, innerException.Responses.Count);
             Assert.Equal(HttpStatusCode.ServiceUnavailable, innerException.Responses.First().StatusCode);
         }
 

@@ -23,7 +23,7 @@ namespace Medidata.MAuth.Tests
             ApplicationUuid = ServerUuid,
             MAuthServiceUrl = TestUri,
             PrivateKey = ServerPrivateKey,
-            NumberOfAttemptsForMAuthServiceRequests = 3,
+            MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.Normal,
             MAuthServerHandler = new MAuthServerHandler()
         };
 
@@ -34,16 +34,17 @@ namespace Medidata.MAuth.Tests
             SignedTime = signedTime
         };
 
-        public static MAuthOptionsBase GetServerOptionsWithAttempts(int numberOfAttempts, int successAfterAttempts) =>
+        public static MAuthOptionsBase GetServerOptionsWithAttempts(MAuthServiceRetryPolicy policy,
+            bool shouldSucceedWithin) =>
             new MAuthTestOptions()
             {
                 ApplicationUuid = ServerUuid,
                 MAuthServiceUrl = TestUri,
                 PrivateKey = ServerPrivateKey,
-                NumberOfAttemptsForMAuthServiceRequests = numberOfAttempts,
+                MAuthServiceRetryPolicy = policy,
                 MAuthServerHandler = new MAuthServerHandler()
                 {
-                    SucceedAfterThisManyAttempts = successAfterAttempts
+                    SucceedAfterThisManyAttempts = (int)policy + (shouldSucceedWithin ? 1 : 2)
                 }
             };
 

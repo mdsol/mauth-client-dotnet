@@ -23,11 +23,6 @@ namespace Medidata.MAuth.Core
             if (string.IsNullOrWhiteSpace(options.PrivateKey))
                 throw new ArgumentNullException(nameof(options.PrivateKey));
 
-            if (options.NumberOfAttemptsForMAuthServiceRequests < 1)
-                throw new ArgumentException(
-                    "The configured number of attempts for MAuth Service requests must be greater than or equal to 1.",
-                    nameof(options.NumberOfAttemptsForMAuthServiceRequests));
-
             this.options = options;
 
             retrier = new MAuthRequestRetrier(options);
@@ -67,7 +62,7 @@ namespace Medidata.MAuth.Core
 
         private async Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid) =>
             await (await retrier.GetSuccessfulResponse(applicationUuid, CreateRequest,
-                remainingAttempts: options.NumberOfAttemptsForMAuthServiceRequests))
+                remainingAttempts: (int)options.MAuthServiceRetryPolicy + 1))
             .Content
             .FromResponse();
 
