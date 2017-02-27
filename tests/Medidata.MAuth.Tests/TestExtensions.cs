@@ -23,6 +23,7 @@ namespace Medidata.MAuth.Tests
             ApplicationUuid = ServerUuid,
             MAuthServiceUrl = TestUri,
             PrivateKey = ServerPrivateKey,
+            NumberOfAttemptsForMAuthServiceRequests = 3,
             MAuthServerHandler = new MAuthServerHandler()
         };
 
@@ -32,6 +33,19 @@ namespace Medidata.MAuth.Tests
             PrivateKey = ClientPrivateKey,
             SignedTime = signedTime
         };
+
+        public static MAuthOptionsBase GetServerOptionsWithAttempts(int numberOfAttempts, int successAfterAttempts) =>
+            new MAuthTestOptions()
+            {
+                ApplicationUuid = ServerUuid,
+                MAuthServiceUrl = TestUri,
+                PrivateKey = ServerPrivateKey,
+                NumberOfAttemptsForMAuthServiceRequests = numberOfAttempts,
+                MAuthServerHandler = new MAuthServerHandler()
+                {
+                    SucceedAfterThisManyAttempts = successAfterAttempts
+                }
+            };
 
         public static Task<string> GetStringFromResource(string resourceName)
         {
