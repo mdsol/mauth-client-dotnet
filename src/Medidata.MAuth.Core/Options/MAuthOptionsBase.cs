@@ -20,9 +20,9 @@ namespace Medidata.MAuth.Core
         /// <summary>
         /// Determines the timeout in seconds for the MAuth authentication request - the MAuth component will try to
         /// reach the MAuth server for this duration before throws an exception. If not specified, the default
-        /// value will be 10 seconds.
+        /// value will be 3 seconds.
         /// </summary>
-        public int AuthenticateRequestTimeoutSeconds { get; set; } = 10;
+        public int AuthenticateRequestTimeoutSeconds { get; set; } = 3;
 
         /// <summary>
         /// Determines the number of request retry attempts when communicating with the MAuth authentication service,
