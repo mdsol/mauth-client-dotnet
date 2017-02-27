@@ -25,6 +25,12 @@ namespace Medidata.MAuth.Core
         public int AuthenticateRequestTimeoutSeconds { get; set; } = 10;
 
         /// <summary>
+        /// Determines the number of request attempts when communicating with the MAuth authentication service, and
+        /// the result is not success. If not specified, the default value will be 3 attempts.
+        /// </summary>
+        public int NumberOfAttemptsForMAuthServiceRequests { get; set; } = 3;
+
+        /// <summary>
         /// Determines the message handler for the requests to the MAuth server.
         /// This property is for testing purposes only.
         /// </summary>
