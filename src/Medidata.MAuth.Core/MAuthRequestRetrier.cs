@@ -49,7 +49,10 @@ namespace Medidata.MAuth.Core
 
             exception = exception ?? new RetriedRequestException(
                 $"Could not get a successful response from the MAuth Service after {remainingAttempts} attempts. " +
-                "Please see the responses for each attempt in the exception's Responses field.");
+                "Please see the responses for each attempt in the exception's Responses field.")
+            {
+                Request = request
+            };
 
             if (remainingAttempts == 0)
                 throw exception;
