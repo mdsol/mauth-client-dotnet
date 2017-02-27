@@ -23,7 +23,7 @@ namespace Medidata.MAuth.Tests
             ApplicationUuid = ServerUuid,
             MAuthServiceUrl = TestUri,
             PrivateKey = ServerPrivateKey,
-            MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.Normal,
+            MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.RetryOnce,
             MAuthServerHandler = new MAuthServerHandler()
         };
 

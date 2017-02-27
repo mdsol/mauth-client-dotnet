@@ -27,9 +27,9 @@ namespace Medidata.MAuth.Core
         /// <summary>
         /// Determines the number of request retry attempts when communicating with the MAuth authentication service,
         /// and the result is not success. If not specified, the default value will be
-        /// <see cref="MAuthServiceRetryPolicy.Normal"/> (2 more attempts additionally for the original request).
+        /// <see cref="MAuthServiceRetryPolicy.RetryOnce"/> (1 more attempt additionally for the original request).
         /// </summary>
-        public MAuthServiceRetryPolicy MAuthServiceRetryPolicy { get; set; } = MAuthServiceRetryPolicy.Normal;
+        public MAuthServiceRetryPolicy MAuthServiceRetryPolicy { get; set; } = MAuthServiceRetryPolicy.RetryOnce;
 
         /// <summary>
         /// Determines the message handler for the requests to the MAuth server.

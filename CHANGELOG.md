@@ -2,9 +2,9 @@
 
 ## v2.2.0
 - **[Medidata.MAuth.Core]** Decreased the **default** timeout from 10 seconds to 3 seconds for the MAuth service
-requests in order to decrease the chance of service request congestion (the timout still configurable in the options)
+requests in order to decrease the chance of service request congestion (the timeout still configurable in the options)
 - **[Medidata.MAuth.Core]** Added a new feature to make multiple attempts to communicate with the MAuth service in case
-if there are unsuccessful responses. The number of attempts (i.e. retry policy) is configurable through the options
+there are unsuccessful responses. The number of attempts (i.e. retry policy) is configurable through the options
 (`MAuthServiceRetryPolicy`)
 - **[Medidata.MAuth.Core]** Fixed the .NET Framework assemblies being referenced as dependencies instead of
 framework assemblies causing unnecessary package downloads and referencing from NuGet

@@ -13,11 +13,11 @@
         /// <summary>
         /// 1 more attempt to send a request to the MAuth service if the first attempt fails.
         /// </summary>
-        Single = 1,
+        RetryOnce = 1,
         /// <summary>
         /// 2 more attempts to send a request to the MAuth service if the first attempt fails.
         /// </summary>
-        Normal = 2,
+        RetryTwice = 2,
         /// <summary>
         /// 9 more attempts to send a request to the MAuth service if the first attempt fails. This setting is not
         /// recommended in production use as it can put more load the the MAuth service.

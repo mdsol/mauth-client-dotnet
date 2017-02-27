@@ -63,8 +63,8 @@ namespace Medidata.MAuth.Tests
 
         [Theory]
         [InlineData(MAuthServiceRetryPolicy.NoRetry)]
-        [InlineData(MAuthServiceRetryPolicy.Single)]
-        [InlineData(MAuthServiceRetryPolicy.Normal)]
+        [InlineData(MAuthServiceRetryPolicy.RetryOnce)]
+        [InlineData(MAuthServiceRetryPolicy.RetryTwice)]
         [InlineData(MAuthServiceRetryPolicy.Agressive)]
         public async Task AuthenticateRequest_WithNumberOfAttempts_WillAuthenticate(MAuthServiceRetryPolicy policy)
         {
@@ -90,8 +90,8 @@ namespace Medidata.MAuth.Tests
 
         [Theory]
         [InlineData(MAuthServiceRetryPolicy.NoRetry)]
-        [InlineData(MAuthServiceRetryPolicy.Single)]
-        [InlineData(MAuthServiceRetryPolicy.Normal)]
+        [InlineData(MAuthServiceRetryPolicy.RetryOnce)]
+        [InlineData(MAuthServiceRetryPolicy.RetryTwice)]
         [InlineData(MAuthServiceRetryPolicy.Agressive)]
         public async Task AuthenticateRequest_AfterNumberOfAttempts_WillThrowExceptionWithRequestFailure(
             MAuthServiceRetryPolicy policy)

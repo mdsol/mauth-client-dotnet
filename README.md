@@ -131,7 +131,7 @@ public class Startup
 			options.ApplicationUuid = new Guid("a419de8f-d759-4db9-b9a7-c2cd14174987");
 			options.MAuthServiceUrl = new Uri("https://mauth.imedidata.com");
 			options.AuthenticateRequestTimeoutSeconds = 3;
-			options.MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.Normal;
+			options.MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.RetryOnce;
 			options.HideExceptionsAndReturnForbidden = true;
 			options.PrivateKey = File.ReadAllText("ServerPrivateKey.pem");
 			options.Bypass = (request) => request.Uri.AbsolutePath.StartsWith("/allowed");
@@ -148,7 +148,7 @@ The middleware takes an `MAuthMiddlewareOptions` instance to set up the authenti
 | **MAuthServiceUrl** | Determines the endpoint of the MAuth authentication service. This endpoint is used by the authentication process to verify the validity of the signed request. |
 | **PrivateKey** | Determines the RSA private key of the server application for the authentication requests. This key must be in a PEM ASN.1 format. |
 | **AuthenticateRequestTimeoutSeconds** | An optional parameter that determines the timeout in seconds for the MAuth authentication request - the MAuth component will try to reach the MAuth server for this duration before it throws an exception. If not specified, the default value will be **3 seconds**. |
-| **MAuthServiceRetryPolicy** | The policy for the retry attempts when communicating with the MAuth service. The following policies can be used: `NoRetry` (no retries), `Single` (one additional attempt), `Normal` (two additional attempts) and `Agressive` (9 additional attempts) - the default value is **Normal**. |
+| **MAuthServiceRetryPolicy** | The policy for the retry attempts when communicating with the MAuth service. The following policies can be used: `NoRetry` (no retries), `RetryOnce` (one additional attempt), `RetryTwice` (two additional attempts) and `Agressive` (9 additional attempts) - the default value is **RetryOnce**. |
 | **HideExceptionsAndReturnForbidden** | An optional parameter that determines if the middleware should swallow all exceptions and return an empty HTTP response with a status code Forbidden (403) in case of any errors (including authentication and validation errors). The default is **true**. |
 | **Bypass** | Determines a function which evaluates if a given request should bypass the MAuth authentication. |
 
@@ -187,7 +187,7 @@ public static class WebApiConfig
 			ApplicationUuid = new Guid("a419de8f-d759-4db9-b9a7-c2cd14174987"),
 			MAuthServiceUrl = new Uri("https://mauth.imedidata.com"),
 			AuthenticateRequestTimeoutSeconds = 3,
-			MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.Normal,
+			MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.RetryOnce,
 			HideExceptionsAndReturnForbidden = true,
 			PrivateKey = File.ReadAllText("ServerPrivateKey.pem")
 		};
