@@ -94,12 +94,12 @@ namespace Medidata.MAuth.Core
             var signedTime = request.Headers.GetFirstValueOrDefault<long>(Constants.MAuthTimeHeaderKey);
 
             if (signedTime == default(long))
-                throw new ArgumentException(nameof(signedTime), "Invalid MAuth signed time header value.");
+                throw new ArgumentException("Invalid MAuth signed time header value.", nameof(signedTime));
 
             var match = Constants.AuthenticationHeaderRegex.Match(authHeader);
 
             if (!match.Success)
-                throw new ArgumentException(nameof(authHeader), "Invalid MAuth authentication header value.");
+                throw new ArgumentException("Invalid MAuth authentication header value.", nameof(authHeader));
 
             return new PayloadAuthenticationInfo()
             {
