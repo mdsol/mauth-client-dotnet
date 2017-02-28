@@ -43,8 +43,8 @@ namespace Medidata.MAuth.Core
 
             if (request == null)
                 throw new ArgumentNullException(
-                    "No request function provided or the provided request function resulted null request.",
-                    nameof(requestFactory)
+                    nameof(requestFactory),
+                    "No request function provided or the provided request function resulted null request."
                 );
 
             exception = exception ?? new RetriedRequestException(

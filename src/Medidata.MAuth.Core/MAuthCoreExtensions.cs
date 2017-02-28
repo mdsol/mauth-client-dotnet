@@ -89,17 +89,17 @@ namespace Medidata.MAuth.Core
             var authHeader = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey);
 
             if (authHeader == null)
-                throw new ArgumentNullException("The MAuth header is missing from the request.", nameof(authHeader));
+                throw new ArgumentNullException(nameof(authHeader), "The MAuth header is missing from the request.");
 
             var signedTime = request.Headers.GetFirstValueOrDefault<long>(Constants.MAuthTimeHeaderKey);
 
             if (signedTime == default(long))
-                throw new ArgumentException("Invalid MAuth signed time header value.", nameof(signedTime));
+                throw new ArgumentException(nameof(signedTime), "Invalid MAuth signed time header value.");
 
             var match = Constants.AuthenticationHeaderRegex.Match(authHeader);
 
             if (!match.Success)
-                throw new ArgumentException("Invalid MAuth authentication header value.", nameof(authHeader));
+                throw new ArgumentException(nameof(authHeader), "Invalid MAuth authentication header value.");
 
             return new PayloadAuthenticationInfo()
             {
