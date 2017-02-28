@@ -24,7 +24,11 @@ namespace Medidata.MAuth.WebApi
         /// <see cref="MAuthWebApiOptions"/>.
         /// </summary>
         /// <param name="options">The options for this message handler.</param>
-        public MAuthAuthenticatingHandler(MAuthWebApiOptions options) : this(options, new HttpClientHandler()) { }
+        public MAuthAuthenticatingHandler(MAuthWebApiOptions options)
+        {
+            this.options = options;
+            authenticator = new MAuthAuthenticator(options);
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MAuthAuthenticatingHandler"/> class with the provided
@@ -52,6 +56,9 @@ namespace Medidata.MAuth.WebApi
         protected async override Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            if (InnerHandler == null)
+                InnerHandler = new HttpClientHandler();
+
             if (!await request.TryAuthenticate(authenticator, options.HideExceptionsAndReturnForbidden))
                 return new HttpResponseMessage(HttpStatusCode.Forbidden) { RequestMessage = request };
 

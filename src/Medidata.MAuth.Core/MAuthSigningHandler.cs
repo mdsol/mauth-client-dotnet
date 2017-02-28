@@ -21,7 +21,10 @@ namespace Medidata.MAuth.Core
         /// <see cref="MAuthSigningOptions"/>.
         /// </summary>
         /// <param name="options">The options for this message handler.</param>
-        public MAuthSigningHandler(MAuthSigningOptions options): this(options, new HttpClientHandler()) { }
+        public MAuthSigningHandler(MAuthSigningOptions options)
+        {
+            this.options = options;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MAuthSigningHandler"/> class with the provided
@@ -47,6 +50,9 @@ namespace Medidata.MAuth.Core
         protected async override Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            if (InnerHandler == null)
+                InnerHandler = new HttpClientHandler();
+
             return await base
                 .SendAsync(await request.Sign(options), cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
