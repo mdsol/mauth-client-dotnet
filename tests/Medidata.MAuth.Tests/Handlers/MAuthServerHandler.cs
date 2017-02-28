@@ -13,10 +13,18 @@ namespace Medidata.MAuth.Tests
     internal class MAuthServerHandler : HttpMessageHandler
     {
         private static readonly Guid clientUuid = new Guid("192cce84-8466-490e-b03e-074f82da3ee2");
+        private int currentNumberOfAttempts = 0;
+
+        public int SucceedAfterThisManyAttempts { get; set; } = 1;
 
         protected override async Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            currentNumberOfAttempts += 1;
+
+            if (currentNumberOfAttempts < SucceedAfterThisManyAttempts)
+                return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);
+
             var authInfo = request.GetAuthenticationInfo();
 
             if (!await authInfo.Payload.Verify(
