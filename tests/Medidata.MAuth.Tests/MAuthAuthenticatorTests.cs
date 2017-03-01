@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Xunit;
@@ -56,6 +58,67 @@ namespace Medidata.MAuth.Tests
 
             // Assert
             Assert.True(isAuthenticated);
+        }
+
+
+        [Theory]
+        [InlineData(MAuthServiceRetryPolicy.NoRetry)]
+        [InlineData(MAuthServiceRetryPolicy.RetryOnce)]
+        [InlineData(MAuthServiceRetryPolicy.RetryTwice)]
+        [InlineData(MAuthServiceRetryPolicy.Agressive)]
+        public async Task AuthenticateRequest_WithNumberOfAttempts_WillAuthenticate(MAuthServiceRetryPolicy policy)
+        {
+            // Arrange
+            var testData = await TestData.For("GET");
+
+            var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
+                policy, shouldSucceedWithin: true));
+
+            var signedRequest = await testData.Request.AddAuthenticationInfo(new PrivateKeyAuthenticationInfo()
+            {
+                ApplicationUuid = TestExtensions.ClientUuid,
+                PrivateKey = TestExtensions.ClientPrivateKey,
+                SignedTime = testData.SignedTime
+            });
+
+            // Act
+            var isAuthenticated = await authenticator.AuthenticateRequest(signedRequest);
+
+            // Assert
+            Assert.True(isAuthenticated);
+        }
+
+        [Theory]
+        [InlineData(MAuthServiceRetryPolicy.NoRetry)]
+        [InlineData(MAuthServiceRetryPolicy.RetryOnce)]
+        [InlineData(MAuthServiceRetryPolicy.RetryTwice)]
+        [InlineData(MAuthServiceRetryPolicy.Agressive)]
+        public async Task AuthenticateRequest_AfterNumberOfAttempts_WillThrowExceptionWithRequestFailure(
+            MAuthServiceRetryPolicy policy)
+        {
+            // Arrange
+            var testData = await TestData.For("GET");
+
+            var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
+                policy, shouldSucceedWithin: false));
+
+            var signedRequest = await testData.Request.AddAuthenticationInfo(new PrivateKeyAuthenticationInfo()
+            {
+                ApplicationUuid = TestExtensions.ClientUuid,
+                PrivateKey = TestExtensions.ClientPrivateKey,
+                SignedTime = testData.SignedTime
+            });
+
+            // Act
+            var exception = (await Assert.ThrowsAsync<AuthenticationException>(
+                () => authenticator.AuthenticateRequest(signedRequest)));
+
+            var innerException = exception.InnerException as RetriedRequestException;
+
+            // Assert
+            Assert.NotNull(innerException);
+            Assert.Equal((int)policy + 1, innerException.Responses.Count);
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, innerException.Responses.First().StatusCode);
         }
 
         [Theory]

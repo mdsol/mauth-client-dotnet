@@ -89,7 +89,7 @@ namespace Medidata.MAuth.Core
             var authHeader = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey);
 
             if (authHeader == null)
-                throw new ArgumentNullException("The MAuth header is missing from the request.", nameof(authHeader));
+                throw new ArgumentNullException(nameof(authHeader), "The MAuth header is missing from the request.");
 
             var signedTime = request.Headers.GetFirstValueOrDefault<long>(Constants.MAuthTimeHeaderKey);
 

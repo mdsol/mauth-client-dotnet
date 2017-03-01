@@ -1,7 +1,4 @@
 ﻿using System;
-#if !NETSTANDARD1_4
-using System.Net.Cache;
-#endif
 using System.Net.Http;
 using System.Threading.Tasks;
 using Org.BouncyCastle.Crypto;
@@ -11,6 +8,7 @@ namespace Medidata.MAuth.Core
     internal class MAuthAuthenticator
     {
         private readonly MAuthOptionsBase options;
+        private MAuthRequestRetrier retrier;
 
         public Guid ApplicationUuid => options.ApplicationUuid;
 
@@ -26,6 +24,8 @@ namespace Medidata.MAuth.Core
                 throw new ArgumentNullException(nameof(options.PrivateKey));
 
             this.options = options;
+
+            retrier = new MAuthRequestRetrier(options);
         }
 
         public async Task<bool> AuthenticateRequest(HttpRequestMessage request)
@@ -41,7 +41,7 @@ namespace Medidata.MAuth.Core
             {
                 throw new AuthenticationException("The request has invalid MAuth authentication headers.", ex);
             }
-            catch (HttpRequestException ex)
+            catch (RetriedRequestException ex)
             {
                 throw new AuthenticationException(
                     "Could not query the application information for the application from the MAuth server.", ex);
@@ -54,46 +54,20 @@ namespace Medidata.MAuth.Core
             catch (Exception ex)
             {
                 throw new AuthenticationException(
-                    "An unexpected error occured during authentication. Please see the inner exception for details",
+                    "An unexpected error occured during authentication. Please see the inner exception for details.",
                     ex
                 );
             }
         }
 
-        private async Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid)
-        {
-            var signingHandler = new MAuthSigningHandler(
-                options: new MAuthSigningOptions()
-                {
-                    ApplicationUuid = options.ApplicationUuid,
-                    PrivateKey = options.PrivateKey
-                },
-                innerHandler: options.MAuthServerHandler ??
-#if NETSTANDARD1_4
-                new HttpClientHandler()
-#else
-                new WebRequestHandler()
-                {
-                    CachePolicy = new RequestCachePolicy(RequestCacheLevel.Default)
-                }
-#endif
-            );
+        private async Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid) =>
+            await (await retrier.GetSuccessfulResponse(applicationUuid, CreateRequest,
+                remainingAttempts: (int)options.MAuthServiceRetryPolicy + 1))
+            .Content
+            .FromResponse();
 
-            using (var client = new HttpClient(signingHandler))
-            {
-                client.Timeout = TimeSpan.FromSeconds(options.AuthenticateRequestTimeoutSeconds);
-
-                var response = await client.SendAsync(new HttpRequestMessage(
-                    HttpMethod.Get,
-                    new Uri(
-                        options.MAuthServiceUrl,
-                        $"{Constants.MAuthTokenRequestPath}{applicationUuid.ToHyphenString()}.json")
-                )).ConfigureAwait(continueOnCapturedContext: false);
-
-                response.EnsureSuccessStatusCode();
-
-                return await response.Content.FromResponse();
-            }
-        }
+        private HttpRequestMessage CreateRequest(Guid applicationUuid) =>
+            new HttpRequestMessage(HttpMethod.Get, new Uri(options.MAuthServiceUrl,
+                $"{Constants.MAuthTokenRequestPath}{applicationUuid.ToHyphenString()}.json"));
     }
 }
