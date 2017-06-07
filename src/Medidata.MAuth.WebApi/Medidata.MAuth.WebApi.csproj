@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\common.props" />
+
+  <PropertyGroup>
+    <Description>This package contains an HTTP message handler to validate signed http requests with the Medidata MAuth protocol. The handler communicates with an MAuth server in order to confirm the validity of the request authentication header. Include this package in your WebAPI application if you want to authenticate the api requests signed with the MAuth protocol.</Description>
+    <AssemblyTitle>Medidata.MAuth.WebApi</AssemblyTitle>
+    <TargetFramework>net452</TargetFramework>
+    <AssemblyName>Medidata.MAuth.WebApi</AssemblyName>
+    <PackageTags>medidata;mauth;hmac;authentication;core;webapi;message;handler</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Medidata.MAuth.Core\Medidata.MAuth.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+</Project>
