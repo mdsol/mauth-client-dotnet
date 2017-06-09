@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto;
@@ -146,7 +147,7 @@ namespace Medidata.MAuth.Core
             {
                 ApplicationUuid = options.ApplicationUuid,
                 SignedTime = options.SignedTime ?? DateTimeOffset.UtcNow,
-                PrivateKey = options.PrivateKey
+                PrivateKey = options.PrivateKey.Dereference().NormalizeLines()
             });
 
         /// <summary>
@@ -229,5 +230,23 @@ namespace Medidata.MAuth.Core
                 return keyObject as RsaKeyParameters;
             }
         }
+
+        public static string Dereference(this string keyPathOrKey) =>
+            keyPathOrKey.IsValidPath() ? File.ReadAllText(keyPathOrKey) : keyPathOrKey;
+
+        public static string NormalizeLines(this string key) =>
+            key.RemoveLineBreaks().InsertLineBreakAfterBegin().InsertLineBreakBeforeEnd();
+
+        private static bool IsValidPath(this string value) =>
+            Uri.TryCreate(value, UriKind.Absolute, out var pathUri) && pathUri.IsLoopback;
+
+        private static string RemoveLineBreaks(this string key) =>
+            key.Replace("\r", string.Empty).Replace("\n", string.Empty);
+
+        private static string InsertLineBreakAfterBegin(this string key) =>
+            Regex.Replace(key, Constants.KeyNormalizeLinesStartRegexPattern, "${begin}\n");
+
+        private static string InsertLineBreakBeforeEnd(this string key) =>
+            Regex.Replace(key, Constants.KeyNormalizeLinesEndRegexPattern, "\n${end}");
     }
 }
