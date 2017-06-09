@@ -135,5 +135,21 @@ namespace Medidata.MAuth.Tests
                 actual.Headers.GetFirstValueOrDefault<long>(Constants.MAuthTimeHeaderKey)
             );
         }
+
+        [Theory]
+        [InlineData("LinuxLineEnding.pem")]
+        [InlineData("WindowsLineEnding.pem")]
+        [InlineData("NoLineEnding.pem")]
+        public void AsCipherParameters_WithDifferentLineEndingKeys_WillReadTheKeysSuccessfully(string keyFilename)
+        {
+            // Arrange
+            var keyPath = $"Mocks\\Keys\\{keyFilename}";
+
+            // Act
+            var exception = Record.Exception(() => keyPath.Dereference().NormalizeLines().AsCipherParameters());
+
+            // Assert
+            Assert.Null(exception);
+        }
     }
 }

@@ -12,7 +12,25 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Mocks\Keys\*.*;Mocks\Requests\*.*" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+    <EmbeddedResource Include="Mocks\Keys\ClientPrivateKey.pem" />
+    <EmbeddedResource Include="Mocks\Keys\ClientPublicKey.pem" />
+    <EmbeddedResource Include="Mocks\Keys\LinuxLineEnding.pem" />
+    <EmbeddedResource Include="Mocks\Keys\NoLineEnding.pem" />
+    <EmbeddedResource Include="Mocks\Keys\ServerPrivateKey.pem" />
+    <EmbeddedResource Include="Mocks\Keys\ServerPublicKey.pem" />
+    <EmbeddedResource Include="Mocks\Requests\DELETE.txt" />
+    <EmbeddedResource Include="Mocks\Requests\GET.txt" />
+    <EmbeddedResource Include="Mocks\Requests\POST.txt" />
+    <EmbeddedResource Include="Mocks\Requests\PUT.txt" />
+    <None Update="Mocks\Keys\LinuxLineEnding.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Mocks\Keys\NoLineEnding.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Mocks\Keys\WindowsLineEnding.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
