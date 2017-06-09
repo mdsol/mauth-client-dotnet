@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 
-namespace Medidata.MAuth.Tests
+namespace Medidata.MAuth.Tests.Infrastructure
 {
-    [ExcludeFromCodeCoverage]
     internal static class TestExtensions
     {
         public static readonly Uri TestUri = new Uri("http://localhost");

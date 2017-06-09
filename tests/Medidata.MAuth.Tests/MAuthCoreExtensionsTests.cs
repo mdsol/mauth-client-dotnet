@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Medidata.MAuth.Tests.Infrastructure;
 using Org.BouncyCastle.Crypto.Encodings;
 using Org.BouncyCastle.Crypto.Engines;
 using Xunit;
 
 namespace Medidata.MAuth.Tests
 {
-    [ExcludeFromCodeCoverage]
     public class MAuthCoreExtensionsTests
     {
         [Theory]

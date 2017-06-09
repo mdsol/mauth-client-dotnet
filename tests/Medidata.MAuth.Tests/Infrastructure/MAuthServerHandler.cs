@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -7,9 +6,8 @@ using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Newtonsoft.Json;
 
-namespace Medidata.MAuth.Tests
+namespace Medidata.MAuth.Tests.Infrastructure
 {
-    [ExcludeFromCodeCoverage]
     internal class MAuthServerHandler : HttpMessageHandler
     {
         private static readonly Guid clientUuid = new Guid("192cce84-8466-490e-b03e-074f82da3ee2");

@@ -2,11 +2,10 @@
 
   <PropertyGroup>
     <Description>Assembly which contains unit tests of the Medidata.MAuth framework.</Description>
-    <Copyright>Copyright � Medidata Solutions, Inc. 2017</Copyright>
+    <Copyright>Copyright © Medidata Solutions, Inc. 2017</Copyright>
     <AssemblyTitle>Medidata.MAuth.Tests</AssemblyTitle>
-    <VersionPrefix>2.2.0</VersionPrefix>
     <Authors>Medidata Solutions, Inc.</Authors>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFrameworks>net452;netcoreapp1.1</TargetFrameworks>
     <AssemblyName>Medidata.MAuth.Tests</AssemblyName>
     <PackageId>Medidata.MAuth.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
@@ -26,21 +25,32 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
     <ProjectReference Include="..\..\src\Medidata.MAuth.Owin\Medidata.MAuth.Owin.csproj" />
     <ProjectReference Include="..\..\src\Medidata.MAuth.WebApi\Medidata.MAuth.WebApi.csproj" />
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
-    <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="Microsoft.Owin.Hosting" Version="3.1.0" />
     <PackageReference Include="Microsoft.Owin.Testing" Version="3.1.0" />
     <PackageReference Include="Microsoft.Owin.Host.HttpListener" Version="3.1.0" />
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+    <Compile Remove="MAuthAspNetCoreTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
+    <ProjectReference Include="..\..\src\Medidata.MAuth.AspNetCore\Medidata.MAuth.AspNetCore.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="1.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.2" />
+    <Compile Remove="MAuthOwinTests.cs" />
+    <Compile Remove="MAuthWebApiTests.cs" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="1.1.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0-beta2-build1317" />
+    <PackageReference Include="xunit" Version="2.3.0-beta2-build3683" />
+    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.0-beta2-build3683" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 
 </Project>
