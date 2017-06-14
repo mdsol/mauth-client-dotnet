@@ -11,7 +11,7 @@ namespace Medidata.MAuth.WebApi
         /// Attempts to authenticate the provided request in the <see cref="HttpRequestMessage"/> with the provided
         /// authenticator.
         /// </summary>
-        /// <param name="request">The request to authenticate.</param>
+        /// <param name="request">The request to try to authenticate.</param>
         /// <param name="authenticator">The authenticator which will attempt the request authentication.</param>
         /// <param name="shouldIgnoreExceptions">Determines if any exceptions during the authentication
         /// should be thrown.</param>
