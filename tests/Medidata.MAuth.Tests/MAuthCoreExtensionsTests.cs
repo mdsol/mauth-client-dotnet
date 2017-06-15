@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Medidata.MAuth.Tests.Infrastructure;
 using Org.BouncyCastle.Crypto.Encodings;
 using Org.BouncyCastle.Crypto.Engines;
 using Xunit;
 
 namespace Medidata.MAuth.Tests
 {
-    [ExcludeFromCodeCoverage]
     public class MAuthCoreExtensionsTests
     {
         [Theory]
@@ -135,6 +134,22 @@ namespace Medidata.MAuth.Tests
                 authInfo.SignedTime.ToUnixTimeSeconds(),
                 actual.Headers.GetFirstValueOrDefault<long>(Constants.MAuthTimeHeaderKey)
             );
+        }
+
+        [Theory]
+        [InlineData("LinuxLineEnding.pem")]
+        [InlineData("WindowsLineEnding.pem")]
+        [InlineData("NoLineEnding.pem")]
+        public void AsCipherParameters_WithDifferentLineEndingKeys_WillReadTheKeysSuccessfully(string keyFilename)
+        {
+            // Arrange
+            var keyPath = $"Mocks\\Keys\\{keyFilename}";
+
+            // Act
+            var exception = Record.Exception(() => keyPath.Dereference().NormalizeLines().AsCipherParameters());
+
+            // Assert
+            Assert.Null(exception);
         }
     }
 }

@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Medidata.MAuth.Tests.Infrastructure;
 using Xunit;
 
 namespace Medidata.MAuth.Tests
 {
-    [ExcludeFromCodeCoverage]
     public class MAuthAuthenticatorTests
     {
         [Theory]

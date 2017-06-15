@@ -23,5 +23,9 @@ namespace Medidata.MAuth.Core
         public static readonly string MAuthTimeHeaderKey = "X-MWS-Time";
 
         public static readonly string MAuthTokenRequestPath = "/mauth/v1/security_tokens/";
+
+        public static readonly string KeyNormalizeLinesStartRegexPattern = "^(?<begin>-----BEGIN [A-Z ]+[-]+)";
+
+        public static readonly string KeyNormalizeLinesEndRegexPattern = "(?<end>-----END [A-Z ]+[-]+)$";
     }
 }

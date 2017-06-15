@@ -1,9 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
-using System.Net.Mime;
-using System.Text;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Microsoft.Owin;
@@ -62,29 +59,21 @@ namespace Medidata.MAuth.Owin
             }
         }
 
+        /// <summary>
+        /// Tests whether the provided <see cref="IOwinContext"/> request's body is a seekable stream and if it is not,
+        /// it will replace the body stream with a seekable memory stream.
+        /// </summary>
+        /// <param name="context">The http context that contains the <see cref="IOwinRequest"/> with a body.</param>
+        /// <returns>A task that represents the asynchronous copy operation.</returns>
         public static async Task EnsureRequestBodyStreamSeekable(this IOwinContext context)
         {
             if (context.Request.Body == null || context.Request.Body == Stream.Null || context.Request.Body.CanSeek)
                 return;
 
-            var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
-            var charset = context.Request.GetContentTypeOrDefault()?.CharSet;
-            var encoding = Encoding.GetEncodings().SingleOrDefault(e => e.Name == charset)?.GetEncoding() ??
-                Encoding.UTF8;
+            var body = new MemoryStream();
+            await context.Request.Body.CopyToAsync(body);
 
-            context.Request.Body = new MemoryStream(encoding.GetBytes(body));
-        }
-
-        public static ContentType GetContentTypeOrDefault(this IOwinRequest request)
-        {
-            try
-            {
-                return new ContentType(request.ContentType);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            context.Request.Body = body;
         }
     }
 }
