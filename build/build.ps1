@@ -1,3 +1,5 @@
+$ErrorActionPreference = "Stop"
+
 Write-Host "Starting the build script..."
 Write-Host "Cleaning up the Artifacts folder..."
 
