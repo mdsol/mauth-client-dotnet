@@ -65,8 +65,10 @@ Get-ChildItem "$artifactsDir\*.symbols.nupkg" | ForEach-Object {
 
 Write-Host "Running unit tests..."
 
-cd .\tests\Medidata.MAuth.Tests
+Push-Location -Path .\tests\Medidata.MAuth.Tests
 
 dotnet xunit
+
+Pop-Location
 
 Write-Host "Build script completed."
