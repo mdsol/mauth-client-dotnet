@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 
-Write-Host "Starting the build script..."
-Write-Host "Cleaning up the Artifacts folder..."
+Write-Host "Starting the build script..." -ForegroundColor Cyan
+Write-Host "Cleaning up the Artifacts folder..." -ForegroundColor Cyan
 
 $solutionDir = $env:APPVEYOR_BUILD_FOLDER
 
@@ -11,7 +11,7 @@ $artifactsDir = "$solutionDir\artifacts"
 
 if (Test-Path $artifactsDir) { Remove-Item $artifactsDir -Force -Recurse }
 
-Write-Host "Restoring NuGet packages..."
+Write-Host "Restoring NuGet packages..." -ForegroundColor Cyan
 
 MSBuild /t:restore /verbosity:minimal
 
@@ -46,7 +46,7 @@ $props.SelectSingleNode("//PropertyGroup/Version").InnerText = $version
 
 $props.Save($propsFile)
 
-Write-Host "Building, packing and preparing the artifacts..."
+Write-Host "Building, packing and preparing the artifacts..." -ForegroundColor Cyan
 
 MSBuild "/t:Build" /verbosity:minimal "/p:PackageOutputPath=$artifactsDir"
 
@@ -63,7 +63,7 @@ Get-ChildItem "$artifactsDir\*.symbols.nupkg" | ForEach-Object {
     Move-Item -Path $_.FullName -Destination $destination -Force
 }
 
-Write-Host "Running unit tests..."
+Write-Host "Running unit tests..." -ForegroundColor Cyan
 
 Push-Location -Path .\tests\Medidata.MAuth.Tests
 
@@ -71,4 +71,4 @@ dotnet xunit
 
 Pop-Location
 
-Write-Host "Build script completed."
+Write-Host "Build script completed." -ForegroundColor Cyan
