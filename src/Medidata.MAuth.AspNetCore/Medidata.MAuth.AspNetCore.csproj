@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <Description>This package contains an ASP.NET Core middleware to validate signed http requests with the Medidata MAuth protocol. The middleware communicates with an MAuth server in order to confirm the validity of the request authentication header. Include this package in your ASP.NET Core web api if you want to authenticate the api requests signed with the MAuth protocol.</Description>
+    <AssemblyTitle>Medidata.MAuth.AspNetCore</AssemblyTitle>
+    <AssemblyName>Medidata.MAuth.AspNetCore</AssemblyName>
+    <PackageTags>medidata;mauth;hmac;authentication;core;aspnetcore;middleware;webapi</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="1.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="1.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="1.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Medidata.MAuth.Core\Medidata.MAuth.Core.csproj" />
+  </ItemGroup>
+</Project>

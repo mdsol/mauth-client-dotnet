@@ -1,14 +1,13 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Medidata.MAuth.Tests.Infrastructure;
 using Medidata.MAuth.WebApi;
 using Xunit;
 
 namespace Medidata.MAuth.Tests
 {
-    [ExcludeFromCodeCoverage]
     public class MAuthWebApiTests
     {
         [Theory]

@@ -1,12 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Medidata.MAuth.Tests.Infrastructure;
 using Xunit;
 
 namespace Medidata.MAuth.Tests
 {
-    [ExcludeFromCodeCoverage]
     public class MAuthSigningHandlerTests
     {
         [Theory]

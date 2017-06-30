@@ -3,6 +3,13 @@
 Medidata.MAuth is a framework that provides support for authenticating web services and applications
 with the Medidata HMAC protocol, MAuth.
 
+## Build Status
+
+| Build | Status |
+| --- | --- |
+| AppVeyor Release | ![Release](https://ci.appveyor.com/api/projects/status/94450nsec4kwhjpo?branch=master&svg=true) |
+| AppVeyor Prerelease | ![Prerelease](https://ci.appveyor.com/api/projects/status/94450nsec4kwhjpo?branch=develop&svg=true) |
+
 ## What is MAuth?
 
 The MAuth protocol provides a fault-tolerant, service-to-service authentication scheme for Medidata and third-party
@@ -36,6 +43,14 @@ The middleware communicates with an MAuth server in order to confirm the validit
 
 Include this package in your OWIN-enabled application if you want to authenticate the incoming requests signed with
 the MAuth protocol.
+
+### Medidata.MAuth.AspNetCore
+
+Similar to the [Owin package](#Medidata-MAuth-Owin) this package has the ASP.NET Core-specific middleware that
+validates signed HTTP requests incoming to the application.
+
+You can add this package in your ASP.NET Core web api application if you would like to authenticate your incoming
+requests signed with the MAuth protocol.
 
 ### Medidata.MAuth.WebApi
 
@@ -76,12 +91,12 @@ nuget install Medidata.MAuth.WebApi
 
 For all of these you can use the _Visual Studio Package Manager_ as well.
 
-The Owin and WebApi packages are dependent on the Core package, therefore it will be installed automatically in those
+The Owin, AspNetCore and WebApi packages are dependent on the Core package, therefore it will be installed automatically in those
 cases.
 
 ### Signing Outgoing Requests
 
-In order to sign outgoing requests, an `MAuthSigningHandler` class is provided in the Core package. this handler
+In order to sign outgoing requests, an `MAuthSigningHandler` class is provided in the Core package. This handler
 accepts an `MAuthSigningOptions` instance which stores all the necessary settings for the signing process.
 
 An example:
@@ -91,16 +106,18 @@ using Medidata.MAuth.Core;
 
 public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage request)
 {
-	var signingHandler = new MAuthSigningHandler(new MAuthSigningOptions()
-	{
-		ApplicationUuid = new Guid("7c872d75-986b-4c61-bb17-f2569d42bfb0"),
-		PrivateKey = File.ReadAllText("ClientPrivateKey.pem")
-	});
+    var signingHandler = new MAuthSigningHandler(new MAuthSigningOptions()
+    {
+        ApplicationUuid = new Guid("7c872d75-986b-4c61-bb17-f2569d42bfb0"),
 
-	using (var client = new HttpClient(signingHandler))
-	{
-		return await client.SendAsync(request);
-	}
+        // The following can be either a path to the key file or the contents of the file itself
+        PrivateKey = "ClientPrivateKey.pem"
+    });
+
+    using (var client = new HttpClient(signingHandler))
+    {
+        return await client.SendAsync(request);
+    }
 }
 ```
 
@@ -112,65 +129,91 @@ The `MAuthSigningOptions` has the following properties to determine the required
 | Name | Description |
 | ---- | ----------- |
 | **ApplicationUuid** | Determines the unique identifier of the client application used for the MAuth service authentication requests.  This uuid needs to be registered with the MAuth Server in order for the authenticating server application to be able to authenticate the signed request. |
-| **PrivateKey** | Determines the RSA private key of the client for signing a request. This key must be in a PEM ASN.1 format. |
+| **PrivateKey** | Determines the RSA private key of the client for signing a request. This key must be in a PEM ASN.1 format. The value of this property can be set as a valid path to a readable key file as well. |
 
-### Authenticating Incoming Requests with the OWIN Middleware
+### Authenticating Incoming Requests with the OWIN and ASP.NET Core Middlewares
 
-If your application implements the OWIN-specific pipeline, you can wire in the `MAuthMiddleware` provided by the
-Owin NuGet package. The setting and usage is as follows (in the application's `Startup` class):
+If your application implements the OWIN-specific or ASP.NET Core pipeline, you can wire in the `MAuthMiddleware`
+provided by the Owin and AspNetCore NuGet packages.
+
+The setting and usage is as follows in case of OWIN (in the application's `Startup` class):
 
 ```C#
 using Medidata.MAuth.Owin;
 
 public class Startup
 {
-	public void Configuration(IAppBuilder app)
-	{
-		app.UseMAuthAuthentication(options =>
-		{
-			options.ApplicationUuid = new Guid("a419de8f-d759-4db9-b9a7-c2cd14174987");
-			options.MAuthServiceUrl = new Uri("https://mauth.imedidata.com");
-			options.AuthenticateRequestTimeoutSeconds = 3;
-			options.MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.RetryOnce;
-			options.HideExceptionsAndReturnForbidden = true;
-			options.PrivateKey = File.ReadAllText("ServerPrivateKey.pem");
-			options.Bypass = (request) => request.Uri.AbsolutePath.StartsWith("/allowed");
-		);
-	}
+    public void Configuration(IAppBuilder app)
+    {
+        app.UseMAuthAuthentication(options =>
+        {
+            options.ApplicationUuid = new Guid("a419de8f-d759-4db9-b9a7-c2cd14174987");
+            options.MAuthServiceUrl = new Uri("https://mauth.imedidata.com");
+            options.AuthenticateRequestTimeoutSeconds = 3;
+            options.MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.RetryOnce;
+            options.HideExceptionsAndReturnForbidden = true;
+            options.PrivateKey = "ServerPrivateKey.pem";
+            options.Bypass = (request) => request.Uri.AbsolutePath.StartsWith("/allowed");
+        });
+    }
 }
 ```
 
-The middleware takes an `MAuthMiddlewareOptions` instance to set up the authentication:
+A similar way can be implemented for ASP.NET Core (also in the `Startup` class):
+
+```C#
+using Medidata.MAuth.AspNetCore;
+
+public class Startup
+{
+    public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+    {
+        app.UseMAuthAuthentication(options =>
+        {
+            options.ApplicationUuid = new Guid("a419de8f-d759-4db9-b9a7-c2cd14174987");
+            options.MAuthServiceUrl = new Uri("https://mauth.imedidata.com");
+            options.AuthenticateRequestTimeoutSeconds = 3;
+            options.MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.RetryOnce;
+            options.HideExceptionsAndReturnForbidden = true;
+            options.PrivateKey = "ServerPrivateKey.pem";
+            options.Bypass = (request) => request.Uri.AbsolutePath.StartsWith("/allowed");
+        });
+    }
+}
+```
+
+The middlewares take an `MAuthMiddlewareOptions` instance to set up the authentication:
 
 | Name | Description |
 | ---- | ----------- |
 | **ApplicationUuid** | Determines the unique identifier of the server application used for the MAuth service authentication requests. This uuid needs to be registered with the MAuth Server in order to use it. |
 | **MAuthServiceUrl** | Determines the endpoint of the MAuth authentication service. This endpoint is used by the authentication process to verify the validity of the signed request. |
-| **PrivateKey** | Determines the RSA private key of the server application for the authentication requests. This key must be in a PEM ASN.1 format. |
+| **PrivateKey** | Determines the RSA private key of the server application for the authentication requests. This key must be in a PEM ASN.1 format. The value of this property can be set as a valid path to a readable key file as well. |
 | **AuthenticateRequestTimeoutSeconds** | An optional parameter that determines the timeout in seconds for the MAuth authentication request - the MAuth component will try to reach the MAuth server for this duration before it throws an exception. If not specified, the default value will be **3 seconds**. |
 | **MAuthServiceRetryPolicy** | The policy for the retry attempts when communicating with the MAuth service. The following policies can be used: `NoRetry` (no retries), `RetryOnce` (one additional attempt), `RetryTwice` (two additional attempts) and `Agressive` (9 additional attempts) - the default value is **RetryOnce**. |
 | **HideExceptionsAndReturnForbidden** | An optional parameter that determines if the middleware should swallow all exceptions and return an empty HTTP response with a status code Forbidden (403) in case of any errors (including authentication and validation errors). The default is **true**. |
 | **Bypass** | Determines a function which evaluates if a given request should bypass the MAuth authentication. |
 
 The **HideExceptionsAndReturnForbidden** parameter is useful (if set to **false**) when you have an exception handler
-mechanism (for example a logger) in your OWIN pipeline. In this case the MAuth middleware won't swallow the exceptions
-but will throw them with full stack trace and details of the problem - as every authentication errors will throw a
-`Medidata.MAuth.Core.AuthenticationException` you can still return a Forbidden (403) HTTP status code in those
-cases.
+mechanism (for example a logger) in your middleware pipeline. In this case the MAuth middleware won't swallow the
+exceptions but will throw them with full stack trace and details of the problem - as every authentication errors will
+throw a `Medidata.MAuth.Core.AuthenticationException` you can still return a Forbidden (403) HTTP status code in
+those cases.
 In the other hand, if you don't use any exception handling mechanism, it is recommended to leave this feature disabled
 as setting this to **false** can possibly lead to exposing sensitive details about your application and the
 authentication process. Leaving this parameter as **true** will result the middleware to return a Forbidden (403) HTTP
 status code for every error without showing any details.
 
-The **Bypass** function takes a `IOwinRequest` instance and should produce **true** as a result, if the given request
-satisfies the conditions to bypass the authentication; otherwise it should result **false** therefore an authentication
-attempt will occur. If no Bypass predicate provided in the options, every request will be authenticated by default.
+The **Bypass** function takes a `IOwinRequest` in case of OWIN and an `HttpRequest` instance for ASP.NET Core and
+should produce **true** as a result, if the given request satisfies the conditions to bypass the authentication;
+otherwise it should result **false** therefore an authentication attempt will occur. If no Bypass predicate provided
+in the options, every request will be authenticated by default.
 
 ### Authenticating Incoming Requests with the WebApi Message Handler
 
-If your application does not use the OWIN middleware infrastructure, but it uses the ASP.NET WebAPI framework, the
-WebApi package provides an `MAuthAuthenticatingHandler` which can be assigned to WebAPI routes or the global
-handler collection in order to automatically authenticate incoming requests.
+If your application does not use the OWIN or ASP.NET Core middleware infrastructure, but it uses the ASP.NET WebAPI
+framework, the WebApi package provides an `MAuthAuthenticatingHandler` which can be assigned to WebAPI routes or
+the global handler collection in order to automatically authenticate incoming requests.
 
 For a global registration (that is, use MAuth authentication for all requests), you can register the handler as below
 (in your `WebApiConfig` class):
@@ -180,20 +223,20 @@ using Medidata.MAuth.WebApi;
 
 public static class WebApiConfig
 {
-	public static void Register(HttpConfiguration config)
-	{
-		var options = new MAuthWebApiOptions()
-		{
-			ApplicationUuid = new Guid("a419de8f-d759-4db9-b9a7-c2cd14174987"),
-			MAuthServiceUrl = new Uri("https://mauth.imedidata.com"),
-			AuthenticateRequestTimeoutSeconds = 3,
-			MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.RetryOnce,
-			HideExceptionsAndReturnForbidden = true,
-			PrivateKey = File.ReadAllText("ServerPrivateKey.pem")
-		};
+    public static void Register(HttpConfiguration config)
+    {
+        var options = new MAuthWebApiOptions()
+        {
+            ApplicationUuid = new Guid("a419de8f-d759-4db9-b9a7-c2cd14174987"),
+            MAuthServiceUrl = new Uri("https://mauth.imedidata.com"),
+            AuthenticateRequestTimeoutSeconds = 3,
+            MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.RetryOnce,
+            HideExceptionsAndReturnForbidden = true,
+            PrivateKey = "ServerPrivateKey.pem"
+        };
 
-		config.MessageHandlers.Add(new MAuthAuthenticatingHandler(options));
-	}
+        config.MessageHandlers.Add(new MAuthAuthenticatingHandler(options));
+    }
 }
 ```
 
@@ -204,23 +247,23 @@ using Medidata.MAuth.WebApi;
 
 public static class WebApiConfig
 {
-	public static void Register(HttpConfiguration config)
-	{
-		var options = // See the previous example
+    public static void Register(HttpConfiguration config)
+    {
+        var options = // See the previous example
 
-		config.Routes.MapHttpRoute(
-			name: "Route1",
-			routeTemplate: "api/{controller}/{id}",
-			defaults: new { id = RouteParameter.Optional },
-			constraints: null,
-			handler: new MAuthAuthenticatingHandler(options)
-		);
-	}
+        config.Routes.MapHttpRoute(
+            name: "Route1",
+            routeTemplate: "api/{controller}/{id}",
+            defaults: new { id = RouteParameter.Optional },
+            constraints: null,
+            handler: new MAuthAuthenticatingHandler(options)
+        );
+    }
 }
 ```
 
-In the examples above, the `MAuthWebApiOptions` instance has the same properties as the OWIN-specific
-`MAuthMiddlewareOptions`.
+In the examples above, the `MAuthWebApiOptions` instance has the same properties as the OWIN- and
+ASP.NET Core-specific `MAuthMiddlewareOptions`.
 
 ## Frequently Asked Questions
 
@@ -233,13 +276,17 @@ The framework is licensed under the [MIT licensing terms](https://github.com/mds
 The current target is **.NET Framework 4.5.2** - this means that you have to use at least this target framework version
 in your project in order to make Medidata.MAuth work for you.
 
-##### Is there an ASP.NET Core support?
+##### Is there an .NET Standard/Core support?
 
-Yes, we support .NET Core with netstandard1.4.
+Yes, for signing outgoing requests you can use the library with any framework which implements
+the **.NET Standard 1.4** and onwards; additionally we support the **ASP.NET Core App 1.1** and onwards with a middleware
+for authenticating the incoming requests.
 
 ##### What Cryptographic provider is used for the encryption/decryption?
 
-We are using the latest version (as of date 1.81) of the [BouncyCastle](https://github.com/bcgit/bc-csharp) library.
+On the .NET Framework side (WebAPI, Owin, Core) we are using the latest version (as of date 1.81) of the
+[BouncyCastle](https://github.com/bcgit/bc-csharp) library; on the .NET Standard side (Core, AspNetCore) we are using
+the portable fork of the [BouncyCastle](https://github.com/onovotny/BouncyCastle-PCL) library.
 
 ##### What are the major changes in the 2.0.0 version?
 

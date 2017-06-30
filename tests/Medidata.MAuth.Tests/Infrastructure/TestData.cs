@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 
-namespace Medidata.MAuth.Tests
+namespace Medidata.MAuth.Tests.Infrastructure
 {
-    [ExcludeFromCodeCoverage]
     internal class TestData
     {
         public HttpMethod Method { get; private set; }
@@ -19,7 +17,7 @@ namespace Medidata.MAuth.Tests
 
         public long SignedTimeUnixSeconds => SignedTime.ToUnixTimeSeconds();
 
-        public HttpRequestMessage Request => new HttpRequestMessage(Method, "http://localhost:29999")
+        public HttpRequestMessage Request => new HttpRequestMessage(Method, "http://localhost:29999/")
         {
             Content = Content != null ? new StringContent(Content) : null
         };
