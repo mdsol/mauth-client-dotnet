@@ -24,7 +24,7 @@ $propsVersion = $props.SelectSingleNode("//PropertyGroup/Version").InnerText
 if ($propsVersion.Contains("-")) { $propsVersion = $propsVersion.Substring(0, $propsVersion.IndexOf('-')) }
 
 if ($env:APPVEYOR_REPO_TAG -eq 'true') {
-    $version = $env:APPVEYOR_REPO_TAG_NAME.Replace("release", "").Replace("release/v", "")
+    $version = $env:APPVEYOR_REPO_TAG_NAME.Replace("release/v", "").Replace("release", "")
     Write-Host "$env:APPVEYOR_REPO_TAG_NAME" -ForegroundColor Cyan -NoNewline
 } else {
     $buildNo = $env:APPVEYOR_BUILD_NUMBER
