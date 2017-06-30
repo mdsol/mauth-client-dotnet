@@ -25,7 +25,7 @@ if ($propsVersion.Contains("-")) { $propsVersion = $propsVersion.Substring(0, $p
 
 if ($env:APPVEYOR_REPO_TAG -eq 'true') {
     $version = $env:APPVEYOR_REPO_TAG_NAME.Replace("release", "").Replace("release/v", "")
-    Write-Host "$(env:APPVEYOR_REPO_TAG_NAME)" -ForegroundColor Cyan -NoNewline
+    Write-Host "$env:APPVEYOR_REPO_TAG_NAME" -ForegroundColor Cyan -NoNewline
 } else {
     $buildNo = $env:APPVEYOR_BUILD_NUMBER
     $version = "$propsVersion-preview$buildNo"
