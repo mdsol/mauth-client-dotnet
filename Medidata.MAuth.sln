@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.13
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2A4336AA-6F7D-414B-AB2B-81A8F2E82A48}"
 EndProject
@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		CHANGELOG.md = CHANGELOG.md
 		LICENSE.md = LICENSE.md
 		README.md = README.md
+		version.props = version.props
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Medidata.MAuth.Core", "src\Medidata.MAuth.Core\Medidata.MAuth.Core.csproj", "{C9A9FECB-DB5B-40C3-B7CC-F0251853DDE6}"
@@ -29,7 +30,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F8B8C2CD
 		build\common.props = build\common.props
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Medidata.MAuth.AspNetCore", "src\Medidata.MAuth.AspNetCore\Medidata.MAuth.AspNetCore.csproj", "{1BC50789-3BAE-4D87-B89C-C2658BFF6522}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Medidata.MAuth.AspNetCore", "src\Medidata.MAuth.AspNetCore\Medidata.MAuth.AspNetCore.csproj", "{1BC50789-3BAE-4D87-B89C-C2658BFF6522}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
