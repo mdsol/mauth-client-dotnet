@@ -97,15 +97,12 @@ namespace Medidata.MAuth.Core
             if (signedTime == default(long))
                 throw new ArgumentException("Invalid MAuth signed time header value.", nameof(signedTime));
 
-            var match = Constants.AuthenticationHeaderRegex.Match(authHeader);
-
-            if (!match.Success)
-                throw new ArgumentException("Invalid MAuth authentication header value.", nameof(authHeader));
+            var (uuid, payload) = authHeader.ParseAuthenticationHeader();
 
             return new PayloadAuthenticationInfo()
             {
-                ApplicationUuid = new Guid(match.Groups["uuid"].Value),
-                Payload = Convert.FromBase64String(match.Groups["payload"].Value),
+                ApplicationUuid = uuid,
+                Payload = Convert.FromBase64String(payload),
                 SignedTime = signedTime.FromUnixTimeSeconds()
             };
         }

@@ -1,5 +1,8 @@
 # Changes in Medidata.MAuth
 
+## v2.4.0
+- **[Core]** Added a utility extension class to help using MAuth specific processing methods
+
 ## v2.3.0
 - **[AspNetCore]** Added a new middleware to be able to use MAuth with the ASP.NET Core MVC
 infrastructure
