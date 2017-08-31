@@ -27,6 +27,8 @@ namespace Medidata.MAuth.Owin
                     result.Content.Headers.TryAddWithoutValidation(header.Key, header.Value);
             }
 
+            request.Body.Rewind();
+
             return result;
         }
 

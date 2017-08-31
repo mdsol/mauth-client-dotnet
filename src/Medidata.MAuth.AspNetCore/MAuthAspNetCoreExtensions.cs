@@ -28,6 +28,8 @@ namespace Medidata.MAuth.AspNetCore
                     result.Content.Headers.TryAddWithoutValidation(header.Key, (IEnumerable<string>)header.Value);
             }
 
+            request.Body.Rewind();
+
             return result;
         }
 

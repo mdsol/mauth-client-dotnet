@@ -28,8 +28,7 @@ namespace Medidata.MAuth.Owin
                 return;
             }
 
-            if (context.Request.Body.CanSeek)
-                context.Request.Body.Seek(0, SeekOrigin.Begin);
+            context.Request.Body.Rewind();
 
             await Next.Invoke(context);
         }
