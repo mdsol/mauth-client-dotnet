@@ -16,17 +16,16 @@ namespace Medidata.MAuth.Owin
         /// <returns>The request message.</returns>
         public static HttpRequestMessage ToHttpRequestMessage(this IOwinRequest request)
         {
-            var result = new HttpRequestMessage(new HttpMethod(request.Method), request.Uri);
-            result.Content = new StreamContent(request.Body);
-            
+            var result = new HttpRequestMessage(new HttpMethod(request.Method), request.Uri)
+            {
+                Content = new StreamContent(request.Body)
+            };
+
             foreach (var header in request.Headers)
             {
                 if (!result.Headers.TryAddWithoutValidation(header.Key, header.Value))
                     result.Content.Headers.TryAddWithoutValidation(header.Key, header.Value);
             }
-
-            if (request.Body.CanSeek)
-                request.Body.Seek(0, SeekOrigin.Begin);
 
             return result;
         }
