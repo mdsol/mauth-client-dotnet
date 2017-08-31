@@ -228,6 +228,22 @@ namespace Medidata.MAuth.Core
             }
         }
 
+        /// <summary>
+        /// Sets the stream position to 0 if the stream is seekable; otherwise it will return the stream with its
+        /// current position.
+        /// </summary>
+        /// <param name="stream">The stream to rewind.</param>
+        /// <returns>
+        /// The passed stream with its position set to 0, or the position unchanged if the stream is not seekable.
+        /// </returns>
+        public static Stream Rewind(this Stream stream)
+        {
+            if (stream.CanSeek)
+                stream.Seek(0, SeekOrigin.Begin);
+
+            return stream;
+        }
+
         public static string Dereference(this string keyPathOrKey) =>
             keyPathOrKey.IsValidPath() ? File.ReadAllText(keyPathOrKey) : keyPathOrKey;
 

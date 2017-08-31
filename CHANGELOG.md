@@ -1,5 +1,9 @@
 # Changes in Medidata.MAuth
 
+## v2.4.1
+- **[AspNetCore]** **[Owin]** Fixed an issue with the request body being not rewound in the middlewares before passing
+down the chain
+
 ## v2.4.0
 - **[Core]** Added a utility extension class to help using MAuth specific processing methods
 
