@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Microsoft.AspNetCore.Http;
@@ -29,6 +30,8 @@ namespace Medidata.MAuth.AspNetCore
                 context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return;
             }
+
+            context.Request.Body.Rewind();
 
             await next.Invoke(context);
         }

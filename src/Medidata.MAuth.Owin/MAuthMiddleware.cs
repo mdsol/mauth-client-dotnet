@@ -1,8 +1,5 @@
 ﻿using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Mime;
-using System.Text;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Microsoft.Owin;
@@ -30,6 +27,8 @@ namespace Medidata.MAuth.Owin
                 context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return;
             }
+
+            context.Request.Body.Rewind();
 
             await Next.Invoke(context);
         }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
@@ -18,17 +17,16 @@ namespace Medidata.MAuth.AspNetCore
         /// <returns>The request message.</returns>
         public static HttpRequestMessage ToHttpRequestMessage(this HttpRequest request)
         {
-            var result = new HttpRequestMessage(new HttpMethod(request.Method), request.GetEncodedUrl());
-            result.Content = new StreamContent(request.Body);
+            var result = new HttpRequestMessage(new HttpMethod(request.Method), request.GetEncodedUrl())
+            {
+                Content = new StreamContent(request.Body)
+            };
 
             foreach (var header in request.Headers)
             {
                 if (!result.Headers.TryAddWithoutValidation(header.Key, (IEnumerable<string>)header.Value))
                     result.Content.Headers.TryAddWithoutValidation(header.Key, (IEnumerable<string>)header.Value);
             }
-
-            if (request.Body.CanSeek)
-                request.Body.Seek(0, SeekOrigin.Begin);
 
             return result;
         }
