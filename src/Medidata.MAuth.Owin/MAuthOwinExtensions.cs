@@ -27,8 +27,6 @@ namespace Medidata.MAuth.Owin
                     result.Content.Headers.TryAddWithoutValidation(header.Key, header.Value);
             }
 
-            request.Body.Rewind();
-
             return result;
         }
 
@@ -73,6 +71,8 @@ namespace Medidata.MAuth.Owin
 
             var body = new MemoryStream();
             await context.Request.Body.CopyToAsync(body);
+
+            body.Rewind();
 
             context.Request.Body = body;
         }
