@@ -73,7 +73,7 @@ namespace Medidata.MAuth.Tests
                 var response = await server.CreateClient().SendAsync(testData.Request);
 
                 // Assert
-                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+                Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
             }
         }
 
