@@ -31,7 +31,7 @@ namespace Medidata.MAuth.Tests
                     options.MAuthServiceUrl = TestExtensions.TestUri;
                     options.PrivateKey = TestExtensions.ServerPrivateKey;
                     options.MAuthServerHandler = new MAuthServerHandler();
-                    options.HideExceptionsAndReturnForbidden = false;
+                    options.HideExceptionsAndReturnUnauthorized = false;
                 });
 
                 app.Run(async context => await new StreamWriter(context.Response.Body).WriteAsync("Done."));
@@ -95,7 +95,7 @@ namespace Medidata.MAuth.Tests
                     options.MAuthServiceUrl = TestExtensions.TestUri;
                     options.PrivateKey = TestExtensions.ServerPrivateKey;
                     options.MAuthServerHandler = new MAuthServerHandler();
-                    options.HideExceptionsAndReturnForbidden = false;
+                    options.HideExceptionsAndReturnUnauthorized = false;
                 });
             })))
             {

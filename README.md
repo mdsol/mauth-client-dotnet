@@ -151,7 +151,7 @@ public class Startup
             options.MAuthServiceUrl = new Uri("https://mauth.imedidata.com");
             options.AuthenticateRequestTimeoutSeconds = 3;
             options.MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.RetryOnce;
-            options.HideExceptionsAndReturnForbidden = true;
+            options.HideExceptionsAndReturnUnauthorized = true;
             options.PrivateKey = "ServerPrivateKey.pem";
             options.Bypass = (request) => request.Uri.AbsolutePath.StartsWith("/allowed");
         });
@@ -174,7 +174,7 @@ public class Startup
             options.MAuthServiceUrl = new Uri("https://mauth.imedidata.com");
             options.AuthenticateRequestTimeoutSeconds = 3;
             options.MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.RetryOnce;
-            options.HideExceptionsAndReturnForbidden = true;
+            options.HideExceptionsAndReturnUnauthorized = true;
             options.PrivateKey = "ServerPrivateKey.pem";
             options.Bypass = (request) => request.Uri.AbsolutePath.StartsWith("/allowed");
         });
@@ -191,17 +191,17 @@ The middlewares take an `MAuthMiddlewareOptions` instance to set up the authenti
 | **PrivateKey** | Determines the RSA private key of the server application for the authentication requests. This key must be in a PEM ASN.1 format. The value of this property can be set as a valid path to a readable key file as well. |
 | **AuthenticateRequestTimeoutSeconds** | An optional parameter that determines the timeout in seconds for the MAuth authentication request - the MAuth component will try to reach the MAuth server for this duration before it throws an exception. If not specified, the default value will be **3 seconds**. |
 | **MAuthServiceRetryPolicy** | The policy for the retry attempts when communicating with the MAuth service. The following policies can be used: `NoRetry` (no retries), `RetryOnce` (one additional attempt), `RetryTwice` (two additional attempts) and `Agressive` (9 additional attempts) - the default value is **RetryOnce**. |
-| **HideExceptionsAndReturnForbidden** | An optional parameter that determines if the middleware should swallow all exceptions and return an empty HTTP response with a status code Forbidden (403) in case of any errors (including authentication and validation errors). The default is **true**. |
+| **HideExceptionsAndReturnUnauthorized** | An optional parameter that determines if the middleware should swallow all exceptions and return an empty HTTP response with a status code Unauthorized (401) in case of any errors (including authentication and validation errors). The default is **true**. |
 | **Bypass** | Determines a function which evaluates if a given request should bypass the MAuth authentication. |
 
-The **HideExceptionsAndReturnForbidden** parameter is useful (if set to **false**) when you have an exception handler
+The **HideExceptionsAndReturnUnauthorized** parameter is useful (if set to **false**) when you have an exception handler
 mechanism (for example a logger) in your middleware pipeline. In this case the MAuth middleware won't swallow the
 exceptions but will throw them with full stack trace and details of the problem - as every authentication errors will
-throw a `Medidata.MAuth.Core.AuthenticationException` you can still return a Forbidden (403) HTTP status code in
+throw a `Medidata.MAuth.Core.AuthenticationException` you can still return a Unauthorized (401) HTTP status code in
 those cases.
 In the other hand, if you don't use any exception handling mechanism, it is recommended to leave this feature disabled
 as setting this to **false** can possibly lead to exposing sensitive details about your application and the
-authentication process. Leaving this parameter as **true** will result the middleware to return a Forbidden (403) HTTP
+authentication process. Leaving this parameter as **true** will result the middleware to return a Unauthorized (401) HTTP
 status code for every error without showing any details.
 
 The **Bypass** function takes a `IOwinRequest` in case of OWIN and an `HttpRequest` instance for ASP.NET Core and
@@ -231,7 +231,7 @@ public static class WebApiConfig
             MAuthServiceUrl = new Uri("https://mauth.imedidata.com"),
             AuthenticateRequestTimeoutSeconds = 3,
             MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.RetryOnce,
-            HideExceptionsAndReturnForbidden = true,
+            HideExceptionsAndReturnUnauthorized = true,
             PrivateKey = "ServerPrivateKey.pem"
         };
 
