@@ -1,7 +1,7 @@
 # Changes in Medidata.MAuth
 
 ## v3.0.0
-- **[Breaking]** Changed the HTTP status code response in case of any errors (including authentication and validation errors) from Forbidden (403) to Unauthorized (401).  
+- **[All]** **Breaking** - Changed the HTTP status code response in case of any errors (including authentication and validation errors) from Forbidden (403) to Unauthorized (401).  
 `HideExceptionsAndReturnForbidden` property of MAuth option class has also been renamed to `HideExceptionsAndReturnUnauthorized`.
 
 ## v2.4.1
