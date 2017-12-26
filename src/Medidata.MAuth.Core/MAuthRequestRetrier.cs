@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 #if !NETSTANDARD1_4
 using System.Net.Cache;
 #endif
