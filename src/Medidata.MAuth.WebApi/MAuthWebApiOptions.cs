@@ -7,11 +7,11 @@ namespace Medidata.MAuth.WebApi
     /// </summary>
     public class MAuthWebApiOptions: MAuthOptionsBase
     {
-         /// <summary>
+        /// <summary>
         /// Determines if the message handler should swallow all exceptions and return an empty HTTP response with a
-        /// status code Forbidden (403) in case of any errors (including authentication and validation errors).
+        /// status code Unauthorized (401) in case of any errors (including authentication and validation errors).
         /// The default is <see langword="true"/>.
         /// </summary>
-        public bool HideExceptionsAndReturnForbidden { get; set; } = true;
+        public bool HideExceptionsAndReturnUnauthorized { get; set; } = true;
     }
 }
