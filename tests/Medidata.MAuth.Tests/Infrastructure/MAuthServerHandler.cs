@@ -29,7 +29,7 @@ namespace Medidata.MAuth.Tests.Infrastructure
                 await request.GetSignature(authInfo),
                 TestExtensions.ServerPublicKey
             ))
-                return new HttpResponseMessage(HttpStatusCode.Forbidden) { RequestMessage = request };
+                return new HttpResponseMessage(HttpStatusCode.Unauthorized) { RequestMessage = request };
 
             if (!request.RequestUri.AbsolutePath.Equals(
                 $"{Constants.MAuthTokenRequestPath}{clientUuid.ToHyphenString()}.json",

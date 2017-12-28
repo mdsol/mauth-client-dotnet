@@ -66,7 +66,7 @@ namespace Medidata.MAuth.Tests
                 var response = await server.SendAsync(testData.Request);
 
                 // Assert
-                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+                Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
             }
         }
 
@@ -86,7 +86,7 @@ namespace Medidata.MAuth.Tests
                 MAuthServiceUrl = TestExtensions.TestUri,
                 PrivateKey = TestExtensions.ServerPrivateKey,
                 MAuthServerHandler = new MAuthServerHandler(),
-                HideExceptionsAndReturnForbidden = false
+                HideExceptionsAndReturnUnauthorized = false
             });
 
             using (var server = new HttpClient(handler))

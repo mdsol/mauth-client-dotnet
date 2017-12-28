@@ -11,10 +11,10 @@ namespace Medidata.MAuth.AspNetCore
     {
         /// <summary>
         /// Determines if the middleware should swallow all exceptions and return an empty HTTP response with a
-        /// status code Forbidden (403) in case of any errors (including authentication and validation errors).
+        /// status code Unauthorized (401) in case of any errors (including authentication and validation errors).
         /// The default is <see langword="true"/>.
         /// </summary>
-        public bool HideExceptionsAndReturnForbidden { get; set; } = true;
+        public bool HideExceptionsAndReturnUnauthorized { get; set; } = true;
 
         /// <summary>
         /// Determines a function which evaluates if a given request should bypass the MAuth authentication.
