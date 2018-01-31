@@ -1,5 +1,8 @@
 # Changes in Medidata.MAuth
 
+## v3.0.1
+- **[Core]** Removed constraint for the application uuids to be only version 4. Now the MAuth header validation won't throw error if the provided uuid is not version 4.
+
 ## v3.0.0
 - **[All]** **Breaking** - Changed the HTTP status code response in case of any errors (including authentication and validation errors) from Forbidden (403) to Unauthorized (401).  
 `HideExceptionsAndReturnForbidden` property of MAuth option class has also been renamed to `HideExceptionsAndReturnUnauthorized`.
