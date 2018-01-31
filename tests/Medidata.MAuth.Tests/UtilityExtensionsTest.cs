@@ -37,6 +37,24 @@ namespace Medidata.MAuth.Tests
         }
 
         [Fact]
+        public async Task TryParseAuthenticationHeader_WithVersion1Uuid_WillSucceed()
+        {
+            // Arrange
+            var uuid = "1ebab21a-4b86-11e1-bcfe-123138140309";
+            var request = await TestData.For("GET");
+
+            var expected = (new Guid(uuid), request.Payload);
+
+            // Act
+            var result = request.MAuthHeader.Replace(TestExtensions.ClientUuid.ToString(), uuid)
+                .TryParseAuthenticationHeader(out var actual);
+
+            // Assert
+            Assert.True(result);
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
         public void ParseAuthenticationHeader_WithInvalidAuthHeader_WillThrowException()
         {
             // Arrange
