@@ -36,8 +36,7 @@ namespace Medidata.MAuth.Core
 
         /// <summary>
         /// Determines the message handler for the requests to the MAuth server.
-        /// This property is for testing purposes only.
         /// </summary>
-        internal HttpMessageHandler MAuthServerHandler { get; set; } 
+        public HttpMessageHandler MAuthServerHandler { get; set; } 
     }
 }
