@@ -62,7 +62,7 @@ namespace Medidata.MAuth.Core
 
         private async Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid) =>
             await (await retrier.GetSuccessfulResponse(applicationUuid, CreateRequest,
-                remainingAttempts: (int)options.MAuthServiceRetryPolicy + 1))
+                requestAttempts: (int)options.MAuthServiceRetryPolicy + 1))
             .Content
             .FromResponse();
 
