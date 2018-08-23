@@ -10,7 +10,6 @@ namespace Medidata.MAuth.Core
     internal class MAuthRequestRetrier
     {
         private readonly HttpClient client;
-        private RetriedRequestException exception;
 
         public MAuthRequestRetrier(MAuthOptionsBase options)
         {
@@ -35,32 +34,51 @@ namespace Medidata.MAuth.Core
         }
 
         public async Task<HttpResponseMessage> GetSuccessfulResponse(Guid applicationUuid,
-            Func<Guid, HttpRequestMessage> requestFactory, int remainingAttempts)
+            Func<Guid, HttpRequestMessage> requestFactory, int requestAttempts)
         {
-            var request = requestFactory?.Invoke(applicationUuid);
+            if (requestFactory == null)
+                throw new ArgumentNullException(nameof(requestFactory));
 
-            if (request == null)
-                throw new ArgumentNullException(
-                    nameof(requestFactory),
-                    "No request function provided or the provided request function resulted null request."
+            if (requestAttempts <= 0)
+                throw new ArgumentOutOfRangeException(
+                    nameof(requestAttempts),
+                    requestAttempts,
+                    "Request attempts was out of range. Must be greater than zero."
                 );
 
-            exception = exception ?? new RetriedRequestException(
-                $"Could not get a successful response from the MAuth Service after {remainingAttempts} attempts. " +
-                "Please see the responses for each attempt in the exception's Responses field.")
+            RetriedRequestException exception = null;
+            
+            int remainingAttempts = requestAttempts;
+            while (remainingAttempts > 0)
             {
-                Request = request
-            };
+                var request = requestFactory?.Invoke(applicationUuid);
 
-            if (remainingAttempts == 0)
-                throw exception;
+                if (request == null)
+                    throw new ArgumentException(
+                        "The provided request factory function resulted null request.",
+                        nameof(requestFactory)
+                    );
 
-            var result = await client.SendAsync(request).ConfigureAwait(continueOnCapturedContext: false);
+                var result = await client.SendAsync(request).ConfigureAwait(continueOnCapturedContext: false);
 
-            exception.Responses.Add(result);
+                if (result.IsSuccessStatusCode)
+                    return result;
 
-            return result.IsSuccessStatusCode ?
-                result : await GetSuccessfulResponse(applicationUuid, requestFactory, remainingAttempts - 1);
+                if (exception == null)
+                {
+                    exception = new RetriedRequestException(
+                        $"Could not get a successful response from the MAuth Service after {requestAttempts} attempts. " +
+                        "Please see the responses for each attempt in the exception's Responses field.")
+                    {
+                        Request = request
+                    };
+                }
+
+                exception.Responses.Add(result);
+                remainingAttempts--;
+            }
+
+            throw exception;
         }
     }
 }
