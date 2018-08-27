@@ -1,7 +1,10 @@
 # Changes in Medidata.MAuth
 
-## v3.0.2
+## v3.0.3
 - **[Core]** Fixed concurrency and memory issues with the `MAuthRequestRetrier`
+
+## v3.0.2
+- **[Core]** Exposed the `MAuthOptionsBase.MAuthServerHandler` property as public in order to be able to inject custom handlers for the MAuth server communication.
 
 ## v3.0.1
 - **[Core]** Removed constraint for the application uuids to be only version 4. Now the MAuth header validation won't throw error if the provided uuid is not version 4.
