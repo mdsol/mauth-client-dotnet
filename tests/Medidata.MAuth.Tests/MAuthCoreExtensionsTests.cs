@@ -66,9 +66,11 @@ namespace Medidata.MAuth.Tests
             var testData = await method.FromResource();
 
             var expectedSignature =
-                ($"{method}\n/\n{testData.Base64Content.ToStringContent()}\n" +
+                ($"{testData.Method}\n" +
+                 $"{testData.Url.AbsolutePath}\n" +
+                 $"{testData.Base64Content.ToStringContent()}\n" +
                  $"{testData.ApplicationUuidString}\n" +
-                 $"{testData.SignedTime.ToUnixTimeSeconds()}")
+                 $"{testData.SignedTimeUnixSeconds}")
                 .AsSHA512Hash();
 
             var authInfo = new PrivateKeyAuthenticationInfo()
