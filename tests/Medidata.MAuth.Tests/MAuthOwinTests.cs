@@ -69,7 +69,8 @@ namespace Medidata.MAuth.Tests
             }))
             {
                 // Act
-                var response = await server.HttpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, testData.Url));
+                var response = await server.HttpClient.SendAsync(
+                    new HttpRequestMessage(testData.Method.ToHttpMethod(), testData.Url));
 
                 // Assert
                 Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -102,7 +103,8 @@ namespace Medidata.MAuth.Tests
             {
                 // Act, Assert
                 var ex = await Assert.ThrowsAsync<AuthenticationException>(
-                    () => server.HttpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, testData.Url)));
+                    () => server.HttpClient.SendAsync(
+                        new HttpRequestMessage(testData.Method.ToHttpMethod(), testData.Url)));
 
                 Assert.Equal("The request has invalid MAuth authentication headers.", ex.Message);
                 Assert.NotNull(ex.InnerException);

@@ -87,5 +87,7 @@ namespace Medidata.MAuth.Tests.Infrastructure
 
         public static string ToStringContent(this string base64Content) =>
             base64Content == null ? null : Encoding.UTF8.GetString(Convert.FromBase64String(base64Content));
+
+        public static HttpMethod ToHttpMethod(this string method) => new HttpMethod(method);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Medidata.MAuth.AspNetCore;
 using Medidata.MAuth.Core;
@@ -38,8 +39,7 @@ namespace Medidata.MAuth.Tests
             })))
             {
                 // Act
-                var response = await server.CreateClient().SendAsync(
-                    await testData.ToHttpRequestMessage().Sign(TestExtensions.ClientOptions(testData.SignedTime)));
+                var response = await server.CreateClient().SendAsync(testData.ToHttpRequestMessage());
 
                 // Assert
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -70,7 +70,8 @@ namespace Medidata.MAuth.Tests
             })))
             {
                 // Act
-                var response = await server.CreateClient().SendAsync(testData.ToHttpRequestMessage());
+                var response = await server.CreateClient().SendAsync(
+                    new HttpRequestMessage(testData.Method.ToHttpMethod(), testData.Url));
 
                 // Assert
                 Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -101,7 +102,8 @@ namespace Medidata.MAuth.Tests
             {
                 // Act, Assert
                 var ex = await Assert.ThrowsAsync<AuthenticationException>(
-                    () => server.CreateClient().SendAsync(testData.ToHttpRequestMessage()));
+                    () => server.CreateClient().SendAsync(
+                        new HttpRequestMessage(testData.Method.ToHttpMethod(), testData.Url)));
 
                 Assert.Equal("The request has invalid MAuth authentication headers.", ex.Message);
                 Assert.NotNull(ex.InnerException);
@@ -139,8 +141,7 @@ namespace Medidata.MAuth.Tests
             })))
             {
                 // Act
-                var response = await server.CreateClient().SendAsync(
-                    await testData.ToHttpRequestMessage().Sign(TestExtensions.ClientOptions(testData.SignedTime)));
+                var response = await server.CreateClient().SendAsync(testData.ToHttpRequestMessage());
 
                 // Assert
                 Assert.True(canSeek);
