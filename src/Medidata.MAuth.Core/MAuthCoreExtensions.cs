@@ -54,13 +54,13 @@ namespace Medidata.MAuth.Core
         /// If the signed data matches the signature, it returns <see langword="true"/>; otherwise it
         /// returns <see langword="false"/>.
         /// </returns>
-        public static Task<bool> Verify(this byte[] signedData, byte[] signature, string publicKey)
+        public static bool Verify(this byte[] signedData, byte[] signature, string publicKey)
         {
             Pkcs1Encoding.StrictLengthEnabled = false;
             var cipher = CipherUtilities.GetCipher("RSA/ECB/PKCS1Padding");
             cipher.Init(false, publicKey.AsCipherParameters());
 
-            return Task.Run(() => cipher.DoFinal(signedData).SequenceEqual(signature));
+            return cipher.DoFinal(signedData).SequenceEqual(signature);
         }
 
         /// <summary>

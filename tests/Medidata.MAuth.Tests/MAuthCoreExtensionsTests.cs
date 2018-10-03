@@ -37,7 +37,7 @@ namespace Medidata.MAuth.Tests
         }
 
         [Fact]
-        public static async Task Verify_WithCorrectlySignedData_WillVerifyTheDataAsValid()
+        public static void Verify_WithCorrectlySignedData_WillVerifyTheDataAsValid()
         {
             // Arrange
             var signature = "This is a signature.";
@@ -49,7 +49,7 @@ namespace Medidata.MAuth.Tests
             var signedData = signer.ProcessBlock(unsignedData, 0, unsignedData.Length);
 
             // Act
-            var result = await signedData.Verify(Encoding.UTF8.GetBytes(signature), TestExtensions.ClientPublicKey);
+            var result = signedData.Verify(Encoding.UTF8.GetBytes(signature), TestExtensions.ClientPublicKey);
 
             // Assert
             Assert.True(result);
