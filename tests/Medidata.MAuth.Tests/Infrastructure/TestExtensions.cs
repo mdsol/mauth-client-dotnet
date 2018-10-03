@@ -1,8 +1,11 @@
 ﻿using System;
 using System.IO;
+using System.Net.Http;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Newtonsoft.Json;
 
 namespace Medidata.MAuth.Tests.Infrastructure
 {
@@ -57,9 +60,32 @@ namespace Medidata.MAuth.Tests.Infrastructure
             }
         }
 
+        public static async Task<RequestData> FromResource(this string requestDataName) =>
+            JsonConvert.DeserializeObject<RequestData>(
+                await GetStringFromResource($"Medidata.MAuth.Tests.Mocks.RequestData.{requestDataName}.json")
+            );
+
         private static Task<string> GetKeyFromResource(string keyName)
         {
             return GetStringFromResource($"Medidata.MAuth.Tests.Mocks.Keys.{keyName}.pem");
         }
+
+        public static HttpRequestMessage ToHttpRequestMessage(this RequestData data)
+        {
+            var result = new HttpRequestMessage(new HttpMethod(data.Method), data.Url)
+            {
+                Content = !string.IsNullOrEmpty(data.Base64Content) ?
+                    new ByteArrayContent(Convert.FromBase64String(data.Base64Content)) :
+                    null,
+            };
+
+            result.Headers.Add(Constants.MAuthHeaderKey, $"MWS {data.ApplicationUuidString}:{data.Payload}");
+            result.Headers.Add(Constants.MAuthTimeHeaderKey, data.SignedTimeUnixSeconds.ToString());
+
+            return result;
+        }
+
+        public static string ToStringContent(this string base64Content) =>
+            base64Content == null ? null : Encoding.UTF8.GetString(Convert.FromBase64String(base64Content));
     }
 }

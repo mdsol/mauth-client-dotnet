@@ -21,7 +21,7 @@ namespace Medidata.MAuth.Tests
         public async Task MAuthMiddleware_WithValidRequest_WillAuthenticate(string method)
         {
             // Arrange
-            var testData = await TestData.For(method);
+            var testData = await method.FromResource();
 
             using (var server = new TestServer(new WebHostBuilder().Configure(app =>
             {
@@ -39,7 +39,7 @@ namespace Medidata.MAuth.Tests
             {
                 // Act
                 var response = await server.CreateClient().SendAsync(
-                    await testData.Request.Sign(TestExtensions.ClientOptions(testData.SignedTime)));
+                    await testData.ToHttpRequestMessage().Sign(TestExtensions.ClientOptions(testData.SignedTime)));
 
                 // Assert
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -54,7 +54,7 @@ namespace Medidata.MAuth.Tests
         public async Task MAuthMiddleware_WithoutMAuthHeader_WillNotAuthenticate(string method)
         {
             // Arrange
-            var testData = await TestData.For(method);
+            var testData = await method.FromResource();
 
             using (var server = new TestServer(new WebHostBuilder().Configure(app =>
             {
@@ -70,7 +70,7 @@ namespace Medidata.MAuth.Tests
             })))
             {
                 // Act
-                var response = await server.CreateClient().SendAsync(testData.Request);
+                var response = await server.CreateClient().SendAsync(testData.ToHttpRequestMessage());
 
                 // Assert
                 Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -85,7 +85,7 @@ namespace Medidata.MAuth.Tests
         public async Task MAuthMiddleware_WithEnabledExceptions_WillThrowException(string method)
         {
             // Arrange
-            var testData = await TestData.For(method);
+            var testData = await method.FromResource();
 
             using (var server = new TestServer(new WebHostBuilder().Configure(app =>
             {
@@ -101,7 +101,7 @@ namespace Medidata.MAuth.Tests
             {
                 // Act, Assert
                 var ex = await Assert.ThrowsAsync<AuthenticationException>(
-                    () => server.CreateClient().SendAsync(testData.Request));
+                    () => server.CreateClient().SendAsync(testData.ToHttpRequestMessage()));
 
                 Assert.Equal("The request has invalid MAuth authentication headers.", ex.Message);
                 Assert.NotNull(ex.InnerException);
@@ -116,7 +116,7 @@ namespace Medidata.MAuth.Tests
         public async Task MAuthMiddleware_WithNonSeekableBodyStream_WillRestoreBodyStream(string method)
         {
             // Arrange
-            var testData = await TestData.For(method);
+            var testData = await method.FromResource();
             var canSeek = false;
             var body = string.Empty;
             using (var server = new TestServer(new WebHostBuilder().Configure(app =>
@@ -140,11 +140,11 @@ namespace Medidata.MAuth.Tests
             {
                 // Act
                 var response = await server.CreateClient().SendAsync(
-                    await testData.Request.Sign(TestExtensions.ClientOptions(testData.SignedTime)));
+                    await testData.ToHttpRequestMessage().Sign(TestExtensions.ClientOptions(testData.SignedTime)));
 
                 // Assert
                 Assert.True(canSeek);
-                Assert.Equal(testData.Content ?? string.Empty, body);
+                Assert.Equal(testData.Base64Content.ToStringContent() ?? string.Empty, body);
             }
         }
     }
