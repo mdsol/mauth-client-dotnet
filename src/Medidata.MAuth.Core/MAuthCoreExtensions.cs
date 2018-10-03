@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static Medidata.MAuth.Core.Constants;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Encodings;
@@ -73,11 +74,15 @@ namespace Medidata.MAuth.Core
         /// </param>
         /// <returns>A Task object which will result the SHA512 hash of the signature when it completes.</returns>
         public static async Task<byte[]> GetSignature(this HttpRequestMessage request, AuthenticationInfo authInfo) =>
-            ($"{request.Method.Method}\n" +
-            $"{request.RequestUri.AbsolutePath}\n" +
-            $"{(request.Content != null ? await request.Content.ReadAsStringAsync() : string.Empty)}\n" +
-            $"{authInfo.ApplicationUuid.ToHyphenString()}\n" +
-            $"{authInfo.SignedTime.ToUnixTimeSeconds()}")
+            new byte[][]
+            {
+                request.Method.Method.ToBytes(), NewLine,
+                request.RequestUri.AbsolutePath.ToBytes(), NewLine,
+                (request.Content != null ? await request.Content.ReadAsByteArrayAsync() : new byte[] { }), NewLine,
+                authInfo.ApplicationUuid.ToHyphenString().ToBytes(), NewLine,
+                authInfo.SignedTime.ToUnixTimeSeconds().ToString().ToBytes()
+            }
+            .Concat()
             .AsSHA512Hash();
 
         /// <summary>
@@ -124,8 +129,8 @@ namespace Medidata.MAuth.Core
                 $"MWS {authInfo.ApplicationUuid.ToHyphenString()}:" +
                 $"{await request.CalculatePayload(authInfo)}";
 
-            request.Headers.Add(Constants.MAuthHeaderKey, authHeader);
-            request.Headers.Add(Constants.MAuthTimeHeaderKey, authInfo.SignedTime.ToUnixTimeSeconds().ToString());
+            request.Headers.Add(MAuthHeaderKey, authHeader);
+            request.Headers.Add(MAuthTimeHeaderKey, authInfo.SignedTime.ToUnixTimeSeconds().ToString());
 
             return request;
         }
@@ -165,7 +170,7 @@ namespace Medidata.MAuth.Core
         /// <param name="value">The date and time to be converted.</param>
         /// <returns>The total seconds elapsed from the Unix epoch (1970-01-01 00:00:00).</returns>
         public static long ToUnixTimeSeconds(this DateTimeOffset value) =>
-            (long)(value - Constants.UnixEpoch).TotalSeconds;
+            (long)(value - UnixEpoch).TotalSeconds;
 
         /// <summary>
         /// Converts a <see cref="long"/> value that is a Unix time in seconds to a UTC <see cref="DateTimeOffset"/>. 
@@ -173,7 +178,7 @@ namespace Medidata.MAuth.Core
         /// <param name="value">The Unix time seconds to be converted.</param>
         /// <returns>The <see cref="DateTimeOffset"/> equivalent of the Unix time.</returns>
         public static DateTimeOffset FromUnixTimeSeconds(this long value) =>
-            Constants.UnixEpoch.AddSeconds(value);
+            UnixEpoch.AddSeconds(value);
 
 
         /// <summary>
@@ -209,6 +214,8 @@ namespace Medidata.MAuth.Core
         public static byte[] AsSHA512Hash(this string value) =>
             Hex.Encode(SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes(value)));
 
+        public static byte[] AsSHA512Hash(this byte[] value) =>
+            Hex.Encode(SHA512.Create().ComputeHash(value));
 
         /// <summary>
         /// Provides a string PEM (ASN.1) format key as an <see cref="ICipherParameters"/> object.
@@ -257,9 +264,25 @@ namespace Medidata.MAuth.Core
             key.Replace("\r", string.Empty).Replace("\n", string.Empty);
 
         private static string InsertLineBreakAfterBegin(this string key) =>
-            Regex.Replace(key, Constants.KeyNormalizeLinesStartRegexPattern, "${begin}\n");
+            Regex.Replace(key, KeyNormalizeLinesStartRegexPattern, "${begin}\n");
 
         private static string InsertLineBreakBeforeEnd(this string key) =>
-            Regex.Replace(key, Constants.KeyNormalizeLinesEndRegexPattern, "\n${end}");
+            Regex.Replace(key, KeyNormalizeLinesEndRegexPattern, "\n${end}");
+
+
+        private static byte[] ToBytes(this string value) => Encoding.UTF8.GetBytes(value);
+
+        private static byte[] Concat(this byte[][] values)
+        {
+            var result = new byte[values.Sum(x => x.Length)];
+            var offset = 0;
+            foreach (var value in values)
+            {
+                Buffer.BlockCopy(value, 0, result, offset, value.Length);
+                offset += value.Length;
+            }
+
+            return result;
+        }
     }
 }
