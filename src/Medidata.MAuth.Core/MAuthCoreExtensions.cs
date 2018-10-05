@@ -208,7 +208,7 @@ namespace Medidata.MAuth.Core
         /// <param name="value">The value for calculating the hash.</param>
         /// <returns>The SHA512 hash of the input value as a hex-encoded byte array.</returns>
         public static byte[] AsSHA512Hash(this string value) =>
-            Hex.Encode(SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes(value)));
+            AsSHA512Hash(Encoding.UTF8.GetBytes(value));
 
         public static byte[] AsSHA512Hash(this byte[] value) =>
             Hex.Encode(SHA512.Create().ComputeHash(value));
