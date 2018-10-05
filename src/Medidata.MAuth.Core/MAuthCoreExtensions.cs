@@ -8,7 +8,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using static Medidata.MAuth.Core.Constants;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Encodings;
@@ -76,10 +75,11 @@ namespace Medidata.MAuth.Core
         public static async Task<byte[]> GetSignature(this HttpRequestMessage request, AuthenticationInfo authInfo) =>
             new byte[][]
             {
-                request.Method.Method.ToBytes(), NewLine,
-                request.RequestUri.AbsolutePath.ToBytes(), NewLine,
-                (request.Content != null ? await request.Content.ReadAsByteArrayAsync() : new byte[] { }), NewLine,
-                authInfo.ApplicationUuid.ToHyphenString().ToBytes(), NewLine,
+                request.Method.Method.ToBytes(), Constants.NewLine,
+                request.RequestUri.AbsolutePath.ToBytes(), Constants.NewLine,
+                (request.Content != null ? await request.Content.ReadAsByteArrayAsync() : new byte[] { }),
+                Constants.NewLine,
+                authInfo.ApplicationUuid.ToHyphenString().ToBytes(), Constants.NewLine,
                 authInfo.SignedTime.ToUnixTimeSeconds().ToString().ToBytes()
             }
             .Concat()
@@ -129,8 +129,8 @@ namespace Medidata.MAuth.Core
                 $"MWS {authInfo.ApplicationUuid.ToHyphenString()}:" +
                 $"{await request.CalculatePayload(authInfo)}";
 
-            request.Headers.Add(MAuthHeaderKey, authHeader);
-            request.Headers.Add(MAuthTimeHeaderKey, authInfo.SignedTime.ToUnixTimeSeconds().ToString());
+            request.Headers.Add(Constants.MAuthHeaderKey, authHeader);
+            request.Headers.Add(Constants.MAuthTimeHeaderKey, authInfo.SignedTime.ToUnixTimeSeconds().ToString());
 
             return request;
         }
@@ -170,7 +170,7 @@ namespace Medidata.MAuth.Core
         /// <param name="value">The date and time to be converted.</param>
         /// <returns>The total seconds elapsed from the Unix epoch (1970-01-01 00:00:00).</returns>
         public static long ToUnixTimeSeconds(this DateTimeOffset value) =>
-            (long)(value - UnixEpoch).TotalSeconds;
+            (long)(value - Constants.UnixEpoch).TotalSeconds;
 
         /// <summary>
         /// Converts a <see cref="long"/> value that is a Unix time in seconds to a UTC <see cref="DateTimeOffset"/>. 
@@ -178,7 +178,7 @@ namespace Medidata.MAuth.Core
         /// <param name="value">The Unix time seconds to be converted.</param>
         /// <returns>The <see cref="DateTimeOffset"/> equivalent of the Unix time.</returns>
         public static DateTimeOffset FromUnixTimeSeconds(this long value) =>
-            UnixEpoch.AddSeconds(value);
+            Constants.UnixEpoch.AddSeconds(value);
 
 
         /// <summary>
@@ -197,14 +197,10 @@ namespace Medidata.MAuth.Core
         /// <param name="headers">The collection of the HTTP headers to search in.</param>
         /// <param name="key">The key to search in the headers collection.</param>
         /// <returns>The value if found; otherwise a default value for the given type.</returns>
-        public static TValue GetFirstValueOrDefault<TValue>(this HttpHeaders headers, string key)
-        {
-            IEnumerable<string> values;
-
-            return headers.TryGetValues(key, out values) ?
+        public static TValue GetFirstValueOrDefault<TValue>(this HttpHeaders headers, string key) =>
+            headers.TryGetValues(key, out IEnumerable<string> values) ?
                 (TValue)Convert.ChangeType(values.First(), typeof(TValue)) :
                 default(TValue);
-        }
 
         /// <summary>
         /// Provides an SHA512 hash value of a string.
@@ -264,10 +260,10 @@ namespace Medidata.MAuth.Core
             key.Replace("\r", string.Empty).Replace("\n", string.Empty);
 
         private static string InsertLineBreakAfterBegin(this string key) =>
-            Regex.Replace(key, KeyNormalizeLinesStartRegexPattern, "${begin}\n");
+            Regex.Replace(key, Constants.KeyNormalizeLinesStartRegexPattern, "${begin}\n");
 
         private static string InsertLineBreakBeforeEnd(this string key) =>
-            Regex.Replace(key, KeyNormalizeLinesEndRegexPattern, "\n${end}");
+            Regex.Replace(key, Constants.KeyNormalizeLinesEndRegexPattern, "\n${end}");
 
 
         private static byte[] ToBytes(this string value) => Encoding.UTF8.GetBytes(value);
