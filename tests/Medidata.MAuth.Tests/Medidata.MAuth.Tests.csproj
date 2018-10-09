@@ -12,25 +12,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Mocks\RequestData\Delete.json" />
+    <None Remove="Mocks\RequestData\Get.json" />
+    <None Remove="Mocks\RequestData\Post.json" />
+    <None Remove="Mocks\RequestData\Put.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="Mocks\Keys\ClientPrivateKey.pem" />
     <EmbeddedResource Include="Mocks\Keys\ClientPublicKey.pem" />
     <EmbeddedResource Include="Mocks\Keys\LinuxLineEnding.pem" />
     <EmbeddedResource Include="Mocks\Keys\NoLineEnding.pem" />
     <EmbeddedResource Include="Mocks\Keys\ServerPrivateKey.pem" />
     <EmbeddedResource Include="Mocks\Keys\ServerPublicKey.pem" />
-    <EmbeddedResource Include="Mocks\Requests\DELETE.txt" />
-    <EmbeddedResource Include="Mocks\Requests\GET.txt" />
-    <EmbeddedResource Include="Mocks\Requests\POST.txt" />
-    <EmbeddedResource Include="Mocks\Requests\PUT.txt" />
-    <None Update="Mocks\Keys\LinuxLineEnding.pem">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Mocks\Keys\NoLineEnding.pem">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Mocks\Keys\WindowsLineEnding.pem">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <EmbeddedResource Include="Mocks\RequestData\DELETE.json" />
+    <EmbeddedResource Include="Mocks\RequestData\GET.json" />
+    <EmbeddedResource Include="Mocks\RequestData\PUT.json" />
+    <EmbeddedResource Include="Mocks\RequestData\POST.json" />
+    <EmbeddedResource Include="Mocks\RequestData\POSTWithBinaryData.json" />
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -62,6 +61,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="1.1.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.0-beta2-build3683" />

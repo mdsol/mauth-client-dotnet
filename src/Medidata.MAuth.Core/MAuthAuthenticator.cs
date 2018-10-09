@@ -35,7 +35,7 @@ namespace Medidata.MAuth.Core
                 var authInfo = request.GetAuthenticationInfo();
                 var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid);
 
-                return await authInfo.Payload.Verify(await request.GetSignature(authInfo), appInfo.PublicKey);
+                return authInfo.Payload.Verify(await request.GetSignature(authInfo), appInfo.PublicKey);
             }
             catch (ArgumentException ex)
             {

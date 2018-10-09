@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Medidata.MAuth.Core
@@ -27,5 +28,7 @@ namespace Medidata.MAuth.Core
         public static readonly string KeyNormalizeLinesStartRegexPattern = "^(?<begin>-----BEGIN [A-Z ]+[-]+)";
 
         public static readonly string KeyNormalizeLinesEndRegexPattern = "(?<end>-----END [A-Z ]+[-]+)$";
+
+        public static readonly byte[] NewLine = Encoding.UTF8.GetBytes("\n");
     }
 }

@@ -8,49 +8,46 @@ using Xunit;
 
 namespace Medidata.MAuth.Tests
 {
-    public class MAuthAuthenticatorTests
+    public static class MAuthAuthenticatorTests
     {
         [Theory]
         [InlineData(null, "private key")]
         [InlineData("http://localhost", null)]
-        public void MAuthAuthenticator_WithInvalidOptions_WillThrowException(string mauthServiceUrl, string privateKey)
-        {
-            // Assert
+        public static void MAuthAuthenticator_WithInvalidOptions_WillThrowException(
+            string mauthServiceUrl, string privateKey) =>
             Assert.Throws<ArgumentNullException>(() => new MAuthAuthenticator(new MAuthTestOptions()
             {
                 ApplicationUuid = TestExtensions.ClientUuid,
                 MAuthServiceUrl = mauthServiceUrl != null ? new Uri(mauthServiceUrl) : null,
                 PrivateKey = privateKey
             }));
-        }
 
         [Fact]
-        public void MAuthAuthenticator_WithDefaultUuid_WillThrowException()
-        {
+        public static void MAuthAuthenticator_WithDefaultUuid_WillThrowException() =>
             Assert.Throws<ArgumentException>(() => new MAuthAuthenticator(new MAuthTestOptions()
-            {
-                ApplicationUuid = default(Guid)
-            }));
-        }
+        {
+            ApplicationUuid = default(Guid)
+        }));
 
         [Theory]
         [InlineData("GET")]
         [InlineData("DELETE")]
         [InlineData("POST")]
         [InlineData("PUT")]
-        public async Task AuthenticateRequest_WithValidRequest_WillAuthenticate(string method)
+        public static async Task AuthenticateRequest_WithValidRequest_WillAuthenticate(string method)
         {
             // Arrange
-            var testData = await TestData.For(method);
+            var testData = await method.FromResource();
 
             var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions);
 
-            var signedRequest = await testData.Request.AddAuthenticationInfo(new PrivateKeyAuthenticationInfo()
-            {
-                ApplicationUuid = TestExtensions.ClientUuid,
-                PrivateKey = TestExtensions.ClientPrivateKey,
-                SignedTime = testData.SignedTime
-            });
+            var signedRequest = await testData.ToHttpRequestMessage()
+                .AddAuthenticationInfo(new PrivateKeyAuthenticationInfo()
+                {
+                    ApplicationUuid = testData.ApplicationUuid,
+                    PrivateKey = TestExtensions.ClientPrivateKey,
+                    SignedTime = testData.SignedTime
+                });
 
             // Act
             var isAuthenticated = await authenticator.AuthenticateRequest(signedRequest);
@@ -65,20 +62,22 @@ namespace Medidata.MAuth.Tests
         [InlineData(MAuthServiceRetryPolicy.RetryOnce)]
         [InlineData(MAuthServiceRetryPolicy.RetryTwice)]
         [InlineData(MAuthServiceRetryPolicy.Agressive)]
-        public async Task AuthenticateRequest_WithNumberOfAttempts_WillAuthenticate(MAuthServiceRetryPolicy policy)
+        public static async Task AuthenticateRequest_WithNumberOfAttempts_WillAuthenticate(
+            MAuthServiceRetryPolicy policy)
         {
             // Arrange
-            var testData = await TestData.For("GET");
+            var testData = await "GET".FromResource();
 
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
                 policy, shouldSucceedWithin: true));
 
-            var signedRequest = await testData.Request.AddAuthenticationInfo(new PrivateKeyAuthenticationInfo()
-            {
-                ApplicationUuid = TestExtensions.ClientUuid,
-                PrivateKey = TestExtensions.ClientPrivateKey,
-                SignedTime = testData.SignedTime
-            });
+            var signedRequest = await testData.ToHttpRequestMessage()
+                .AddAuthenticationInfo(new PrivateKeyAuthenticationInfo()
+                {
+                    ApplicationUuid = testData.ApplicationUuid,
+                    PrivateKey = TestExtensions.ClientPrivateKey,
+                    SignedTime = testData.SignedTime
+                });
 
             // Act
             var isAuthenticated = await authenticator.AuthenticateRequest(signedRequest);
@@ -92,21 +91,22 @@ namespace Medidata.MAuth.Tests
         [InlineData(MAuthServiceRetryPolicy.RetryOnce)]
         [InlineData(MAuthServiceRetryPolicy.RetryTwice)]
         [InlineData(MAuthServiceRetryPolicy.Agressive)]
-        public async Task AuthenticateRequest_AfterNumberOfAttempts_WillThrowExceptionWithRequestFailure(
+        public static async Task AuthenticateRequest_AfterNumberOfAttempts_WillThrowExceptionWithRequestFailure(
             MAuthServiceRetryPolicy policy)
         {
             // Arrange
-            var testData = await TestData.For("GET");
+            var testData = await "GET".FromResource();
 
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
                 policy, shouldSucceedWithin: false));
 
-            var signedRequest = await testData.Request.AddAuthenticationInfo(new PrivateKeyAuthenticationInfo()
-            {
-                ApplicationUuid = TestExtensions.ClientUuid,
-                PrivateKey = TestExtensions.ClientPrivateKey,
-                SignedTime = testData.SignedTime
-            });
+            var signedRequest = await testData.ToHttpRequestMessage()
+                .AddAuthenticationInfo(new PrivateKeyAuthenticationInfo()
+                {
+                    ApplicationUuid = testData.ApplicationUuid,
+                    PrivateKey = TestExtensions.ClientPrivateKey,
+                    SignedTime = testData.SignedTime
+                });
 
             // Act
             var exception = (await Assert.ThrowsAsync<AuthenticationException>(
@@ -125,14 +125,14 @@ namespace Medidata.MAuth.Tests
         [InlineData("DELETE")]
         [InlineData("POST")]
         [InlineData("PUT")]
-        public async Task SignRequest_WithValidRequest_WillSignProperly(string method)
+        public static async Task SignRequest_WithValidRequest_WillSignProperly(string method)
         {
             // Arrange
-            var testData = await TestData.For(method);
-            var expectedMAuthHeader = $"MWS {TestExtensions.ClientUuid.ToHyphenString()}:{testData.Payload}";
+            var testData = await method.FromResource();
+            var expectedMAuthHeader = testData.MAuthHeader;
 
             // Act
-            var actual = await testData.Request.Sign(TestExtensions.ClientOptions(testData.SignedTime));
+            var actual = await testData.ToHttpRequestMessage().Sign(TestExtensions.ClientOptions(testData.SignedTime));
 
             // Assert
             Assert.Equal(expectedMAuthHeader, actual.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey));
