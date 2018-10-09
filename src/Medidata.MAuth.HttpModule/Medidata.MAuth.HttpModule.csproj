@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\common.props" />
+
+  <PropertyGroup>
+    <Description>This package contains an HTTPModule to validate signed http requests with the Medidata MAuth protocol. The HttpModule communicates with an MAuth server in order to confirm the validity of the request authentication header. Include this package in your .NET Framework Web application if you want to authenticate the api requests signed with the MAuth protocol.</Description>
+    <AssemblyTitle>Medidata.MAuth.HttpModule</AssemblyTitle>
+    <TargetFramework>net452</TargetFramework>
+    <AssemblyName>Medidata.MAuth.HttpModule</AssemblyName>
+    <PackageTags>medidata;mauth;hmac;authentication;httpmodule</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Medidata.MAuth.Core\Medidata.MAuth.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
+</Project>
