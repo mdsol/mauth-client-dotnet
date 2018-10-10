@@ -8,17 +8,17 @@ using Xunit;
 
 namespace Medidata.MAuth.Tests
 {
-    public class MAuthWebApiTests
+    public static class MAuthWebApiTests
     {
         [Theory]
         [InlineData("GET")]
         [InlineData("DELETE")]
         [InlineData("POST")]
         [InlineData("PUT")]
-        public async Task MAuthAuthenticatingHandler_WithValidRequest_WillAuthenticate(string method)
+        public static async Task MAuthAuthenticatingHandler_WithValidRequest_WillAuthenticate(string method)
         {
             // Arrange
-            var testData = await TestData.For(method);
+            var testData = await method.FromResource();
             var actual = new AssertSigningHandler();
 
             var handler = new MAuthAuthenticatingHandler(new MAuthWebApiOptions()
@@ -32,8 +32,7 @@ namespace Medidata.MAuth.Tests
             using (var server = new HttpClient(handler))
             {
                 // Act
-                var response = await server.SendAsync(
-                    await testData.Request.Sign(TestExtensions.ClientOptions(testData.SignedTime)));
+                var response = await server.SendAsync(testData.ToHttpRequestMessage());
 
                 // Assert
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -47,10 +46,10 @@ namespace Medidata.MAuth.Tests
         [InlineData("DELETE")]
         [InlineData("POST")]
         [InlineData("PUT")]
-        public async Task MAuthAuthenticatingHandler_WithoutMAuthHeader_WillNotAuthenticate(string method)
+        public static async Task MAuthAuthenticatingHandler_WithoutMAuthHeader_WillNotAuthenticate(string method)
         {
             // Arrange
-            var testData = await TestData.For(method);
+            var testData = await method.FromResource();
 
             var handler = new MAuthAuthenticatingHandler(new MAuthWebApiOptions()
             {
@@ -63,7 +62,8 @@ namespace Medidata.MAuth.Tests
             using (var server = new HttpClient(handler))
             {
                 // Act
-                var response = await server.SendAsync(testData.Request);
+                var response = await server.SendAsync(
+                    new HttpRequestMessage(testData.Method.ToHttpMethod(), testData.Url));
 
                 // Assert
                 Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -75,10 +75,10 @@ namespace Medidata.MAuth.Tests
         [InlineData("DELETE")]
         [InlineData("POST")]
         [InlineData("PUT")]
-        public async Task MAuthAuthenticatingHandler_WithEnabledExceptions_WillThrowException(string method)
+        public static async Task MAuthAuthenticatingHandler_WithEnabledExceptions_WillThrowException(string method)
         {
             // Arrange
-            var testData = await TestData.For(method);
+            var testData = await method.FromResource();
 
             var handler = new MAuthAuthenticatingHandler(new MAuthWebApiOptions()
             {
@@ -93,7 +93,8 @@ namespace Medidata.MAuth.Tests
             {
                 // Act, Assert
                 var ex = await Assert.ThrowsAsync<AuthenticationException>(
-                    () => server.SendAsync(testData.Request));
+                    () => server.SendAsync(
+                        new HttpRequestMessage(testData.Method.ToHttpMethod(), testData.Url)));
 
                 Assert.Equal("The request has invalid MAuth authentication headers.", ex.Message);
                 Assert.NotNull(ex.InnerException);

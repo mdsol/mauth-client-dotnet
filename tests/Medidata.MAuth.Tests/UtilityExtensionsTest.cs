@@ -6,14 +6,14 @@ using Xunit;
 
 namespace Medidata.MAuth.Tests
 {
-    public class UtilityExtensionsTest
+    public static class UtilityExtensionsTest
     {
         [Fact]
-        public async Task TryParseAuthenticationHeader_WithValidAuthHeader_WillSucceed()
+        public static async Task TryParseAuthenticationHeader_WithValidAuthHeader_WillSucceed()
         {
             // Arrange
-            var request = await TestData.For("GET");
-            var expected = (TestExtensions.ClientUuid, request.Payload);
+            var request = await "GET".FromResource();
+            var expected = (request.ApplicationUuid, request.Payload);
 
             // Act
             var result = request.MAuthHeader.TryParseAuthenticationHeader(out var actual);
@@ -24,7 +24,7 @@ namespace Medidata.MAuth.Tests
         }
 
         [Fact]
-        public void TryParseAuthenticationHeader_WithInvalidAuthHeader_WillFail()
+        public static void TryParseAuthenticationHeader_WithInvalidAuthHeader_WillFail()
         {
             // Arrange
             var invalid = "invalid";
@@ -37,7 +37,7 @@ namespace Medidata.MAuth.Tests
         }
 
         [Fact]
-        public void ParseAuthenticationHeader_WithInvalidAuthHeader_WillThrowException()
+        public static void ParseAuthenticationHeader_WithInvalidAuthHeader_WillThrowException()
         {
             // Arrange
             var invalid = "invalid";

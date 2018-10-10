@@ -53,13 +53,13 @@ namespace Medidata.MAuth.Core
         /// If the signed data matches the signature, it returns <see langword="true"/>; otherwise it
         /// returns <see langword="false"/>.
         /// </returns>
-        public static Task<bool> Verify(this byte[] signedData, byte[] signature, string publicKey)
+        public static bool Verify(this byte[] signedData, byte[] signature, string publicKey)
         {
             Pkcs1Encoding.StrictLengthEnabled = false;
             var cipher = CipherUtilities.GetCipher("RSA/ECB/PKCS1Padding");
             cipher.Init(false, publicKey.AsCipherParameters());
 
-            return Task.Run(() => cipher.DoFinal(signedData).SequenceEqual(signature));
+            return cipher.DoFinal(signedData).SequenceEqual(signature);
         }
 
         /// <summary>
@@ -73,11 +73,16 @@ namespace Medidata.MAuth.Core
         /// </param>
         /// <returns>A Task object which will result the SHA512 hash of the signature when it completes.</returns>
         public static async Task<byte[]> GetSignature(this HttpRequestMessage request, AuthenticationInfo authInfo) =>
-            ($"{request.Method.Method}\n" +
-            $"{request.RequestUri.AbsolutePath}\n" +
-            $"{(request.Content != null ? await request.Content.ReadAsStringAsync() : string.Empty)}\n" +
-            $"{authInfo.ApplicationUuid.ToHyphenString()}\n" +
-            $"{authInfo.SignedTime.ToUnixTimeSeconds()}")
+            new byte[][]
+            {
+                request.Method.Method.ToBytes(), Constants.NewLine,
+                request.RequestUri.AbsolutePath.ToBytes(), Constants.NewLine,
+                (request.Content != null ? await request.Content.ReadAsByteArrayAsync() : new byte[] { }),
+                Constants.NewLine,
+                authInfo.ApplicationUuid.ToHyphenString().ToBytes(), Constants.NewLine,
+                authInfo.SignedTime.ToUnixTimeSeconds().ToString().ToBytes()
+            }
+            .Concat()
             .AsSHA512Hash();
 
         /// <summary>
@@ -192,14 +197,10 @@ namespace Medidata.MAuth.Core
         /// <param name="headers">The collection of the HTTP headers to search in.</param>
         /// <param name="key">The key to search in the headers collection.</param>
         /// <returns>The value if found; otherwise a default value for the given type.</returns>
-        public static TValue GetFirstValueOrDefault<TValue>(this HttpHeaders headers, string key)
-        {
-            IEnumerable<string> values;
-
-            return headers.TryGetValues(key, out values) ?
+        public static TValue GetFirstValueOrDefault<TValue>(this HttpHeaders headers, string key) =>
+            headers.TryGetValues(key, out IEnumerable<string> values) ?
                 (TValue)Convert.ChangeType(values.First(), typeof(TValue)) :
                 default(TValue);
-        }
 
         /// <summary>
         /// Provides an SHA512 hash value of a string.
@@ -207,8 +208,10 @@ namespace Medidata.MAuth.Core
         /// <param name="value">The value for calculating the hash.</param>
         /// <returns>The SHA512 hash of the input value as a hex-encoded byte array.</returns>
         public static byte[] AsSHA512Hash(this string value) =>
-            Hex.Encode(SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes(value)));
+            AsSHA512Hash(Encoding.UTF8.GetBytes(value));
 
+        public static byte[] AsSHA512Hash(this byte[] value) =>
+            Hex.Encode(SHA512.Create().ComputeHash(value));
 
         /// <summary>
         /// Provides a string PEM (ASN.1) format key as an <see cref="ICipherParameters"/> object.
@@ -261,5 +264,21 @@ namespace Medidata.MAuth.Core
 
         private static string InsertLineBreakBeforeEnd(this string key) =>
             Regex.Replace(key, Constants.KeyNormalizeLinesEndRegexPattern, "\n${end}");
+
+
+        private static byte[] ToBytes(this string value) => Encoding.UTF8.GetBytes(value);
+
+        private static byte[] Concat(this byte[][] values)
+        {
+            var result = new byte[values.Sum(x => x.Length)];
+            var offset = 0;
+            foreach (var value in values)
+            {
+                Buffer.BlockCopy(value, 0, result, offset, value.Length);
+                offset += value.Length;
+            }
+
+            return result;
+        }
     }
 }

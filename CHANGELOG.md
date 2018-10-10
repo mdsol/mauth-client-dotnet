@@ -1,5 +1,8 @@
 # Changes in Medidata.MAuth
 
+## v3.0.4
+- **[Core]** Fixed an issue with HTTP requests having binary content (the authentication was failing in this case)
+
 ## v3.0.3
 - **[Core]** Fixed concurrency and memory issues with the `MAuthRequestRetrier`
 
