@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Medidata.MAuth.Core
 {
@@ -55,5 +57,15 @@ namespace Medidata.MAuth.Core
 
             return true;
         }
+
+        /// <summary>
+        /// Authenticates a <see cref="HttpRequestMessage"/> with the provided options.
+        /// </summary>
+        /// <param name="request">The requesst message to authenticate.</param>
+        /// <param name="options">The MAuth options to use for the authentication.</param>
+        /// <returns>The task for the operation that is when completes will result in <see langword="true"/> if
+        /// the authentication is successful; otherwise <see langword="false"/>.</returns>
+        public static Task<bool> Authenticate(this HttpRequestMessage request, MAuthOptionsBase options) =>
+            new MAuthAuthenticator(options).AuthenticateRequest(request);
     }
 }
