@@ -6,31 +6,38 @@ using System.Web;
 
 namespace Medidata.MAuth.HttpModule
 {
+    /// <summary>
+    /// TODO..
+    /// </summary>
     public static class HttpExtensions
     {
-        public static HttpRequestMessage GetRequestForContext(this HttpContext context)
+        /// <summary>
+        /// TODO..
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public static HttpRequestMessage GetRequestForContext(this HttpRequest request)
         {
-            var request = context.Request;
             var requestMessage = new HttpRequestMessage(new HttpMethod(request.HttpMethod), request.Url);
 
-            foreach (string key in request.Headers)
-                requestMessage.Headers.TryAddWithoutValidation(key, request.Headers[key]);
+            if (request.InputStream == null || request.InputStream == Stream.Null || request.InputStream.CanSeek)
+                requestMessage.Content = new StreamContent(request.InputStream);
 
-            var memoryStream = new MemoryStream();
-            if (request.ContentLength > 0)
+            foreach (string key in request.Headers)
             {
-                request.InputStream.CopyTo(memoryStream);
-                memoryStream.Position = 0;
-                requestMessage.Content = new StreamContent(memoryStream);
+                if (!requestMessage.Headers.TryAddWithoutValidation(key, request.Headers[key]))
+                    requestMessage.Content.Headers.TryAddWithoutValidation(key, request.Headers[key]);
             }
 
             return requestMessage;
         }
-        public static HttpResponseBase GetResponseForContext(this HttpContext context)
-        {
-            return new HttpResponseWrapper(context.Response);
-        }
 
+        /// <summary>
+        /// TODO..
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="paths"></param>
+        /// <returns></returns>
         public static bool PathIsIn(this HttpRequestMessage request, IEnumerable<string> paths)
         {
             return

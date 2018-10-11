@@ -5,9 +5,16 @@ using System.Linq;
 
 namespace Medidata.MAuth.HttpModule.Configurations
 {
-    public class MAuthHttpModuleConfig : IMAuthHttpModuleConfig
+    /// <summary>
+    /// TODO..
+    /// </summary>
+    public class AppsettingsToOptionsGenerator : IMAuthHttpModuleOptionsGenerator
     {
-        public MAuthAuthenticationModuleOptions GetMAuthAuthenticationModuleOptions()
+        /// <summary>
+        /// TODO...
+        /// </summary>
+        /// <returns></returns>
+        public MAuthAuthenticationModuleOptions GenerateOptions()
         {
             return new MAuthAuthenticationModuleOptions
             {
@@ -17,7 +24,7 @@ namespace Medidata.MAuth.HttpModule.Configurations
                 HideExceptionsAndReturnUnauthorized =
                     bool.TryParse(Get("mAuthHideExceptionsAndReturnUnauthorized"), out bool hideExceptionsAndReturnUnauthorized) ?
                     hideExceptionsAndReturnUnauthorized : true,
-                MAuthExceptionPaths = GetList("mAuthExceptionPaths")
+                MAuthExceptionPaths = GetList("mAuthWhitelist")
             };
         }
 
