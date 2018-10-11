@@ -13,6 +13,6 @@ namespace Medidata.MAuth.Core
         /// </summary>
         /// <param name="message">A message that describes the authentication failure.</param>
         /// <param name="innerException">An exception that is the cause of the current exception.</param>
-        public AuthenticationException(string message, Exception innerException): base(message, innerException) { }
+        public AuthenticationException(string message, Exception innerException = null): base(message, innerException) { }
     }
 }

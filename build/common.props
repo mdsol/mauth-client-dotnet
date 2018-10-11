@@ -7,7 +7,7 @@
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <IncludeSymbols>true</IncludeSymbols>
     <IncludeSource>true</IncludeSource>
-    <Copyright>Copyright © Medidata Solutions, Inc. 2017</Copyright>
+    <Copyright>Copyright © Medidata Solutions, Inc. 2018</Copyright>
     <Authors>Medidata Solutions, Inc.</Authors>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/mdsol/mauth-client-dotnet</RepositoryUrl>
