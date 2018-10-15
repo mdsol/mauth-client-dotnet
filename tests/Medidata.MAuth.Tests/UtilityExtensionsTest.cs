@@ -45,5 +45,30 @@ namespace Medidata.MAuth.Tests
             // Act, Assert
             Assert.Throws<ArgumentException>(() => invalid.ParseAuthenticationHeader());
         }
+
+        [Theory]
+        [InlineData("GET")]
+        [InlineData("DELETE")]
+        [InlineData("POST")]
+        [InlineData("PUT")]
+        public static async Task Authenticate_WithValidRequest_WillAuthenticate(string method)
+        {
+            // Arrange
+            var testData = await method.FromResource();
+
+            var signedRequest = await testData.ToHttpRequestMessage()
+                .AddAuthenticationInfo(new PrivateKeyAuthenticationInfo()
+                {
+                    ApplicationUuid = testData.ApplicationUuid,
+                    PrivateKey = TestExtensions.ClientPrivateKey,
+                    SignedTime = testData.SignedTime
+                });
+
+            // Act
+            var isAuthenticated = await signedRequest.Authenticate(TestExtensions.ServerOptions);
+
+            // Assert
+            Assert.True(isAuthenticated);
+        }
     }
 }

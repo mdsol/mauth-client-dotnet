@@ -1,5 +1,9 @@
 # Changes in Medidata.MAuth
 
+## v3.1.0
+- **[Core]** Added a new extension method to the utilities which will authenticate a `HttpRequestMessage` with the
+provided options.
+
 ## v3.0.4
 - **[Core]** Fixed an issue with HTTP requests having binary content (the authentication was failing in this case)
 
