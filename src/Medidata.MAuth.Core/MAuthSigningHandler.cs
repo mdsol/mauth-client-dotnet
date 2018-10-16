@@ -54,7 +54,7 @@ namespace Medidata.MAuth.Core
                 InnerHandler = new HttpClientHandler();
 
             return await base
-                .SendAsync(await request.Sign(options), cancellationToken)
+                .SendAsync(await request.Sign(options).ConfigureAwait(false), cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
     }
