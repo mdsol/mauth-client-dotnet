@@ -1,5 +1,8 @@
 # Changes in Medidata.MAuth
 
+## v3.1.1
+- **[Core]** Added `ConfigureAwait(false)` avoiding any possible deadlocks.
+
 ## v3.1.0
 - **[Core]** Added a new extension method to the utilities which will authenticate a `HttpRequestMessage` with the
 provided options.
