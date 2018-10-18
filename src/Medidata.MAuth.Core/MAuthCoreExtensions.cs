@@ -35,7 +35,7 @@ namespace Medidata.MAuth.Core
         public static async Task<string> CalculatePayload(
             this HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
         {
-            var unsignedData = await request.GetSignature(authInfo);
+            var unsignedData = await request.GetSignature(authInfo).ConfigureAwait(false);
             var signer = new Pkcs1Encoding(new RsaEngine());
             signer.Init(true, authInfo.PrivateKey.AsCipherParameters());
 
@@ -77,7 +77,7 @@ namespace Medidata.MAuth.Core
             {
                 request.Method.Method.ToBytes(), Constants.NewLine,
                 request.RequestUri.AbsolutePath.ToBytes(), Constants.NewLine,
-                (request.Content != null ? await request.Content.ReadAsByteArrayAsync() : new byte[] { }),
+                (request.Content != null ? await request.Content.ReadAsByteArrayAsync().ConfigureAwait(false) : new byte[] { }),
                 Constants.NewLine,
                 authInfo.ApplicationUuid.ToHyphenString().ToBytes(), Constants.NewLine,
                 authInfo.SignedTime.ToUnixTimeSeconds().ToString().ToBytes()
@@ -127,7 +127,7 @@ namespace Medidata.MAuth.Core
         {
             var authHeader =
                 $"MWS {authInfo.ApplicationUuid.ToHyphenString()}:" +
-                $"{await request.CalculatePayload(authInfo)}";
+                $"{await request.CalculatePayload(authInfo).ConfigureAwait(false)}";
 
             request.Headers.Add(Constants.MAuthHeaderKey, authHeader);
             request.Headers.Add(Constants.MAuthTimeHeaderKey, authInfo.SignedTime.ToUnixTimeSeconds().ToString());
@@ -159,7 +159,7 @@ namespace Medidata.MAuth.Core
         /// <returns>A Task object which will result the application information when it completes.</returns>
         public async static Task<ApplicationInfo> FromResponse(this HttpContent content)
         {
-            var jsonObject = JObject.Parse(await content.ReadAsStringAsync());
+            var jsonObject = JObject.Parse(await content.ReadAsStringAsync().ConfigureAwait(false));
 
             return jsonObject.GetValue("security_token").ToObject<ApplicationInfo>();
         }
