@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 using Org.BouncyCastle.Crypto;
 
 namespace Medidata.MAuth.Core
@@ -8,7 +9,8 @@ namespace Medidata.MAuth.Core
     internal class MAuthAuthenticator
     {
         private readonly MAuthOptionsBase options;
-        private MAuthRequestRetrier retrier;
+        private readonly MAuthRequestRetrier retrier;
+        private readonly IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
 
         public Guid ApplicationUuid => options.ApplicationUuid;
 
@@ -60,11 +62,24 @@ namespace Medidata.MAuth.Core
             }
         }
 
-        private async Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid) =>
-            await (await retrier.GetSuccessfulResponse(applicationUuid, CreateRequest,
-                requestAttempts: (int)options.MAuthServiceRetryPolicy + 1))
-            .Content
-            .FromResponse();
+        private Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid) =>
+            cache.GetOrCreateAsync(applicationUuid, async entry =>
+            {
+                var response = await retrier.GetSuccessfulResponse(
+                    applicationUuid,
+                    CreateRequest,
+                    requestAttempts: (int)options.MAuthServiceRetryPolicy + 1
+                );
+
+                var result = await response.Content.FromResponse();
+
+                entry.SetOptions(
+                    new MemoryCacheEntryOptions()
+                        .SetAbsoluteExpiration(response.Headers.CacheControl?.MaxAge ?? TimeSpan.FromHours(1))
+                );
+
+                return result;
+            });
 
         private HttpRequestMessage CreateRequest(Guid applicationUuid) =>
             new HttpRequestMessage(HttpMethod.Get, new Uri(options.MAuthServiceUrl,

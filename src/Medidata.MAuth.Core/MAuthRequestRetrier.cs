@@ -1,7 +1,4 @@
 ﻿using System;
-#if !NETSTANDARD1_4
-using System.Net.Cache;
-#endif
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -18,19 +15,13 @@ namespace Medidata.MAuth.Core
                 ApplicationUuid = options.ApplicationUuid,
                 PrivateKey = options.PrivateKey
             },
-            innerHandler: options.MAuthServerHandler ??
-#if NETSTANDARD1_4
-                new HttpClientHandler()
-#else
-                new WebRequestHandler()
-                {
-                    CachePolicy = new RequestCachePolicy(RequestCacheLevel.Default)
-                }
-#endif
+            innerHandler: options.MAuthServerHandler ?? new HttpClientHandler()
             );
 
-            client = new HttpClient(signingHandler);
-            client.Timeout = TimeSpan.FromSeconds(options.AuthenticateRequestTimeoutSeconds);
+            client = new HttpClient(signingHandler)
+            {
+                Timeout = TimeSpan.FromSeconds(options.AuthenticateRequestTimeoutSeconds)
+            };
         }
 
         public async Task<HttpResponseMessage> GetSuccessfulResponse(Guid applicationUuid,
