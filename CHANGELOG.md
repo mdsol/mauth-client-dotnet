@@ -1,5 +1,8 @@
 # Changes in Medidata.MAuth
 
+## v3.1.2
+- **[Core]** Fixed and enabled caching of the `ApplicationInfo` from the MAuth server.
+
 ## v3.1.1
 - **[Core]** Added `ConfigureAwait(false)` avoiding any possible deadlocks.
 
