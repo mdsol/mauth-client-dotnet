@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Medidata.MAuth.Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using Version = Medidata.MAuth.Core.Models.Version;
 
 namespace Medidata.MAuth.AspNetCore
 {
@@ -39,16 +41,20 @@ namespace Medidata.MAuth.AspNetCore
         /// <param name="authenticator">The authenticator which will attempt the request authentication.</param>
         /// <param name="shouldIgnoreExceptions">Determines if any exceptions during the authentication
         /// should be thrown.</param>
+        /// <param name="mAuthVersion">Determines if the authentication uses V2 or V1 method</param>
         /// <returns>
         /// This method returns <see langword="true"/> if it successfully authenticated the request;
         /// otherwise it will return either <see langword="false"/> if the method should ignore exceptions or
         /// will throw an exception if any errors occurred during the authentication.
         /// </returns>
         public static async Task<bool> TryAuthenticate(
-            this HttpContext context, MAuthAuthenticator authenticator, bool shouldIgnoreExceptions)
+            this HttpContext context, MAuthAuthenticator authenticator, bool shouldIgnoreExceptions, Enum mAuthVersion)
         {
             try
             {
+                if (mAuthVersion.Equals(Version.V2))
+                    return await authenticator.AuthenticateRequestV2(context.Request.ToHttpRequestMessage());
+
                 return await authenticator.AuthenticateRequest(context.Request.ToHttpRequestMessage());
             }
             catch (Exception)

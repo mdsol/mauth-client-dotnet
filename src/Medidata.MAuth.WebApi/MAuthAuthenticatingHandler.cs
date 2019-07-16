@@ -4,6 +4,8 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Medidata.MAuth.Core.Models;
+using Version = Medidata.MAuth.Core.Models.Version;
 
 namespace Medidata.MAuth.WebApi
 {
@@ -53,13 +55,13 @@ namespace Medidata.MAuth.WebApi
         /// <param name="cancellationToken">A cancellation token to cancel operation.</param>
         /// <returns>Returns <see cref="Task{HttpResponseMessage}"/>. The task object representing the asynchronous
         /// operation.</returns>
-        protected async override Task<HttpResponseMessage> SendAsync(
+        protected override async Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
             if (InnerHandler == null)
                 InnerHandler = new HttpClientHandler();
 
-            if (!await request.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized))
+            if (!await request.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized, options.MAuthVersion))
                 return new HttpResponseMessage(HttpStatusCode.Unauthorized) { RequestMessage = request };
 
             return await base

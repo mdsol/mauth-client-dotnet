@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Version = Medidata.MAuth.Core.Models.Version;
 
 namespace Medidata.MAuth.Core
 {
@@ -24,5 +21,10 @@ namespace Medidata.MAuth.Core
         /// This property is for testing purposes only.
         /// </summary>
         internal DateTimeOffset? SignedTime { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Version MAuthVersion { get; set; }
     }
 }

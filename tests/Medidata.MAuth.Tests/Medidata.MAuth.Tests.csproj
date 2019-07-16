@@ -5,7 +5,7 @@
     <Copyright>Copyright © Medidata Solutions, Inc. 2017</Copyright>
     <AssemblyTitle>Medidata.MAuth.Tests</AssemblyTitle>
     <Authors>Medidata Solutions, Inc.</Authors>
-    <TargetFrameworks>net452;netcoreapp1.1</TargetFrameworks>
+    <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
     <AssemblyName>Medidata.MAuth.Tests</AssemblyName>
     <PackageId>Medidata.MAuth.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
@@ -50,7 +50,7 @@
     <Compile Remove="MAuthAspNetCoreTests.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
     <ProjectReference Include="..\..\src\Medidata.MAuth.AspNetCore\Medidata.MAuth.AspNetCore.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.2" />

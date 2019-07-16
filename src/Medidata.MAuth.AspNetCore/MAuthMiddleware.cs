@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Medidata.MAuth.Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 
@@ -24,7 +25,7 @@ namespace Medidata.MAuth.AspNetCore
             context.Request.EnableRewind();
 
             if (!options.Bypass(context.Request) &&
-                !await context.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized))
+                !await context.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized, options.MAuthVersion))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 return;

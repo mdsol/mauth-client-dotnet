@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using Version = Medidata.MAuth.Core.Models.Version;
 
 namespace Medidata.MAuth.Core
 {
@@ -38,5 +39,10 @@ namespace Medidata.MAuth.Core
         /// Determines the message handler for the requests to the MAuth server.
         /// </summary>
         public HttpMessageHandler MAuthServerHandler { get; set; } 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Version MAuthVersion { get; set; }
     }
 }

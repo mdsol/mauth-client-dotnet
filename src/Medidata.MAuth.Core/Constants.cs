@@ -30,5 +30,22 @@ namespace Medidata.MAuth.Core
         public static readonly string KeyNormalizeLinesEndRegexPattern = "(?<end>-----END [A-Z ]+[-]+)$";
 
         public static readonly byte[] NewLine = Encoding.UTF8.GetBytes("\n");
+
+        public static readonly Regex AuthenticationHeaderRegexV2 = new Regex(
+            "^MWSV2 " +
+            "(?<uuid>[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})" +
+            ":" +
+            "(?<payload>" +
+            "(?:[0-9a-zA-Z+/]{4})*" +
+            "(?:[0-9a-zA-Z+/]{2}==|[0-9a-zA-Z+/]{3}=)" +
+            "?" +
+            ");$"
+        );
+
+        public static readonly string MAuthHeaderKeyV2 = "MCC-Authentication";
+
+        public static readonly string MAuthTimeHeaderKeyV2 = "MCC-Time";
+
+        public static readonly string MAuthTokenRequestPathV2 = "/mauth/v2/security_tokens/";
     }
 }

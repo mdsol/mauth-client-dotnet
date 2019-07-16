@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Org.BouncyCastle.Crypto;
+using Version = Medidata.MAuth.Core.Models.Version;
 
 namespace Medidata.MAuth.Core
 {
@@ -63,6 +65,38 @@ namespace Medidata.MAuth.Core
             }
         }
 
+        public async Task<bool> AuthenticateRequestV2(HttpRequestMessage request)
+        {
+            try
+            {
+                var authInfo = request.GetAuthenticationInfoV2();
+                var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid);
+
+                return authInfo.Payload.VerifyV2(await request.GetSignatureV2(authInfo), appInfo.PublicKey);
+            }
+            catch (ArgumentException ex)
+            {
+                throw new AuthenticationException("The request has invalid MAuth authentication headers.", ex);
+            }
+            catch (RetriedRequestException ex)
+            {
+                throw new AuthenticationException(
+                    "Could not query the application information for the application from the MAuth server.", ex);
+            }
+            catch (CryptographicException ex)
+            {
+                throw new AuthenticationException(
+                    "The request verification failed due to an invalid payload information.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new AuthenticationException(
+                    "An unexpected error occured during authentication. Please see the inner exception for details.",
+                    ex
+                );
+            }
+        }
+
         private Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid) =>
             cache.GetOrCreateAsync(applicationUuid, async entry =>
             {
@@ -82,8 +116,13 @@ namespace Medidata.MAuth.Core
                 return result;
             });
 
-        private HttpRequestMessage CreateRequest(Guid applicationUuid) =>
-            new HttpRequestMessage(HttpMethod.Get, new Uri(options.MAuthServiceUrl,
+        private HttpRequestMessage CreateRequest(Guid applicationUuid)
+        {
+            if (options.MAuthVersion.Equals(Version.V2))
+                return new HttpRequestMessage(HttpMethod.Get, new Uri(options.MAuthServiceUrl,
+                    $"{Constants.MAuthTokenRequestPathV2}{applicationUuid.ToHyphenString()}.json"));
+
+            return new HttpRequestMessage(HttpMethod.Get, new Uri(options.MAuthServiceUrl,
                 $"{Constants.MAuthTokenRequestPath}{applicationUuid.ToHyphenString()}.json"));
 
         /// <summary>

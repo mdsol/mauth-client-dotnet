@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Version = Medidata.MAuth.Core.Models.Version;
 
 namespace Medidata.MAuth.Core
 {
@@ -45,7 +46,8 @@ namespace Medidata.MAuth.Core
         public static bool TryParseAuthenticationHeader(this string headerValue,
             out (Guid Uuid, string Base64Payload) result)
         {
-            var match = Constants.AuthenticationHeaderRegex.Match(headerValue);
+            var match = headerValue.Contains("MWSV2") ? Constants.AuthenticationHeaderRegexV2.Match(headerValue) : 
+                Constants.AuthenticationHeaderRegex.Match(headerValue);
 
             result = default((Guid, string));
 
@@ -66,6 +68,7 @@ namespace Medidata.MAuth.Core
         /// <returns>The task for the operation that is when completes will result in <see langword="true"/> if
         /// the authentication is successful; otherwise <see langword="false"/>.</returns>
         public static Task<bool> Authenticate(this HttpRequestMessage request, MAuthOptionsBase options) =>
-            new MAuthAuthenticator(options).AuthenticateRequest(request);
+            options.MAuthVersion.Equals(Version.V2) ? new MAuthAuthenticator(options).AuthenticateRequestV2(request):
+                new MAuthAuthenticator(options).AuthenticateRequest(request);
     }
 }
