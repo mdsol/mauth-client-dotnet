@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto;
 
 namespace Medidata.MAuth.Core
@@ -11,6 +12,7 @@ namespace Medidata.MAuth.Core
         private readonly MAuthOptionsBase options;
         private readonly MAuthRequestRetrier retrier;
         private readonly IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
+        private readonly MAuthCoreImplementation mAuthCore;
 
         public Guid ApplicationUuid => options.ApplicationUuid;
 
@@ -26,7 +28,7 @@ namespace Medidata.MAuth.Core
                 throw new ArgumentNullException(nameof(options.PrivateKey));
 
             this.options = options;
-
+            mAuthCore = MAuthCoreImplementation.MAuthCore;
             retrier = new MAuthRequestRetrier(options);
         }
 
@@ -34,10 +36,10 @@ namespace Medidata.MAuth.Core
         {
             try
             {
-                var authInfo = request.GetAuthenticationInfo();
+                var authInfo = GetAuthenticationInfo(request);
                 var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid);
 
-                return authInfo.Payload.Verify(await request.GetSignature(authInfo), appInfo.PublicKey);
+                return mAuthCore.Verify(authInfo.Payload, await mAuthCore.GetSignature(request, authInfo), appInfo.PublicKey);
             }
             catch (ArgumentException ex)
             {
@@ -84,5 +86,32 @@ namespace Medidata.MAuth.Core
         private HttpRequestMessage CreateRequest(Guid applicationUuid) =>
             new HttpRequestMessage(HttpMethod.Get, new Uri(options.MAuthServiceUrl,
                 $"{Constants.MAuthTokenRequestPath}{applicationUuid.ToHyphenString()}.json"));
+
+        /// <summary>
+        /// Extracts the authentication information from a <see cref="HttpRequestMessage"/>.
+        /// </summary>
+        /// <param name="request">The request that has the authentication information.</param>
+        /// <returns>The authentication information with the payload from the request.</returns>
+        public PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request)
+        {
+            var authHeader = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey);
+
+            if (authHeader == null)
+                throw new ArgumentNullException(nameof(authHeader), "The MAuth header is missing from the request.");
+
+            var signedTime = request.Headers.GetFirstValueOrDefault<long>(Constants.MAuthTimeHeaderKey);
+
+            if (signedTime == default(long))
+                throw new ArgumentException("Invalid MAuth signed time header value.", nameof(signedTime));
+
+            var (uuid, payload) = authHeader.ParseAuthenticationHeader();
+
+            return new PayloadAuthenticationInfo()
+            {
+                ApplicationUuid = uuid,
+                Payload = Convert.FromBase64String(payload),
+                SignedTime = signedTime.FromUnixTimeSeconds()
+            };
+        }
     }
 }

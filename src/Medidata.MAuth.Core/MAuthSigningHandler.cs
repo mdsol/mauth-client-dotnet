@@ -12,12 +12,13 @@ namespace Medidata.MAuth.Core
     public class MAuthSigningHandler: DelegatingHandler
     {
         private readonly MAuthSigningOptions options;
+        private readonly MAuthCoreImplementation mAuthCore;
 
         /// <summary>Gets the Uuid of the client application.</summary>
         public Guid ClientAppUuid => options.ApplicationUuid;
 
         /// <summary>
-        /// Initializes a new insance of the <see cref="MAuthSigningHandler"/> class with the provided
+        /// Initializes a new instance of the <see cref="MAuthSigningHandler"/> class with the provided
         /// <see cref="MAuthSigningOptions"/>.
         /// </summary>
         /// <param name="options">The options for this message handler.</param>
@@ -37,6 +38,7 @@ namespace Medidata.MAuth.Core
         public MAuthSigningHandler(MAuthSigningOptions options, HttpMessageHandler innerHandler): base(innerHandler)
         {
             this.options = options;
+            mAuthCore = MAuthCoreImplementation.MAuthCore;
         }
 
         /// <summary>
@@ -47,14 +49,14 @@ namespace Medidata.MAuth.Core
         /// <param name="cancellationToken">A cancellation token to cancel operation.</param>
         /// <returns>Returns <see cref="Task{HttpResponseMessage}"/>. The task object representing the asynchronous
         /// operation.</returns>
-        protected async override Task<HttpResponseMessage> SendAsync(
+        protected override async Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
             if (InnerHandler == null)
                 InnerHandler = new HttpClientHandler();
 
             return await base
-                .SendAsync(await request.Sign(options).ConfigureAwait(false), cancellationToken)
+                .SendAsync(await mAuthCore.Sign(request, options).ConfigureAwait(false), cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
     }
