@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto;
 
 namespace Medidata.MAuth.Core
@@ -92,7 +91,7 @@ namespace Medidata.MAuth.Core
         /// </summary>
         /// <param name="request">The request that has the authentication information.</param>
         /// <returns>The authentication information with the payload from the request.</returns>
-        public PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request)
+        internal PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request)
         {
             var authHeader = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey);
 

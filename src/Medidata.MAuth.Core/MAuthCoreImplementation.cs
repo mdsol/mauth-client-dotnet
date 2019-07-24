@@ -87,7 +87,7 @@ namespace Medidata.MAuth.Core
         /// <returns>
         /// A Task object which will result the request with the authentication information added when it completes.
         /// </returns>
-        public async Task<HttpRequestMessage> AddAuthenticationInfo(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
+        internal async Task<HttpRequestMessage> AddAuthenticationInfo(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
         {
             var authHeader =
                 $"MWS {authInfo.ApplicationUuid.ToHyphenString()}:" +
@@ -110,7 +110,7 @@ namespace Medidata.MAuth.Core
         /// signature and the private key.
         /// </param>
         /// <returns>A task object which will result the payload as a Base64 encoded string when completed.</returns>
-        public async Task<string> CalculatePayload(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
+        internal async Task<string> CalculatePayload(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
         {
             var unsignedData = await GetSignature(request, authInfo).ConfigureAwait(false);
             var signer = new Pkcs1Encoding(new RsaEngine());

@@ -118,7 +118,7 @@ namespace Medidata.MAuth.Core
         public static string NormalizeLines(this string key) =>
             key.RemoveLineBreaks().InsertLineBreakAfterBegin().InsertLineBreakBeforeEnd();
 
-        public static bool IsValidPath(this string value) =>
+        private static bool IsValidPath(this string value) =>
             Uri.TryCreate(value, UriKind.Absolute, out var pathUri) && pathUri.IsLoopback;
 
         private static string RemoveLineBreaks(this string key) =>
