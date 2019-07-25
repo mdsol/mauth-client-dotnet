@@ -41,7 +41,7 @@ namespace Medidata.MAuth.Tests
             var testData = await method.FromResource();
 
             var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions);
-            var mAuthCore = MAuthCoreImplementation.MAuthCore;
+            var mAuthCore = new MAuthCore();
 
             var signedRequest = await mAuthCore
                 .AddAuthenticationInfo(testData.ToHttpRequestMessage(), new PrivateKeyAuthenticationInfo()
@@ -72,7 +72,7 @@ namespace Medidata.MAuth.Tests
 
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
                 policy, shouldSucceedWithin: true));
-            var mAuthCore = MAuthCoreImplementation.MAuthCore;
+            var mAuthCore = new MAuthCore();
 
             var signedRequest = await mAuthCore
                 .AddAuthenticationInfo(testData.ToHttpRequestMessage(),new PrivateKeyAuthenticationInfo()
@@ -102,7 +102,7 @@ namespace Medidata.MAuth.Tests
 
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
                 policy, shouldSucceedWithin: false));
-            var mAuthCore = MAuthCoreImplementation.MAuthCore;
+            var mAuthCore = new MAuthCore();
 
             var signedRequest = await mAuthCore
                 .AddAuthenticationInfo(testData.ToHttpRequestMessage(),new PrivateKeyAuthenticationInfo()
@@ -134,7 +134,7 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await method.FromResource();
             var expectedMAuthHeader = testData.MAuthHeader;
-            var mAuthCore = MAuthCoreImplementation.MAuthCore;
+            var mAuthCore = new MAuthCore();
 
             // Act
             var actual = await mAuthCore.Sign(testData.ToHttpRequestMessage(),TestExtensions.ClientOptions(testData.SignedTime));

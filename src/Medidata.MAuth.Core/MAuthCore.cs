@@ -8,11 +8,9 @@ using Org.BouncyCastle.Security;
 
 namespace Medidata.MAuth.Core
 {
-    internal class MAuthCoreImplementation: IMAuthCoreImplementation
+    internal class MAuthCore: IMAuthCore
     {
-        private MAuthCoreImplementation() { }
-
-        public static MAuthCoreImplementation MAuthCore { get; } = new MAuthCoreImplementation();
+        public MAuthCore () { }
 
         /// <summary>
         /// Signs an HTTP request with the MAuth-specific authentication information.

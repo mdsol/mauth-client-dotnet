@@ -19,7 +19,7 @@ namespace Medidata.MAuth.Tests.Infrastructure
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
             currentNumberOfAttempts += 1;
-            var mAuthCore = MAuthCoreImplementation.MAuthCore;
+            var mAuthCore = MAuthCoreFactory.Instantiate();
 
             if (currentNumberOfAttempts < SucceedAfterThisManyAttempts)
                 return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);

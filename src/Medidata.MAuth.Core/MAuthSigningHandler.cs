@@ -12,7 +12,7 @@ namespace Medidata.MAuth.Core
     public class MAuthSigningHandler: DelegatingHandler
     {
         private readonly MAuthSigningOptions options;
-        private readonly MAuthCoreImplementation mAuthCore;
+        private IMAuthCore mAuthCore;
 
         /// <summary>Gets the Uuid of the client application.</summary>
         public Guid ClientAppUuid => options.ApplicationUuid;
@@ -38,7 +38,6 @@ namespace Medidata.MAuth.Core
         public MAuthSigningHandler(MAuthSigningOptions options, HttpMessageHandler innerHandler): base(innerHandler)
         {
             this.options = options;
-            mAuthCore = MAuthCoreImplementation.MAuthCore;
         }
 
         /// <summary>
@@ -54,6 +53,8 @@ namespace Medidata.MAuth.Core
         {
             if (InnerHandler == null)
                 InnerHandler = new HttpClientHandler();
+
+            mAuthCore = MAuthCoreFactory.Instantiate();
 
             return await base
                 .SendAsync(await mAuthCore.Sign(request, options).ConfigureAwait(false), cancellationToken)

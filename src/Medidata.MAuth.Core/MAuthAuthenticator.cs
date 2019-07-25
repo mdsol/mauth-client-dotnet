@@ -11,7 +11,7 @@ namespace Medidata.MAuth.Core
         private readonly MAuthOptionsBase options;
         private readonly MAuthRequestRetrier retrier;
         private readonly IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
-        private readonly MAuthCoreImplementation mAuthCore;
+        private IMAuthCore mAuthCore;
 
         public Guid ApplicationUuid => options.ApplicationUuid;
 
@@ -27,7 +27,6 @@ namespace Medidata.MAuth.Core
                 throw new ArgumentNullException(nameof(options.PrivateKey));
 
             this.options = options;
-            mAuthCore = MAuthCoreImplementation.MAuthCore;
             retrier = new MAuthRequestRetrier(options);
         }
 
@@ -35,6 +34,7 @@ namespace Medidata.MAuth.Core
         {
             try
             {
+                mAuthCore = MAuthCoreFactory.Instantiate();
                 var authInfo = GetAuthenticationInfo(request);
                 var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid);
 

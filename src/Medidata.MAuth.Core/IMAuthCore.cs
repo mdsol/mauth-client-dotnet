@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Medidata.MAuth.Core
 {
-    internal interface IMAuthCoreImplementation
+    internal interface IMAuthCore
     {
         Task<HttpRequestMessage> Sign(HttpRequestMessage request, MAuthSigningOptions options);
 

@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Medidata.MAuth.Tests
 {
-    public static class MAuthCoreImplementationTests
+    public static class MAuthCoreTests
     {
         [Theory]
         [InlineData("GET")]
@@ -21,7 +21,7 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResource();
-            var mAuthCore = MAuthCoreImplementation.MAuthCore;
+            var mAuthCore = new MAuthCore();
 
             var authInfo = new PrivateKeyAuthenticationInfo()
             {
@@ -49,7 +49,7 @@ namespace Medidata.MAuth.Tests
 
             var signedData = signer.ProcessBlock(unsignedData, 0, unsignedData.Length);
 
-            var mAuthCore = MAuthCoreImplementation.MAuthCore;
+            var mAuthCore = new MAuthCore();
 
             // Act
             var result = mAuthCore.Verify(signedData, Encoding.UTF8.GetBytes(signature), TestExtensions.ClientPublicKey);
@@ -67,7 +67,7 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResource();
-            var mAuthCore = MAuthCoreImplementation.MAuthCore;
+            var mAuthCore = new MAuthCore();
 
             var expectedSignature =
                 ($"{testData.Method}\n" +
@@ -95,7 +95,7 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await "POSTWithBinaryData".FromResource();
-            var mAuthCore = MAuthCoreImplementation.MAuthCore;
+            var mAuthCore = new MAuthCore();
 
             // Act
             var result = await mAuthCore.CalculatePayload(testData.ToHttpRequestMessage(), new PrivateKeyAuthenticationInfo()
@@ -119,7 +119,7 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await method.FromResource();
             var expectedMAuthHeader = testData.MAuthHeader;
-            var mAuthCore = MAuthCoreImplementation.MAuthCore;
+            var mAuthCore = new MAuthCore();
 
             var authInfo = new PrivateKeyAuthenticationInfo()
             {
