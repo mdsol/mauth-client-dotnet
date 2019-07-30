@@ -1,5 +1,8 @@
 # Changes in Medidata.MAuth
 
+## v3.1.3
+- **[Core]** Refactored `MAuthCoreExtensions.cs` and moved Signing and Verification method into `IMAuthCore.cs`.
+
 ## v3.1.2
 - **[Core]** Fixed and enabled caching of the `ApplicationInfo` from the MAuth server.
 

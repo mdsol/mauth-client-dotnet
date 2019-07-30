@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Medidata.MAuth.Tests
 {
-    public static class MAuthCoreExtensionsTests
+    public static class MAuthCoreTests
     {
         [Theory]
         [InlineData("GET")]
@@ -21,6 +21,7 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResource();
+            var mAuthCore = new MAuthCore();
 
             var authInfo = new PrivateKeyAuthenticationInfo()
             {
@@ -30,7 +31,7 @@ namespace Medidata.MAuth.Tests
             };
 
             // Act
-            var result = await testData.ToHttpRequestMessage().CalculatePayload(authInfo);
+            var result = await mAuthCore.CalculatePayload(testData.ToHttpRequestMessage(), authInfo);
 
             // Assert
             Assert.Equal(testData.Payload, result);
@@ -48,8 +49,10 @@ namespace Medidata.MAuth.Tests
 
             var signedData = signer.ProcessBlock(unsignedData, 0, unsignedData.Length);
 
+            var mAuthCore = new MAuthCore();
+
             // Act
-            var result = signedData.Verify(Encoding.UTF8.GetBytes(signature), TestExtensions.ClientPublicKey);
+            var result = mAuthCore.Verify(signedData, Encoding.UTF8.GetBytes(signature), TestExtensions.ClientPublicKey);
 
             // Assert
             Assert.True(result);
@@ -64,6 +67,7 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResource();
+            var mAuthCore = new MAuthCore();
 
             var expectedSignature =
                 ($"{testData.Method}\n" +
@@ -80,7 +84,7 @@ namespace Medidata.MAuth.Tests
             };
 
             // Act
-            var result = await testData.ToHttpRequestMessage().GetSignature(authInfo);
+            var result = await mAuthCore.GetSignature(testData.ToHttpRequestMessage(), authInfo);
 
             // Assert
             Assert.Equal(expectedSignature, result);
@@ -91,9 +95,10 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await "POSTWithBinaryData".FromResource();
+            var mAuthCore = new MAuthCore();
 
             // Act
-            var result = await testData.ToHttpRequestMessage().CalculatePayload(new PrivateKeyAuthenticationInfo()
+            var result = await mAuthCore.CalculatePayload(testData.ToHttpRequestMessage(), new PrivateKeyAuthenticationInfo()
             {
                 ApplicationUuid = testData.ApplicationUuid,
                 SignedTime = testData.SignedTime,
@@ -109,35 +114,12 @@ namespace Medidata.MAuth.Tests
         [InlineData("DELETE")]
         [InlineData("POST")]
         [InlineData("PUT")]
-        public static async Task GetAuthenticationInfo_WithSignedRequest_WillReturnCorrectAuthInfo(string method)
-        {
-            // Arrange
-            var testData = await method.FromResource();
-            var request = new HttpRequestMessage(new HttpMethod(testData.Method), TestExtensions.TestUri);
-
-            request.Headers.Add(
-                Constants.MAuthHeaderKey, testData.MAuthHeader);
-            request.Headers.Add(Constants.MAuthTimeHeaderKey, testData.SignedTimeUnixSeconds.ToString());
-
-            // Act
-            var actual = request.GetAuthenticationInfo();
-
-            // Assert
-            Assert.Equal(testData.ApplicationUuid, actual.ApplicationUuid);
-            Assert.Equal(Convert.FromBase64String(testData.Payload), actual.Payload);
-            Assert.Equal(testData.SignedTime, actual.SignedTime);
-        }
-
-        [Theory]
-        [InlineData("GET")]
-        [InlineData("DELETE")]
-        [InlineData("POST")]
-        [InlineData("PUT")]
         public static async Task AddAuthenticationInfo_WithRequestAndAuthInfo_WillAddCorrectInformation(string method)
         {
             // Arrange
             var testData = await method.FromResource();
             var expectedMAuthHeader = testData.MAuthHeader;
+            var mAuthCore = new MAuthCore();
 
             var authInfo = new PrivateKeyAuthenticationInfo()
             {
@@ -147,7 +129,7 @@ namespace Medidata.MAuth.Tests
             };
 
             // Act
-            var actual = await testData.ToHttpRequestMessage().AddAuthenticationInfo(authInfo);
+            var actual = await mAuthCore.AddAuthenticationInfo(testData.ToHttpRequestMessage(), authInfo);
 
             // Assert
             Assert.Equal(expectedMAuthHeader, actual.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey));

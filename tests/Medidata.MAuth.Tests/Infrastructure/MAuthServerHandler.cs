@@ -19,14 +19,17 @@ namespace Medidata.MAuth.Tests.Infrastructure
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
             currentNumberOfAttempts += 1;
+            var mAuthCore = MAuthCoreFactory.Instantiate();
 
             if (currentNumberOfAttempts < SucceedAfterThisManyAttempts)
                 return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);
 
-            var authInfo = request.GetAuthenticationInfo();
+            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions);
 
-            if (!authInfo.Payload.Verify(
-                await request.GetSignature(authInfo),
+            var authInfo = authenticator.GetAuthenticationInfo(request);
+
+            if (!mAuthCore.Verify(authInfo.Payload, 
+                await mAuthCore.GetSignature(request, authInfo),
                 TestExtensions.ServerPublicKey
             ))
                 return new HttpResponseMessage(HttpStatusCode.Unauthorized) { RequestMessage = request };
