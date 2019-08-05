@@ -1,5 +1,5 @@
 ﻿using System;
-using Version = Medidata.MAuth.Core.Models.Version;
+using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Core
 {
@@ -25,7 +25,7 @@ namespace Medidata.MAuth.Core
         /// <summary>
         /// Determines the MAuth version for signing requests.
         /// </summary>
-        public Version MAuthVersion { get; set; }
+        public MAuthVersion MAuthVersion { get; set; }
 
         /// <summary>
         /// Determines the boolean value if V1 option of signing should be disabled or not with default value of false.

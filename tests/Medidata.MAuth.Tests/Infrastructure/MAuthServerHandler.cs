@@ -33,7 +33,7 @@ namespace Medidata.MAuth.Tests.Infrastructure
             ))
                 return new HttpResponseMessage(HttpStatusCode.Unauthorized) { RequestMessage = request };
 
-            var tokenRequestPath = version.GetMAuthTokenRequestPath();
+            var tokenRequestPath = mAuthCore.GetMAuthTokenRequestPath();
 
             if (!request.RequestUri.AbsolutePath.Equals(
                 $"{tokenRequestPath}{clientUuid.ToHyphenString()}.json",

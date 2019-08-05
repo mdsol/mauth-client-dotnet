@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Net.Http;
-using Medidata.MAuth.Core.Models;
-using Version = Medidata.MAuth.Core.Models.Version;
 
 namespace Medidata.MAuth.Core
 {

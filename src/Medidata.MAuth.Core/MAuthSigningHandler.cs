@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core.Exceptions;
-using Version = Medidata.MAuth.Core.Models.Version;
+using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Core
 {
@@ -57,11 +57,11 @@ namespace Medidata.MAuth.Core
             if (InnerHandler == null)
                 InnerHandler = new HttpClientHandler();
 
-            if(options.DisableV1 && options.MAuthVersion.ToString() == Version.MWS.ToString())
+            if(options.DisableV1 && options.MAuthVersion.ToString() == MAuthVersion.MWS.ToString())
                 throw new InvalidVersionException
-                    ($"Signing with {options.MAuthVersion.ToString()} is no longer supported.");
+                    ($"Signing with {options.MAuthVersion.ToString()} is disabled.");
 
-            mAuthCore = MAuthCoreFactory.Instantiate(options.MAuthVersion.ToString());
+            mAuthCore = MAuthCoreFactory.Instantiate(options.MAuthVersion);
 
             return await base
                 .SendAsync(await mAuthCore.Sign(request, options).ConfigureAwait(false), cancellationToken)

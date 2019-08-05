@@ -179,8 +179,18 @@ namespace Medidata.MAuth.Core
 
         public static IDictionary<string, string> GetQueryStringParams(this string queryString)
         {
-            var dictionary = queryString.Replace("?", "").Split('&').ToDictionary(x => x.Split('=')[0], x => x.Split('=')[1]);
-            return dictionary;
+            //var dictionary = queryString.Replace("?", "").Split('&').ToDictionary(x => x.Split('=')[0], x => x.Split('=')[1]);
+            //return dictionary;
+
+            var queryStrings = new SortedDictionary<string, string>();
+            queryString.Replace("?", "")
+                .Split('&')
+                .ToList()
+                .ForEach((query) => {
+                    var keyValue = query.Split('=');
+                    queryStrings.Add(keyValue[0], keyValue[1]);
+                });
+            return queryStrings;
         }
 
         public static IDictionary<string, string> SortByKeyAscending(this IDictionary<string, string> queryStringParams)
@@ -197,20 +207,12 @@ namespace Medidata.MAuth.Core
 
         public static string BuildEncodedQueryParams(this IDictionary<string, string> queryParams)
         {
-            var encodedQueryParam = string.Empty;
-            foreach (var key in queryParams)
+            var encodedQueryStrings = new List<string>();
+            foreach (var query in queryParams)
             {
-                encodedQueryParam = (encodedQueryParam != string.Empty) ?
-                    $"{encodedQueryParam}&" : encodedQueryParam;
-
-                var encodedKey = Uri.EscapeUriString(key.Key); // Is this UTF8 encoding or URI encoding
-
-                var encodedValue = (queryParams[key.Key] != string.Empty)
-                    ? Uri.EscapeUriString(queryParams[key.Key])    // same here UTF8 encoding or uri encoding
-                    : "";
-                encodedQueryParam = $"{encodedQueryParam}{encodedKey}={encodedValue}";
+                encodedQueryStrings.Add($"{Uri.EscapeUriString(query.Key)}={Uri.EscapeUriString(query.Value)}");
             }
-            return encodedQueryParam;
+            return string.Join("&", encodedQueryStrings);
         }
 
         /// <summary>

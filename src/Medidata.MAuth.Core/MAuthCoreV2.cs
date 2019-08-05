@@ -1,17 +1,8 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Crypto.Encodings;
-using Org.BouncyCastle.Crypto.Engines;
+using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Core
 {
@@ -20,8 +11,6 @@ namespace Medidata.MAuth.Core
     /// </summary>
     internal class MAuthCoreV2 : IMAuthCore
     {
-        private const string MwsV2Token = "MWSV2";
-
         /// <summary>
         /// Signs an HTTP request with the MAuth-specific authentication information.
         /// </summary>
@@ -78,13 +67,12 @@ namespace Medidata.MAuth.Core
 
             var requestBody = request.Content != null ?
                 await request.Content.ReadAsByteArrayAsync().ConfigureAwait(false) : new byte[] { };
-            // var requestBodyDigest = SHA512 hash of request body
             var requestBodyDigest = requestBody.AsSha512HashV2();
 
             var encodedCurrentSecondsSinceEpoch = authInfo.SignedTime.ToUnixTimeSeconds().ToString().ToBytes();
 
             var encodedQueryParams =  (!string.IsNullOrEmpty(request.RequestUri.Query))
-                ? request.RequestUri.Query.GetQueryStringParams().SortByKeyAscending().BuildEncodedQueryParams().ToBytes()
+                ? request.RequestUri.Query.GetQueryStringParams().BuildEncodedQueryParams().ToBytes()
                 : new byte[] { };
 
             return new byte[][]
@@ -112,7 +100,7 @@ namespace Medidata.MAuth.Core
             HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
         {
             var authHeader =
-                $"{MwsV2Token} {authInfo.ApplicationUuid.ToHyphenString()}:" +
+                $"{MAuthVersion.MWSV2} {authInfo.ApplicationUuid.ToHyphenString()}:" +
                 $"{await CalculatePayload(request, authInfo).ConfigureAwait(false)};";
 
             request.Headers.Add(Constants.MAuthHeaderKeyV2, authHeader);
@@ -168,6 +156,14 @@ namespace Medidata.MAuth.Core
                 Payload = Convert.FromBase64String(payload),
                 SignedTime = signedTime.FromUnixTimeSeconds()
             };
+        }
+        /// <summary>
+        /// Determines the correct token request path.
+        /// </summary>
+        /// <returns>The token request path.</returns>
+        public string GetMAuthTokenRequestPath()
+        {
+            return "/mauth/v2/security_tokens/";
         }
     }
 }

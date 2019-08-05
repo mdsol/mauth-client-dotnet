@@ -1,18 +1,18 @@
-﻿using System;
-using Version = Medidata.MAuth.Core.Models.Version;
+﻿using Medidata.MAuth.Core.Exceptions;
+using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Core
 {
     internal class MAuthCoreFactory
     {
-        public static IMAuthCore Instantiate(string version = "MWS")
+        public static IMAuthCore Instantiate(MAuthVersion version = MAuthVersion.MWS)
         {
-            if (version == Version.MWSV2.ToString())
+            if (version == MAuthVersion.MWSV2)
                 return new MAuthCoreV2();
-            else if (version == Version.MWS.ToString())
+            else if (version == MAuthVersion.MWS)
                 return new MAuthCore();
 
-            throw new Exception("Version is not recognized");
+            throw new InvalidVersionException("Version is not recognized");
         }
     }
 }

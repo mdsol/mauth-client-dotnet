@@ -1,10 +1,11 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Medidata.MAuth.Core.Exceptions;
+using Medidata.MAuth.Core.Models;
 using Medidata.MAuth.Tests.Infrastructure;
 using Xunit;
-using Version = Medidata.MAuth.Core.Models.Version;
 
 namespace Medidata.MAuth.Tests
 {
@@ -45,7 +46,7 @@ namespace Medidata.MAuth.Tests
             var version = "MWSV2";
             var actual = new AssertSigningHandler();
             var clientOptions = TestExtensions.ClientOptions(testData.SignedTime);
-            clientOptions.MAuthVersion = Version.MWSV2;
+            clientOptions.MAuthVersion = MAuthVersion.MWSV2;
             var signingHandler = new MAuthSigningHandler(clientOptions, actual);
            
             // Act
@@ -71,7 +72,7 @@ namespace Medidata.MAuth.Tests
             var actual = new AssertSigningHandler();
             var clientOptions = TestExtensions.ClientOptions(testData.SignedTime);
             clientOptions.DisableV1 = true;
-            clientOptions.MAuthVersion = Version.MWS;
+            clientOptions.MAuthVersion = MAuthVersion.MWS;
             var signingHandler = new MAuthSigningHandler(clientOptions, actual);
 
             // Act, Assert

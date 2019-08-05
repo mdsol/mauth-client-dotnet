@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Version = Medidata.MAuth.Core.Models.Version;
+using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Core
 {
@@ -75,14 +75,14 @@ namespace Medidata.MAuth.Core
         /// </summary>
         /// <param name="authHeader"></param>
         /// <returns></returns>
-        public static string GetVersionFromAuthenticationHeader(this string authHeader)
+        public static MAuthVersion GetVersionFromAuthenticationHeader(this string authHeader)
         {
-            return authHeader.StartsWith(Version.MWSV2.ToString())
-                ? Version.MWSV2.ToString() : Version.MWS.ToString();
+            return authHeader.StartsWith(MAuthVersion.MWSV2.ToString())
+                ? MAuthVersion.MWSV2 : MAuthVersion.MWS;
         }
 
         /// <summary>
-        /// Determines the correct MAuthHeader value 
+        /// Determines the correct MAuthHeader value with default check for V2.
         /// </summary>
         /// <param name="request"></param>
         /// <returns>The MAuthHeader value.</returns>
@@ -91,32 +91,8 @@ namespace Medidata.MAuth.Core
             //By default first check for V2
             var authHeader = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKeyV2)
                              ?? request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey);
-            if (authHeader == null)
-                throw new ArgumentNullException(nameof(authHeader), "The MAuth header is missing from the request.");
-            return authHeader;
-        }
-
-        /// <summary>
-        /// Determines the correct token request path based on version
-        /// </summary>
-        /// <param name="version"></param>
-        /// <returns>The correct token request path</returns>
-        public static string GetMAuthTokenRequestPath(this string version)
-        {
-            return (version == Version.MWSV2.ToString()) ?
-                Constants.MAuthTokenRequestPathV2 : Constants.MAuthTokenRequestPath;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="version"></param>
-        /// <returns></returns>
-        public static (string mAuthHeaderKey, string mAuthTimeHeaderKey) GetHeaderKeys(this string version)
-        {
-            return (version == Version.MWSV2.ToString())
-                ? (Constants.MAuthHeaderKeyV2, Constants.MAuthTimeHeaderKeyV2)
-                : (Constants.MAuthHeaderKey, Constants.MAuthTimeHeaderKey);
+            return authHeader ??
+                   throw new ArgumentNullException(nameof(authHeader), "The MAuth header is missing from the request.");
         }
     }
 }

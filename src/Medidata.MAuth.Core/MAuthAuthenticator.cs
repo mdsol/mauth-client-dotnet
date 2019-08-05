@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Medidata.MAuth.Core.Exceptions;
 using Microsoft.Extensions.Caching.Memory;
 using Org.BouncyCastle.Crypto;
-using Version = Medidata.MAuth.Core.Models.Version;
+using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Core
 {
@@ -38,8 +38,8 @@ namespace Medidata.MAuth.Core
             {
                 var version = request.GetAuthHeaderValue().GetVersionFromAuthenticationHeader();
 
-                if (options.DisableV1 && version == Version.MWS.ToString())
-                    throw new InvalidVersionException($"Authentication with {version} version is no longer supported.");
+                if (options.DisableV1 && version == MAuthVersion.MWS)
+                    throw new InvalidVersionException($"Authentication with {version} version is disabled.");
 
                 mAuthCore = MAuthCoreFactory.Instantiate(version);
                 var authInfo = mAuthCore.GetAuthenticationInfo(request);
@@ -75,11 +75,12 @@ namespace Medidata.MAuth.Core
             }
         }
 
-        private Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid, string version) =>
+        private Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid, MAuthVersion version) =>
             cache.GetOrCreateAsync(applicationUuid, async entry =>
             {
-                var tokenRequestPath = version.GetMAuthTokenRequestPath();
-                retrier = new MAuthRequestRetrier(options, (Version)Enum.Parse(typeof(Version), version));
+                mAuthCore = MAuthCoreFactory.Instantiate(version);
+                var tokenRequestPath = mAuthCore.GetMAuthTokenRequestPath();
+                retrier = new MAuthRequestRetrier(options, version);
                 var response = await retrier.GetSuccessfulResponse(
                     applicationUuid,
                     CreateRequest, tokenRequestPath,
@@ -99,32 +100,5 @@ namespace Medidata.MAuth.Core
         private HttpRequestMessage CreateRequest(Guid applicationUuid, string tokenRequestPath) =>
             new HttpRequestMessage(HttpMethod.Get, new Uri(options.MAuthServiceUrl,
                 $"{tokenRequestPath}{applicationUuid.ToHyphenString()}.json"));
-
-        ///// <summary>
-        ///// Extracts the authentication information from a <see cref="HttpRequestMessage"/>.
-        ///// </summary>
-        ///// <param name="request">The request that has the authentication information.</param>
-        ///// <returns>The authentication information with the payload from the request.</returns>
-        //internal PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request)
-        //{
-        //    var authHeader = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey);
-
-        //    if (authHeader == null)
-        //        throw new ArgumentNullException(nameof(authHeader), "The MAuth header is missing from the request.");
-
-        //    var signedTime = request.Headers.GetFirstValueOrDefault<long>(Constants.MAuthTimeHeaderKey);
-
-        //    if (signedTime == default(long))
-        //        throw new ArgumentException("Invalid MAuth signed time header value.", nameof(signedTime));
-
-        //    var (uuid, payload) = authHeader.ParseAuthenticationHeader();
-
-        //    return new PayloadAuthenticationInfo()
-        //    {
-        //        ApplicationUuid = uuid,
-        //        Payload = Convert.FromBase64String(payload),
-        //        SignedTime = signedTime.FromUnixTimeSeconds()
-        //    };
-        //}
     }
 }

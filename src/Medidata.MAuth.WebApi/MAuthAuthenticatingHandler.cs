@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.WebApi
 {
@@ -20,7 +21,7 @@ namespace Medidata.MAuth.WebApi
         public Guid ClientAppUuid => authenticator.ApplicationUuid;
 
         /// <summary>
-        /// Initializes a new insance of the <see cref="MAuthAuthenticatingHandler"/> class with the provided
+        /// Initializes a new instance of the <see cref="MAuthAuthenticatingHandler"/> class with the provided
         /// <see cref="MAuthWebApiOptions"/>.
         /// </summary>
         /// <param name="options">The options for this message handler.</param>

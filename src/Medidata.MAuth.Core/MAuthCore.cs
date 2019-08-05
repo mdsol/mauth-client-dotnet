@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Security;
+using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Core
 {
@@ -88,7 +89,7 @@ namespace Medidata.MAuth.Core
         internal async Task<HttpRequestMessage> AddAuthenticationInfo(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
         {
             var authHeader =
-                $"MWS {authInfo.ApplicationUuid.ToHyphenString()}:" +
+                $"{MAuthVersion.MWS} {authInfo.ApplicationUuid.ToHyphenString()}:" +
                 $"{await CalculatePayload(request, authInfo).ConfigureAwait(false)}";
 
             request.Headers.Add(Constants.MAuthHeaderKey, authHeader);
@@ -142,6 +143,15 @@ namespace Medidata.MAuth.Core
                 Payload = Convert.FromBase64String(payload),
                 SignedTime = signedTime.FromUnixTimeSeconds()
             };
+        }
+
+        /// <summary>
+        /// Determines the correct token request path.
+        /// </summary>
+        /// <returns>The token request path.</returns>
+        public string GetMAuthTokenRequestPath()
+        {
+            return "/mauth/v1/security_tokens/";
         }
     }
 }

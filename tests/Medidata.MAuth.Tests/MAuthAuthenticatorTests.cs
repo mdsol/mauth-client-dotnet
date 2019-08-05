@@ -293,7 +293,7 @@ namespace Medidata.MAuth.Tests
 
             // Assert
             Assert.NotNull(exception);
-            Assert.Equal("Authentication with MWS version is no longer supported.", exception.Message);
+            Assert.Equal("Authentication with MWS version is disabled.", exception.Message);
         }
     }
 }

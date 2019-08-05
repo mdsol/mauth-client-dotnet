@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Newtonsoft.Json;
-using Version = Medidata.MAuth.Core.Models.Version;
+using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Tests.Infrastructure
 {
@@ -99,5 +99,12 @@ namespace Medidata.MAuth.Tests.Infrastructure
             base64Content == null ? null : Encoding.UTF8.GetString(Convert.FromBase64String(base64Content));
 
         public static HttpMethod ToHttpMethod(this string method) => new HttpMethod(method);
+
+        private static (string mAuthHeaderKey, string mAuthTimeHeaderKey) GetHeaderKeys(this string version)
+        {
+            return (version == MAuthVersion.MWSV2.ToString())
+                ? (Constants.MAuthHeaderKeyV2, Constants.MAuthTimeHeaderKeyV2)
+                : (Constants.MAuthHeaderKey, Constants.MAuthTimeHeaderKey);
+        }
     }
 }
