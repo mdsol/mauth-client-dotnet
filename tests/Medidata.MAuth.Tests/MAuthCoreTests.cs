@@ -52,7 +52,7 @@ namespace Medidata.MAuth.Tests
             var mAuthCore = new MAuthCore();
 
             // Act
-            var result = mAuthCore.Verify(signedData, Encoding.UTF8.GetBytes(signature), TestExtensions.ClientPublicKey);
+            var result = mAuthCore.Verify(signedData, unsignedData, TestExtensions.ClientPublicKey);
 
             // Assert
             Assert.True(result);
@@ -154,5 +154,31 @@ namespace Medidata.MAuth.Tests
             // Assert
             Assert.Null(exception);
         }
+
+        [Theory]
+        [InlineData("GET")]
+        [InlineData("DELETE")]
+        [InlineData("POST")]
+        [InlineData("PUT")]
+        public static async Task GetAuthenticationInfo_WithSignedRequest_WillReturnCorrectAuthInfo(string method)
+        {
+            // Arrange
+            var testData = await method.FromResource();
+            var request = new HttpRequestMessage(new HttpMethod(testData.Method), TestExtensions.TestUri);
+
+            request.Headers.Add(
+                Constants.MAuthHeaderKey, testData.MAuthHeader);
+            request.Headers.Add(Constants.MAuthTimeHeaderKey, testData.SignedTimeUnixSeconds.ToString());
+            var mAuthCore = new MAuthCore();
+
+            // Act
+            var actual = mAuthCore.GetAuthenticationInfo(request);
+
+            // Assert
+            Assert.Equal(testData.ApplicationUuid, actual.ApplicationUuid);
+            Assert.Equal(Convert.FromBase64String(testData.Payload), actual.Payload);
+            Assert.Equal(testData.SignedTime, actual.SignedTime);
+        }
+
     }
 }

@@ -63,12 +63,60 @@ namespace Medidata.MAuth.Core
         /// <summary>
         /// Authenticates a <see cref="HttpRequestMessage"/> with the provided options.
         /// </summary>
-        /// <param name="request">The requesst message to authenticate.</param>
+        /// <param name="request">The request message to authenticate.</param>
         /// <param name="options">The MAuth options to use for the authentication.</param>
         /// <returns>The task for the operation that is when completes will result in <see langword="true"/> if
         /// the authentication is successful; otherwise <see langword="false"/>.</returns>
         public static Task<bool> Authenticate(this HttpRequestMessage request, MAuthOptionsBase options) =>
-            options.MAuthVersion.Equals(Version.V2) ? new MAuthAuthenticator(options).AuthenticateRequestV2(request):
                 new MAuthAuthenticator(options).AuthenticateRequest(request);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="authHeader"></param>
+        /// <returns></returns>
+        public static string GetVersionFromAuthenticationHeader(this string authHeader)
+        {
+            return authHeader.StartsWith(Version.MWSV2.ToString())
+                ? Version.MWSV2.ToString() : Version.MWS.ToString();
+        }
+
+        /// <summary>
+        /// Determines the correct MAuthHeader value 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns>The MAuthHeader value.</returns>
+        public static string GetAuthHeaderValue(this HttpRequestMessage request)
+        {
+            //By default first check for V2
+            var authHeader = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKeyV2)
+                             ?? request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey);
+            if (authHeader == null)
+                throw new ArgumentNullException(nameof(authHeader), "The MAuth header is missing from the request.");
+            return authHeader;
+        }
+
+        /// <summary>
+        /// Determines the correct token request path based on version
+        /// </summary>
+        /// <param name="version"></param>
+        /// <returns>The correct token request path</returns>
+        public static string GetMAuthTokenRequestPath(this string version)
+        {
+            return (version == Version.MWSV2.ToString()) ?
+                Constants.MAuthTokenRequestPathV2 : Constants.MAuthTokenRequestPath;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        public static (string mAuthHeaderKey, string mAuthTimeHeaderKey) GetHeaderKeys(this string version)
+        {
+            return (version == Version.MWSV2.ToString())
+                ? (Constants.MAuthHeaderKeyV2, Constants.MAuthTimeHeaderKeyV2)
+                : (Constants.MAuthHeaderKey, Constants.MAuthTimeHeaderKey);
+        }
     }
 }

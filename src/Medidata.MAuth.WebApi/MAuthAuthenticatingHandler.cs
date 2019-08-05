@@ -4,8 +4,6 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
-using Medidata.MAuth.Core.Models;
-using Version = Medidata.MAuth.Core.Models.Version;
 
 namespace Medidata.MAuth.WebApi
 {
@@ -61,7 +59,7 @@ namespace Medidata.MAuth.WebApi
             if (InnerHandler == null)
                 InnerHandler = new HttpClientHandler();
 
-            if (!await request.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized, options.MAuthVersion))
+            if (!await request.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized))
                 return new HttpResponseMessage(HttpStatusCode.Unauthorized) { RequestMessage = request };
 
             return await base

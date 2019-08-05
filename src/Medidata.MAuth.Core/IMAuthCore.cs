@@ -10,5 +10,7 @@ namespace Medidata.MAuth.Core
         bool Verify(byte[] signedData, byte[] signature, string publicKey);
 
         Task<byte[]> GetSignature(HttpRequestMessage request, AuthenticationInfo authInfo);
+
+        PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request);
     }
 }

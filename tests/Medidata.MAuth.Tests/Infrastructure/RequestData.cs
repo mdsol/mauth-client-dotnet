@@ -34,5 +34,8 @@ namespace Medidata.MAuth.Tests.Infrastructure
 
         [IgnoreDataMember]
         public string ApplicationUuidString => ApplicationUuid.ToHyphenString();
+
+        [IgnoreDataMember]
+        public string MAuthHeaderV2 => $"MWSV2 {ApplicationUuidString}:{Payload};";
     }
 }

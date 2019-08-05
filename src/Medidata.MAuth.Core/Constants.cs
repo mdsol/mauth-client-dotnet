@@ -16,7 +16,7 @@ namespace Medidata.MAuth.Core
                 "(?:[0-9a-zA-Z+/]{4})*" +
                 "(?:[0-9a-zA-Z+/]{2}==|[0-9a-zA-Z+/]{3}=)" +
                 "?" +
-            ")$"
+            ")$", RegexOptions.Compiled
         );
 
         public static readonly string MAuthHeaderKey = "X-MWS-Authentication";
@@ -39,13 +39,13 @@ namespace Medidata.MAuth.Core
             "(?:[0-9a-zA-Z+/]{4})*" +
             "(?:[0-9a-zA-Z+/]{2}==|[0-9a-zA-Z+/]{3}=)" +
             "?" +
-            ");$"
+            ");$", RegexOptions.Compiled
         );
+
+        public static readonly string MAuthTokenRequestPathV2 = "/mauth/v2/security_tokens/";
 
         public static readonly string MAuthHeaderKeyV2 = "MCC-Authentication";
 
         public static readonly string MAuthTimeHeaderKeyV2 = "MCC-Time";
-
-        public static readonly string MAuthTokenRequestPathV2 = "/mauth/v2/security_tokens/";
     }
 }

@@ -10,12 +10,12 @@ namespace Medidata.MAuth.Core.Models
         /// <summary>
         /// 
         /// </summary>
-        [EnumMember(Value = "V1")]
-        V1 = 0,
+        [EnumMember(Value = "MWS")]
+        MWS = 0,
         /// <summary>
         /// 
         /// </summary>
-        [EnumMember(Value = "V2")]
-        V2 = 1,
+        [EnumMember(Value = "MWSV2")]
+        MWSV2 = 1,
     }
 }

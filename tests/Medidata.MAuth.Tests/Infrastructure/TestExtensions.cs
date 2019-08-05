@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Newtonsoft.Json;
+using Version = Medidata.MAuth.Core.Models.Version;
 
 namespace Medidata.MAuth.Tests.Infrastructure
 {
@@ -65,12 +66,17 @@ namespace Medidata.MAuth.Tests.Infrastructure
                 await GetStringFromResource($"Medidata.MAuth.Tests.Mocks.RequestData.{requestDataName}.json")
             );
 
+        public static async Task<RequestData> FromResourceV2(this string requestDataName) =>
+            JsonConvert.DeserializeObject<RequestData>(
+                await GetStringFromResource($"Medidata.MAuth.Tests.Mocks.RequestDataV2.{requestDataName}.json")
+            );
+
         private static Task<string> GetKeyFromResource(string keyName)
         {
             return GetStringFromResource($"Medidata.MAuth.Tests.Mocks.Keys.{keyName}.pem");
         }
 
-        public static HttpRequestMessage ToHttpRequestMessage(this RequestData data)
+        public static HttpRequestMessage ToHttpRequestMessage(this RequestData data, string version = "MWS")
         {
             var result = new HttpRequestMessage(new HttpMethod(data.Method), data.Url)
             {
@@ -78,9 +84,13 @@ namespace Medidata.MAuth.Tests.Infrastructure
                     new ByteArrayContent(Convert.FromBase64String(data.Base64Content)) :
                     null,
             };
+            var headerKeys = version.GetHeaderKeys();
+            var mauthHeader = version == "MWS"
+                ? $"{version} {data.ApplicationUuidString}:{data.Payload}"
+                : $"{version} {data.ApplicationUuidString}:{data.Payload};";
 
-            result.Headers.Add(Constants.MAuthHeaderKey, $"MWS {data.ApplicationUuidString}:{data.Payload}");
-            result.Headers.Add(Constants.MAuthTimeHeaderKey, data.SignedTimeUnixSeconds.ToString());
+            result.Headers.Add(headerKeys.mAuthHeaderKey, mauthHeader);
+            result.Headers.Add(headerKeys.mAuthTimeHeaderKey, data.SignedTimeUnixSeconds.ToString());
 
             return result;
         }

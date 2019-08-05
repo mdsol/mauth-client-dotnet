@@ -23,8 +23,13 @@ namespace Medidata.MAuth.Core
         internal DateTimeOffset? SignedTime { get; set; }
 
         /// <summary>
-        /// 
+        /// Determines the MAuth version for signing requests.
         /// </summary>
         public Version MAuthVersion { get; set; }
+
+        /// <summary>
+        /// Determines the boolean value if V1 option of signing should be disabled or not with default value of false.
+        /// </summary>
+        public bool DisableV1 { get; set; } = false;
     }
 }

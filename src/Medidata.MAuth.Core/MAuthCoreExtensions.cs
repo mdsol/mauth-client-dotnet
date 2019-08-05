@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -96,6 +97,37 @@ namespace Medidata.MAuth.Core
             }
         }
 
+        public static RSAParameters AsRsaParameters(this string key)
+        {
+            var rsaParameter = new RSAParameters();
+            using (var reader = new StringReader(key))
+            {
+                var keyObject = new PemReader(reader).ReadObject();
+
+                if (keyObject is AsymmetricCipherKeyPair pair)
+                {
+                    var privateKeyParams = (RsaPrivateCrtKeyParameters) pair.Private;
+
+                    rsaParameter.Modulus = privateKeyParams.Modulus.ToByteArrayUnsigned();
+                    rsaParameter.P = privateKeyParams.P.ToByteArrayUnsigned();
+                    rsaParameter.Q = privateKeyParams.Q.ToByteArrayUnsigned();
+                    rsaParameter.DP = privateKeyParams.DP.ToByteArrayUnsigned();
+                    rsaParameter.DQ = privateKeyParams.DQ.ToByteArrayUnsigned();
+                    rsaParameter.InverseQ = privateKeyParams.QInv.ToByteArrayUnsigned();
+                    rsaParameter.D = privateKeyParams.Exponent.ToByteArrayUnsigned();
+                    rsaParameter.Exponent = privateKeyParams.PublicExponent.ToByteArrayUnsigned();
+                    return rsaParameter;
+                }
+                else
+                {
+                    var publicKeyParam = (RsaKeyParameters)keyObject;
+                    rsaParameter.Modulus = publicKeyParam.Modulus.ToByteArrayUnsigned();
+                    rsaParameter.Exponent = publicKeyParam.Exponent.ToByteArrayUnsigned();
+                    return rsaParameter;
+                }
+            }
+        }
+
         /// <summary>
         /// Sets the stream position to 0 if the stream is seekable; otherwise it will return the stream with its
         /// current position.
@@ -130,7 +162,6 @@ namespace Medidata.MAuth.Core
         private static string InsertLineBreakBeforeEnd(this string key) =>
             Regex.Replace(key, Constants.KeyNormalizeLinesEndRegexPattern, "\n${end}");
 
-
         public static byte[] ToBytes(this string value) => Encoding.UTF8.GetBytes(value);
 
         public static byte[] Concat(this byte[][] values)
@@ -145,5 +176,50 @@ namespace Medidata.MAuth.Core
 
             return result;
         }
+
+        public static IDictionary<string, string> GetQueryStringParams(this string queryString)
+        {
+            var dictionary = queryString.Replace("?", "").Split('&').ToDictionary(x => x.Split('=')[0], x => x.Split('=')[1]);
+            return dictionary;
+        }
+
+        public static IDictionary<string, string> SortByKeyAscending(this IDictionary<string, string> queryStringParams)
+        {
+            var sortDictionary = new Dictionary<string, string>();
+            var list = queryStringParams.Keys.ToList();
+            list.Sort();
+            foreach (var key in list)
+            {
+                sortDictionary.Add(key, queryStringParams[key]);
+            }
+            return sortDictionary;
+        }
+
+        public static string BuildEncodedQueryParams(this IDictionary<string, string> queryParams)
+        {
+            var encodedQueryParam = string.Empty;
+            foreach (var key in queryParams)
+            {
+                encodedQueryParam = (encodedQueryParam != string.Empty) ?
+                    $"{encodedQueryParam}&" : encodedQueryParam;
+
+                var encodedKey = Uri.EscapeUriString(key.Key); // Is this UTF8 encoding or URI encoding
+
+                var encodedValue = (queryParams[key.Key] != string.Empty)
+                    ? Uri.EscapeUriString(queryParams[key.Key])    // same here UTF8 encoding or uri encoding
+                    : "";
+                encodedQueryParam = $"{encodedQueryParam}{encodedKey}={encodedValue}";
+            }
+            return encodedQueryParam;
+        }
+
+        /// <summary>
+        /// Provides an SHA512 hash value of bytes.
+        /// </summary>
+        /// <param name="value">The byte value for calculating the hash.</param>
+        /// <returns>The UTF8 encoded bytes of SHA512 hash of the input value as a hex-encoded byte array.</returns>
+        public static byte[] AsSha512HashV2(this byte[] value) =>
+            SHA512.Create().ComputeHash(value);
+
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
-using Medidata.MAuth.Core.Models;
 using Microsoft.Owin;
 
 namespace Medidata.MAuth.Owin
@@ -22,7 +21,7 @@ namespace Medidata.MAuth.Owin
             await context.EnsureRequestBodyStreamSeekable();
 
             if (!options.Bypass(context.Request) &&
-                !await context.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized, options.MAuthVersion))
+                !await context.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 return;
