@@ -71,10 +71,10 @@ namespace Medidata.MAuth.Core
                 new MAuthAuthenticator(options).AuthenticateRequest(request);
 
         /// <summary>
-        /// 
+        /// Determines the MAuth version enumerator reading authHeader.
         /// </summary>
         /// <param name="authHeader"></param>
-        /// <returns></returns>
+        /// <returns>Enumeration value of MAuthVersion.</returns>
         public static MAuthVersion GetVersionFromAuthenticationHeader(this string authHeader)
         {
             return authHeader.StartsWith(MAuthVersion.MWSV2.ToString())

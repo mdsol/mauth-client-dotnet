@@ -8,7 +8,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Web;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -179,9 +178,6 @@ namespace Medidata.MAuth.Core
 
         public static IDictionary<string, string> GetQueryStringParams(this string queryString)
         {
-            //var dictionary = queryString.Replace("?", "").Split('&').ToDictionary(x => x.Split('=')[0], x => x.Split('=')[1]);
-            //return dictionary;
-
             var queryStrings = new SortedDictionary<string, string>();
             queryString.Replace("?", "")
                 .Split('&')
@@ -219,7 +215,7 @@ namespace Medidata.MAuth.Core
         /// Provides an SHA512 hash value of bytes.
         /// </summary>
         /// <param name="value">The byte value for calculating the hash.</param>
-        /// <returns>The UTF8 encoded bytes of SHA512 hash of the input value as a hex-encoded byte array.</returns>
+        /// <returns>SHA512 hash of the input value.</returns>
         public static byte[] AsSha512HashV2(this byte[] value) =>
             SHA512.Create().ComputeHash(value);
 

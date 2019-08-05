@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Medidata.MAuth.Tests.Infrastructure;
@@ -89,7 +88,7 @@ namespace Medidata.MAuth.Tests
             var version = "MWSV2";
             var mAuthCore = new MAuthCoreV2();
             var queryParams = !string.IsNullOrEmpty(testData.Url.Query) ? 
-                testData.Url.Query.GetQueryStringParams().SortByKeyAscending().BuildEncodedQueryParams().ToBytes(): new byte[] { };
+                testData.Url.Query.GetQueryStringParams().BuildEncodedQueryParams().ToBytes(): new byte[] { };
             var content = !string.IsNullOrEmpty(testData.Base64Content) ? 
                 Convert.FromBase64String(testData.Base64Content)
                 : new byte[] { };

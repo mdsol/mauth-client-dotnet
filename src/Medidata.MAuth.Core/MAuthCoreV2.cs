@@ -6,9 +6,6 @@ using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Core
 {
-    /// <summary>
-    /// 
-    /// </summary>
     internal class MAuthCoreV2 : IMAuthCore
     {
         /// <summary>

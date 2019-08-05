@@ -11,8 +11,6 @@ namespace Medidata.MAuth.Core
 {
     internal class MAuthCore: IMAuthCore
     {
-        public MAuthCore () { }
-
         /// <summary>
         /// Signs an HTTP request with the MAuth-specific authentication information.
         /// </summary>
@@ -67,7 +65,7 @@ namespace Medidata.MAuth.Core
                 {
                     request.Method.Method.ToBytes(), Constants.NewLine,
                     request.RequestUri.AbsolutePath.ToBytes(), Constants.NewLine,
-                    (request.Content != null ? await request.Content.ReadAsByteArrayAsync().ConfigureAwait(false) : new byte[] { }),
+                    request.Content is null ? new byte[] {} : await request.Content.ReadAsByteArrayAsync().ConfigureAwait(false),
                     Constants.NewLine,
                     authInfo.ApplicationUuid.ToHyphenString().ToBytes(), Constants.NewLine,
                     authInfo.SignedTime.ToUnixTimeSeconds().ToString().ToBytes()
