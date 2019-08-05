@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Medidata.MAuth.Core.Models;
 using Medidata.MAuth.Tests.Infrastructure;
 using Xunit;
 
@@ -20,7 +21,7 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResourceV2();
-            var version = "MWSV2";
+            var version = MAuthVersion.MWSV2;
             var mAuthCore = new MAuthCoreV2();
 
             var authInfo = new PrivateKeyAuthenticationInfo()
@@ -43,7 +44,7 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await "POSTWithBinaryData".FromResourceV2();
             var mAuthCore = new MAuthCoreV2();
-            var version = "MWSV2";
+            var version = MAuthVersion.MWSV2;
             // Act
             var result = await mAuthCore.CalculatePayload(testData.ToHttpRequestMessage(version), new PrivateKeyAuthenticationInfo()
             {
@@ -85,7 +86,7 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResourceV2();
-            var version = "MWSV2";
+            var version = MAuthVersion.MWSV2;
             var mAuthCore = new MAuthCoreV2();
             var queryParams = !string.IsNullOrEmpty(testData.Url.Query) ? 
                 testData.Url.Query.GetQueryStringParams().BuildEncodedQueryParams().ToBytes(): new byte[] { };
@@ -126,7 +127,7 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await method.FromResourceV2();
             var expectedMAuthHeader = testData.MAuthHeaderV2;
-            var version = "MWSV2";
+            var version = MAuthVersion.MWSV2;
             var mAuthCore = new MAuthCoreV2();
 
             var authInfo = new PrivateKeyAuthenticationInfo()

@@ -76,7 +76,7 @@ namespace Medidata.MAuth.Tests.Infrastructure
             return GetStringFromResource($"Medidata.MAuth.Tests.Mocks.Keys.{keyName}.pem");
         }
 
-        public static HttpRequestMessage ToHttpRequestMessage(this RequestData data, string version = "MWS")
+        public static HttpRequestMessage ToHttpRequestMessage(this RequestData data, MAuthVersion version = MAuthVersion.MWS)
         {
             var result = new HttpRequestMessage(new HttpMethod(data.Method), data.Url)
             {
@@ -85,7 +85,7 @@ namespace Medidata.MAuth.Tests.Infrastructure
                     null,
             };
             var headerKeys = version.GetHeaderKeys();
-            var mauthHeader = version == "MWS"
+            var mauthHeader = version == MAuthVersion.MWS
                 ? $"{version} {data.ApplicationUuidString}:{data.Payload}"
                 : $"{version} {data.ApplicationUuidString}:{data.Payload};";
 
@@ -100,9 +100,9 @@ namespace Medidata.MAuth.Tests.Infrastructure
 
         public static HttpMethod ToHttpMethod(this string method) => new HttpMethod(method);
 
-        private static (string mAuthHeaderKey, string mAuthTimeHeaderKey) GetHeaderKeys(this string version)
+        private static (string mAuthHeaderKey, string mAuthTimeHeaderKey) GetHeaderKeys(this MAuthVersion version)
         {
-            return (version == MAuthVersion.MWSV2.ToString())
+            return (version == MAuthVersion.MWSV2)
                 ? (Constants.MAuthHeaderKeyV2, Constants.MAuthTimeHeaderKeyV2)
                 : (Constants.MAuthHeaderKey, Constants.MAuthTimeHeaderKey);
         }

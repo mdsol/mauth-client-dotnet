@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Medidata.MAuth.Core.Exceptions;
+using Medidata.MAuth.Core.Models;
 using Medidata.MAuth.Tests.Infrastructure;
 using Xunit;
 
@@ -67,7 +68,7 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResourceV2();
-            var version = "MWSV2";
+            var version = MAuthVersion.MWSV2;
             var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions);
             var mAuthCore = new MAuthCoreV2();
 
@@ -127,7 +128,7 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await "GET".FromResourceV2();
-            var version = "MWSV2";
+            var version = MAuthVersion.MWSV2;
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
                 policy, shouldSucceedWithin: true));
             var mAuthCore = new MAuthCoreV2();
@@ -192,7 +193,7 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await "GET".FromResource();
-            var version = "MWSV2";
+            var version = MAuthVersion.MWSV2;
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
                 policy, shouldSucceedWithin: false));
             var mAuthCore = new MAuthCoreV2();
@@ -249,7 +250,7 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResourceV2();
-            var version = "MWSV2";
+            var version = MAuthVersion.MWSV2;
             var expectedMAuthHeader = testData.MAuthHeaderV2;
             var mAuthCore = new MAuthCoreV2();
 

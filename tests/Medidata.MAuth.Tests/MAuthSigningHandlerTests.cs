@@ -43,7 +43,7 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResource();
-            var version = "MWSV2";
+            var version = MAuthVersion.MWSV2;
             var actual = new AssertSigningHandler();
             var clientOptions = TestExtensions.ClientOptions(testData.SignedTime);
             clientOptions.MAuthVersion = MAuthVersion.MWSV2;

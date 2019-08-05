@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Medidata.MAuth.Core.Models;
 using Medidata.MAuth.Tests.Infrastructure;
 using Medidata.MAuth.WebApi;
 using Xunit;
@@ -51,7 +52,7 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await method.FromResourceV2();
             var actual = new AssertSigningHandler();
-            var version = "MWSV2";
+            var version = MAuthVersion.MWSV2;
             var handler = new MAuthAuthenticatingHandler(new MAuthWebApiOptions()
             {
                 ApplicationUuid = TestExtensions.ServerUuid,
