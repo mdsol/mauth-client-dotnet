@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -176,23 +177,10 @@ namespace Medidata.MAuth.Core
             return result;
         }
 
-        public static IDictionary<string, string> GetQueryStringParams(this string queryString)
+        public static SortedDictionary<string, string> SortByKeyAscending(this NameValueCollection queryStringParams)
         {
-            var queryStrings = new SortedDictionary<string, string>();
-            queryString.Replace("?", "")
-                .Split('&')
-                .ToList()
-                .ForEach((query) => {
-                    var keyValue = query.Split('=');
-                    queryStrings.Add(keyValue[0], keyValue[1]);
-                });
-            return queryStrings;
-        }
-
-        public static IDictionary<string, string> SortByKeyAscending(this IDictionary<string, string> queryStringParams)
-        {
-            var sortDictionary = new Dictionary<string, string>();
-            var list = queryStringParams.Keys.ToList();
+            var sortDictionary = new SortedDictionary<string, string>();
+            var list = queryStringParams.AllKeys.ToList();
             list.Sort();
             foreach (var key in list)
             {
@@ -201,7 +189,7 @@ namespace Medidata.MAuth.Core
             return sortDictionary;
         }
 
-        public static string BuildEncodedQueryParams(this IDictionary<string, string> queryParams)
+        public static string BuildEncodedQueryParams(this SortedDictionary<string, string> queryParams)
         {
             var encodedQueryStrings = new List<string>();
             foreach (var query in queryParams)

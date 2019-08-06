@@ -7,10 +7,10 @@
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <AssemblyName>Medidata.MAuth.Core</AssemblyName>
     <PackageTags>medidata;mauth;hmac;authentication;core;httpclient;messagehandler</PackageTags>
-    <!--<PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard2.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>-->
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="System.ValueTuple" Version="4.3.1" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="1.1.2" />
