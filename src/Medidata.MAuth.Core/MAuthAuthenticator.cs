@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net.Http;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core.Exceptions;
 using Microsoft.Extensions.Caching.Memory;
@@ -12,7 +11,6 @@ namespace Medidata.MAuth.Core
     internal class MAuthAuthenticator
     {
         private readonly MAuthOptionsBase options;
-        private MAuthRequestRetrier retrier;
         private readonly IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
         private IMAuthCore mAuthCore;
 
@@ -80,7 +78,7 @@ namespace Medidata.MAuth.Core
             {
                 mAuthCore = MAuthCoreFactory.Instantiate(version);
                 var tokenRequestPath = mAuthCore.GetMAuthTokenRequestPath();
-                retrier = new MAuthRequestRetrier(options, version);
+                var retrier = new MAuthRequestRetrier(options, version);
                 var response = await retrier.GetSuccessfulResponse(
                     applicationUuid,
                     CreateRequest, tokenRequestPath,

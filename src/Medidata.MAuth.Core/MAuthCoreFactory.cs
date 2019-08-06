@@ -12,7 +12,7 @@ namespace Medidata.MAuth.Core
             else if (version == MAuthVersion.MWS)
                 return new MAuthCore();
 
-            throw new InvalidVersionException("Version is not recognized");
+            throw new InvalidVersionException($"Version is not recognized:{version}");
         }
     }
 }
