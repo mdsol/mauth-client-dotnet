@@ -181,7 +181,6 @@ namespace Medidata.MAuth.Core
         {
             var sortDictionary = new SortedDictionary<string, string>();
             var list = queryStringParams.AllKeys.ToList();
-            list.Sort();
             foreach (var key in list)
             {
                 sortDictionary.Add(key, queryStringParams[key]);

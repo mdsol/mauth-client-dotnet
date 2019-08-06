@@ -12,7 +12,6 @@ namespace Medidata.MAuth.Core
     {
         private readonly MAuthOptionsBase options;
         private readonly IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
-        private IMAuthCore mAuthCore;
 
         public Guid ApplicationUuid => options.ApplicationUuid;
 
@@ -39,7 +38,7 @@ namespace Medidata.MAuth.Core
                 if (options.DisableV1 && version == MAuthVersion.MWS)
                     throw new InvalidVersionException($"Authentication with {version} version is disabled.");
 
-                mAuthCore = MAuthCoreFactory.Instantiate(version);
+                var mAuthCore = MAuthCoreFactory.Instantiate(version);
                 var authInfo = mAuthCore.GetAuthenticationInfo(request);
                 var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid, version);
 
@@ -76,7 +75,7 @@ namespace Medidata.MAuth.Core
         private Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid, MAuthVersion version) =>
             cache.GetOrCreateAsync(applicationUuid, async entry =>
             {
-                mAuthCore = MAuthCoreFactory.Instantiate(version);
+                var mAuthCore = MAuthCoreFactory.Instantiate(version);
                 var tokenRequestPath = mAuthCore.GetMAuthTokenRequestPath();
                 var retrier = new MAuthRequestRetrier(options, version);
                 var response = await retrier.GetSuccessfulResponse(
