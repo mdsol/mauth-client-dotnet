@@ -177,24 +177,21 @@ namespace Medidata.MAuth.Core
             return result;
         }
 
-        public static SortedDictionary<string, string> SortByKeyAscending(this NameValueCollection queryStringParams)
-        {
-            var sortDictionary = new SortedDictionary<string, string>();
-            var list = queryStringParams.AllKeys.ToList();
-            foreach (var key in list)
-            {
-                sortDictionary.Add(key, queryStringParams[key]);
-            }
-            return sortDictionary;
-        }
-
-        public static string BuildEncodedQueryParams(this SortedDictionary<string, string> queryParams)
+        /// <summary>
+        /// Builds Encoded QueryString after sort by code point and then uri encode key and values
+        /// </summary>
+        /// <param name="queryString"></param>
+        /// <returns>EncodedQueryParameter string.</returns>
+        public static string BuildEncodedQueryParams(this string queryString)
         {
             var encodedQueryStrings = new List<string>();
-            foreach (var query in queryParams)
+            var queryArray = queryString.Split('&');
+            Array.Sort(queryArray, StringComparer.Ordinal);
+            Array.ForEach(queryArray, x =>
             {
-                encodedQueryStrings.Add($"{Uri.EscapeUriString(query.Key)}={Uri.EscapeUriString(query.Value)}");
-            }
+                var keyValue = x.Split('=');
+                encodedQueryStrings.Add($"{Uri.EscapeUriString(keyValue[0])}={Uri.EscapeUriString(keyValue[1])}");
+            });
             return string.Join("&", encodedQueryStrings);
         }
 

@@ -88,8 +88,8 @@ namespace Medidata.MAuth.Tests
             var testData = await method.FromResourceV2();
             var version = MAuthVersion.MWSV2;
             var mAuthCore = new MAuthCoreV2();
-            var queryParams = testData.Url.ParseQueryString().SortByKeyAscending().BuildEncodedQueryParams().ToBytes() ??
-                        new byte[] { };
+            var queryParams = !string.IsNullOrEmpty(testData.Url.Query) ?
+                testData.Url.Query.Replace("?","").BuildEncodedQueryParams().ToBytes() :new byte[] { };
             var content = !string.IsNullOrEmpty(testData.Base64Content) ? 
                 Convert.FromBase64String(testData.Base64Content)
                 : new byte[] { };
