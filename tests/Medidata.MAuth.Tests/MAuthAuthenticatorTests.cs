@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Medidata.MAuth.Core.Exceptions;
@@ -295,6 +296,50 @@ namespace Medidata.MAuth.Tests
             // Assert
             Assert.NotNull(exception);
             Assert.Equal("Authentication with MWS version is disabled.", exception.Message);
+        }
+
+        [Theory]
+        [InlineData("GET")]
+        [InlineData("DELETE")]
+        [InlineData("POST")]
+        [InlineData("PUT")]
+        public static async Task GetAuthenticationInfo_WithSignedRequest_ForMWSV2Version_WillReturnCorrectAuthInfo(string method)
+        {
+            // Arrange
+            var testData = await method.FromResourceV2();
+            var version = MAuthVersion.MWSV2;
+            var testOptions = TestExtensions.ServerOptions;
+            var authenticator = new MAuthAuthenticator(testOptions);
+
+            // Act
+            var actual = authenticator.GetAuthenticationInfo(testData.ToHttpRequestMessage(version), version);
+
+            // Assert
+            Assert.Equal(testData.ApplicationUuid, actual.ApplicationUuid);
+            Assert.Equal(Convert.FromBase64String(testData.Payload), actual.Payload);
+            Assert.Equal(testData.SignedTime, actual.SignedTime);
+        }
+
+        [Theory]
+        [InlineData("GET")]
+        [InlineData("DELETE")]
+        [InlineData("POST")]
+        [InlineData("PUT")]
+        public static async Task GetAuthenticationInfo_WithSignedRequest_ForMWSVersion_WillReturnCorrectAuthInfo(string method)
+        {
+            // Arrange
+            var testData = await method.FromResource();
+            var version = MAuthVersion.MWS;
+            var testOptions = TestExtensions.ServerOptions;
+            var authenticator = new MAuthAuthenticator(testOptions);
+
+            // Act
+            var actual = authenticator.GetAuthenticationInfo(testData.ToHttpRequestMessage(version), version);
+
+            // Assert
+            Assert.Equal(testData.ApplicationUuid, actual.ApplicationUuid);
+            Assert.Equal(Convert.FromBase64String(testData.Payload), actual.Payload);
+            Assert.Equal(testData.SignedTime, actual.SignedTime);
         }
     }
 }

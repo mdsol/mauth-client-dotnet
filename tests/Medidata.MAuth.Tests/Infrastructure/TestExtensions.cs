@@ -99,12 +99,5 @@ namespace Medidata.MAuth.Tests.Infrastructure
             base64Content == null ? null : Encoding.UTF8.GetString(Convert.FromBase64String(base64Content));
 
         public static HttpMethod ToHttpMethod(this string method) => new HttpMethod(method);
-
-        private static (string mAuthHeaderKey, string mAuthTimeHeaderKey) GetHeaderKeys(this MAuthVersion version)
-        {
-            return (version == MAuthVersion.MWSV2)
-                ? (Constants.MAuthHeaderKeyV2, Constants.MAuthTimeHeaderKeyV2)
-                : (Constants.MAuthHeaderKey, Constants.MAuthTimeHeaderKey);
-        }
     }
 }

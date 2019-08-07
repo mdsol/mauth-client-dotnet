@@ -39,7 +39,7 @@ namespace Medidata.MAuth.Core
                     throw new InvalidVersionException($"Authentication with {version} version is disabled.");
 
                 var mAuthCore = MAuthCoreFactory.Instantiate(version);
-                var authInfo = mAuthCore.GetAuthenticationInfo(request);
+                var authInfo = GetAuthenticationInfo(request, version);
                 var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid, version);
 
                 return mAuthCore.Verify(authInfo.Payload, await mAuthCore.GetSignature(request, authInfo),
@@ -97,5 +97,34 @@ namespace Medidata.MAuth.Core
         private HttpRequestMessage CreateRequest(Guid applicationUuid, string tokenRequestPath) =>
             new HttpRequestMessage(HttpMethod.Get, new Uri(options.MAuthServiceUrl,
                 $"{tokenRequestPath}{applicationUuid.ToHyphenString()}.json"));
+
+        /// <summary>
+        /// Extracts the authentication information from a <see cref="HttpRequestMessage"/>.
+        /// </summary>
+        /// <param name="request">The request that has the authentication information.</param>
+        /// /// <param name="version">Enum value of the MAuthVersion.</param>
+        /// <returns>The authentication information with the payload from the request.</returns>
+        public PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request, MAuthVersion version)
+        {
+            var headerKeys = version.GetHeaderKeys();
+            var authHeader = request.Headers.GetFirstValueOrDefault<string>(headerKeys.mAuthHeaderKey);
+
+            if (authHeader == null)
+                throw new ArgumentNullException(nameof(authHeader), "The MAuth header is missing from the request.");
+
+            var signedTime = request.Headers.GetFirstValueOrDefault<long>(headerKeys.mAuthTimeHeaderKey);
+
+            if (signedTime == default(long))
+                throw new ArgumentException("Invalid MAuth signed time header value.", nameof(signedTime));
+
+            var (uuid, payload) = authHeader.ParseAuthenticationHeader();
+
+            return new PayloadAuthenticationInfo()
+            {
+                ApplicationUuid = uuid,
+                Payload = Convert.FromBase64String(payload),
+                SignedTime = signedTime.FromUnixTimeSeconds()
+            };
+        }
     }
 }

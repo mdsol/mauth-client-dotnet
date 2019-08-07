@@ -127,32 +127,6 @@ namespace Medidata.MAuth.Core
         }
 
         /// <summary>
-        /// Extracts the authentication information from a <see cref="HttpRequestMessage"/>.
-        /// </summary>
-        /// <param name="request">The request that has the authentication information.</param>
-        /// <returns>The authentication information with the payload from the request.</returns>
-        public PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request)
-        {
-            var authHeader = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKeyV2);
-
-            if (authHeader == null)
-                throw new ArgumentNullException(nameof(authHeader), "The MAuth header is missing from the request.");
-
-            var signedTime = request.Headers.GetFirstValueOrDefault<long>(Constants.MAuthTimeHeaderKeyV2);
-
-            if (signedTime == default(long))
-                throw new ArgumentException("Invalid MAuth signed time header value.", nameof(signedTime));
-
-            var (uuid, payload) = authHeader.ParseAuthenticationHeader();
-
-            return new PayloadAuthenticationInfo()
-            {
-                ApplicationUuid = uuid,
-                Payload = Convert.FromBase64String(payload),
-                SignedTime = signedTime.FromUnixTimeSeconds()
-            };
-        }
-        /// <summary>
         /// Determines the correct token request path.
         /// </summary>
         /// <returns>The token request path.</returns>

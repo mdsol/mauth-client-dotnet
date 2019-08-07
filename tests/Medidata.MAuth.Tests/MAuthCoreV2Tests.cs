@@ -147,30 +147,5 @@ namespace Medidata.MAuth.Tests
                 actual.Headers.GetFirstValueOrDefault<long>(Constants.MAuthTimeHeaderKeyV2)
             );
         }
-
-        [Theory]
-        [InlineData("GET")]
-        [InlineData("DELETE")]
-        [InlineData("POST")]
-        [InlineData("PUT")]
-        public static async Task GetAuthenticationInfo_WithSignedRequest_WillReturnCorrectAuthInfo(string method)
-        {
-            // Arrange
-            var testData = await method.FromResourceV2();
-            var request = new HttpRequestMessage(new HttpMethod(testData.Method), TestExtensions.TestUri);
-
-            request.Headers.Add(
-                Constants.MAuthHeaderKeyV2, testData.MAuthHeaderV2);
-            request.Headers.Add(Constants.MAuthTimeHeaderKeyV2, testData.SignedTimeUnixSeconds.ToString());
-            var mAuthCore = new MAuthCoreV2();
-
-            // Act
-            var actual = mAuthCore.GetAuthenticationInfo(request);
-
-            // Assert
-            Assert.Equal(testData.ApplicationUuid, actual.ApplicationUuid);
-            Assert.Equal(Convert.FromBase64String(testData.Payload), actual.Payload);
-            Assert.Equal(testData.SignedTime, actual.SignedTime);
-        }
     }
 }
