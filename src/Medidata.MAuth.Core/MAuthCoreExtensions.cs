@@ -190,7 +190,9 @@ namespace Medidata.MAuth.Core
             Array.ForEach(queryArray, x =>
             {
                 var keyValue = x.Split('=');
-                encodedQueryStrings.Add($"{Uri.EscapeDataString(keyValue[0])}={Uri.EscapeDataString(keyValue[1])}");
+                var escapedKey = Uri.EscapeDataString(keyValue[0]);
+                var escapedValue = Uri.EscapeDataString(keyValue[1]);
+                encodedQueryStrings.Add($"{escapedKey}={escapedValue}");
             });
             return string.Join("&", encodedQueryStrings);
         }
