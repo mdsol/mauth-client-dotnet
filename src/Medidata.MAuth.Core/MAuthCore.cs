@@ -124,5 +124,14 @@ namespace Medidata.MAuth.Core
         {
             return "/mauth/v1/security_tokens/";
         }
+
+        /// <summary>
+        /// Gets the MAuthHeader and MAuthTimeHeader keys
+        /// </summary>
+        /// <returns>MAuthHeaderKey and MAuthTimeHeaderKey.</returns>
+        public (string mAuthHeaderKey, string mAuthTimeHeaderKey) GetHeaderKeys()
+        {
+            return (Constants.MAuthHeaderKey, Constants.MAuthTimeHeaderKey);
+        }
     }
 }

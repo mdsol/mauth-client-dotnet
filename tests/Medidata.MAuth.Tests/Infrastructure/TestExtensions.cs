@@ -84,7 +84,8 @@ namespace Medidata.MAuth.Tests.Infrastructure
                     new ByteArrayContent(Convert.FromBase64String(data.Base64Content)) :
                     null,
             };
-            var headerKeys = version.GetHeaderKeys();
+            var mAuthCore = MAuthCoreFactory.Instantiate(version);
+            var headerKeys = mAuthCore.GetHeaderKeys();
             var mauthHeader = version == MAuthVersion.MWS
                 ? $"{version} {data.ApplicationUuidString}:{data.Payload}"
                 : $"{version} {data.ApplicationUuidString}:{data.Payload};";
@@ -99,5 +100,6 @@ namespace Medidata.MAuth.Tests.Infrastructure
             base64Content == null ? null : Encoding.UTF8.GetString(Convert.FromBase64String(base64Content));
 
         public static HttpMethod ToHttpMethod(this string method) => new HttpMethod(method);
+
     }
 }

@@ -94,17 +94,5 @@ namespace Medidata.MAuth.Core
             return authHeader ??
                    throw new ArgumentNullException(nameof(authHeader), "The MAuth header is missing from the request.");
         }
-
-        /// <summary>
-        /// Gets the MAuthHeader values based on the enum value of the version.
-        /// </summary>
-        /// <param name="version"></param>
-        /// <returns>MAuthHeaderKey and MAuthTimeHeaderKey.</returns>
-        public static (string mAuthHeaderKey, string mAuthTimeHeaderKey) GetHeaderKeys(this MAuthVersion version)
-        {
-            return (version == MAuthVersion.MWSV2)
-                ? (Constants.MAuthHeaderKeyV2, Constants.MAuthTimeHeaderKeyV2)
-                : (Constants.MAuthHeaderKey, Constants.MAuthTimeHeaderKey);
-        }
     }
 }

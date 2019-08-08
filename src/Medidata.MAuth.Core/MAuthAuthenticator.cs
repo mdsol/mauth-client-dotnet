@@ -106,7 +106,8 @@ namespace Medidata.MAuth.Core
         /// <returns>The authentication information with the payload from the request.</returns>
         public PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request, MAuthVersion version)
         {
-            var headerKeys = version.GetHeaderKeys();
+            var mAuthCore = MAuthCoreFactory.Instantiate(version);
+            var headerKeys = mAuthCore.GetHeaderKeys();
             var authHeader = request.Headers.GetFirstValueOrDefault<string>(headerKeys.mAuthHeaderKey);
 
             if (authHeader == null)
