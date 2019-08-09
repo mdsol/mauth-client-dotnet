@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq.Expressions;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -57,7 +56,7 @@ namespace Medidata.MAuth.Core
             if (InnerHandler == null)
                 InnerHandler = new HttpClientHandler();
 
-            if(options.DisableV1 && options.MAuthVersion.ToString() == MAuthVersion.MWS.ToString())
+            if(options.DisableV1 && options.MAuthVersion == MAuthVersion.MWS)
                 throw new InvalidVersionException
                     ($"Signing with {options.MAuthVersion.ToString()} is disabled.");
 
