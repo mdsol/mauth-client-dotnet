@@ -30,8 +30,8 @@ namespace Medidata.MAuth.Core
 
             this.options = options;
 
-            _logger = LoggerFactory.Create(builder => builder.AddConsole().AddDebug())
-                .CreateLogger<MAuthAuthenticator>();
+            var factory = new LoggerFactory().AddDebug().AddConsole();
+            _logger = factory.CreateLogger<MAuthAuthenticator>();
         }
 
         public async Task<bool> AuthenticateRequest(HttpRequestMessage request)
