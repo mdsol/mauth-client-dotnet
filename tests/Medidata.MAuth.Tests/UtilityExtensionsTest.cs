@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Medidata.MAuth.Tests.Infrastructure;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace Medidata.MAuth.Tests
@@ -67,7 +68,7 @@ namespace Medidata.MAuth.Tests
                 });
 
             // Act
-            var isAuthenticated = await signedRequest.Authenticate(TestExtensions.ServerOptions);
+            var isAuthenticated = await signedRequest.Authenticate(TestExtensions.ServerOptions, NullLoggerFactory.Instance);
 
             // Assert
             Assert.True(isAuthenticated);

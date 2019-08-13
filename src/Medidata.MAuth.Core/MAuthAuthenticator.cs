@@ -17,7 +17,7 @@ namespace Medidata.MAuth.Core
 
         public Guid ApplicationUuid => options.ApplicationUuid;
 
-        public MAuthAuthenticator(MAuthOptionsBase options)
+        public MAuthAuthenticator(MAuthOptionsBase options, ILoggerFactory loggerFactory)
         {
             if (options.ApplicationUuid == default(Guid))
                 throw new ArgumentException(nameof(options.ApplicationUuid));
@@ -30,10 +30,14 @@ namespace Medidata.MAuth.Core
 
             this.options = options;
 
-            var factory = new LoggerFactory().AddDebug().AddConsole();
-            _logger = factory.CreateLogger<MAuthAuthenticator>();
+            this._logger = loggerFactory.CreateLogger<MAuthAuthenticator>();
         }
 
+        /// <summary>
+        /// Verifies if the <see cref="HttpRequestMessage"/> request is authenticated or not.
+        /// </summary>
+        /// <param name="request">The <see cref="HttpRequestMessage"/> request. </param>
+        /// <returns>A task object of the boolean value that verifies if the request is authenticated or not.</returns>
         public async Task<bool> AuthenticateRequest(HttpRequestMessage request)
         {
             try
@@ -117,7 +121,7 @@ namespace Medidata.MAuth.Core
         /// <param name="request">The request that has the authentication information.</param>
         /// /// <param name="version">Enum value of the MAuthVersion.</param>
         /// <returns>The authentication information with the payload from the request.</returns>
-        public PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request, MAuthVersion version)
+        internal PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request, MAuthVersion version)
         {
             var mAuthCore = MAuthCoreFactory.Instantiate(version);
             var headerKeys = mAuthCore.GetHeaderKeys();

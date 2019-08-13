@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Medidata.MAuth.Core
 {
@@ -65,10 +66,11 @@ namespace Medidata.MAuth.Core
         /// </summary>
         /// <param name="request">The request message to authenticate.</param>
         /// <param name="options">The MAuth options to use for the authentication.</param>
+        /// <param name="loggerFactory">The logger factory used with authentication.</param>
         /// <returns>The task for the operation that is when completes will result in <see langword="true"/> if
         /// the authentication is successful; otherwise <see langword="false"/>.</returns>
-        public static Task<bool> Authenticate(this HttpRequestMessage request, MAuthOptionsBase options) =>
-                new MAuthAuthenticator(options).AuthenticateRequest(request);
+        public static Task<bool> Authenticate(this HttpRequestMessage request, MAuthOptionsBase options, ILoggerFactory loggerFactory) =>
+                new MAuthAuthenticator(options, loggerFactory).AuthenticateRequest(request);
 
         /// <summary>
         /// Determines the MAuth version enumerator reading authHeader.
