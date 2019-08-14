@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
-using Microsoft.Extensions.Logging;
 
 namespace Medidata.MAuth.AspNetCore
 {
@@ -13,11 +12,11 @@ namespace Medidata.MAuth.AspNetCore
         private readonly MAuthAuthenticator authenticator;
         private readonly RequestDelegate next;
 
-        public MAuthMiddleware(RequestDelegate next, MAuthMiddlewareOptions options, ILoggerFactory loggerFactory)
+        public MAuthMiddleware(RequestDelegate next, MAuthMiddlewareOptions options)
         {
             this.next = next;
             this.options = options;
-            this.authenticator = new MAuthAuthenticator(options, loggerFactory);
+            this.authenticator = new MAuthAuthenticator(options);
         }
 
         public async Task Invoke(HttpContext context)
