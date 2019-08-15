@@ -1,5 +1,8 @@
 # Changes in Medidata.MAuth
 
+## v4.0.0
+- **[All]** Added implementation for MWSV2 signinig and authentication. 
+
 ## v3.1.3
 - **[Core]** Refactored `MAuthCoreExtensions.cs` and moved Signing and Verification method into `IMAuthCore.cs`.
 

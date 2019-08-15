@@ -37,6 +37,11 @@ namespace Medidata.MAuth.Core
         /// <summary>
         /// Determines the message handler for the requests to the MAuth server.
         /// </summary>
-        public HttpMessageHandler MAuthServerHandler { get; set; } 
+        public HttpMessageHandler MAuthServerHandler { get; set; }
+
+        /// <summary>
+        /// Determines the boolean value if V1 option of signing should be disabled or not with default value of false.
+        /// </summary>
+        public bool DisableV1 { get; set; } = false;
     }
 }

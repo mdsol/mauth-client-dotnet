@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.Http;
 using System.Runtime.Serialization;
 using Medidata.MAuth.Core;
 
@@ -34,5 +33,8 @@ namespace Medidata.MAuth.Tests.Infrastructure
 
         [IgnoreDataMember]
         public string ApplicationUuidString => ApplicationUuid.ToHyphenString();
+
+        [IgnoreDataMember]
+        public string MAuthHeaderV2 => $"MWSV2 {ApplicationUuidString}:{Payload};";
     }
 }

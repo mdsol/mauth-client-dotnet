@@ -1,15 +1,12 @@
-﻿using Org.BouncyCastle.Crypto.Encodings;
-using System;
-using System.Linq;
+﻿using System;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Security;
 using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Core
 {
-    internal class MAuthCore: IMAuthCore
+    internal class MAuthCoreV2 : IMAuthCore
     {
         /// <summary>
         /// Signs an HTTP request with the MAuth-specific authentication information.
@@ -19,9 +16,10 @@ namespace Medidata.MAuth.Core
         /// <returns>
         /// A Task object which will result the request signed with the authentication information when it completes.
         /// </returns>
-        public Task<HttpRequestMessage> Sign(HttpRequestMessage request, MAuthSigningOptions options)
+        public async Task<HttpRequestMessage> Sign(
+            HttpRequestMessage request, MAuthSigningOptions options)
         {
-            return AddAuthenticationInfo(request, new PrivateKeyAuthenticationInfo()
+            return await AddAuthenticationInfo(request, new PrivateKeyAuthenticationInfo()
             {
                 ApplicationUuid = options.ApplicationUuid,
                 SignedTime = options.SignedTime ?? DateTimeOffset.UtcNow,
@@ -42,11 +40,10 @@ namespace Medidata.MAuth.Core
         /// </returns>
         public bool Verify(byte[] signedData, byte[] signature, string publicKey)
         {
-            Pkcs1Encoding.StrictLengthEnabled = false;
-            var cipher = CipherUtilities.GetCipher("RSA/ECB/PKCS1Padding");
-            cipher.Init(false, publicKey.AsCipherParameters());
-
-            return cipher.DoFinal(signedData).SequenceEqual(signature);
+            var rsa = new RSACryptoServiceProvider();
+            rsa.PersistKeyInCsp = false;
+            rsa.ImportParameters(publicKey.AsRsaParameters());
+            return rsa.VerifyHash(signature, CryptoConfig.MapNameToOID("SHA512"), signedData);
         }
 
         /// <summary>
@@ -61,17 +58,27 @@ namespace Medidata.MAuth.Core
         /// <returns>A Task object which will result the SHA512 hash of the signature when it completes.</returns>
         public async Task<byte[]> GetSignature(HttpRequestMessage request, AuthenticationInfo authInfo)
         {
-           return new byte[][]
-                {
-                    request.Method.Method.ToBytes(), Constants.NewLine,
-                    request.RequestUri.AbsolutePath.ToBytes(), Constants.NewLine,
-                    request.Content is null ? new byte[] {} : await request.Content.ReadAsByteArrayAsync().ConfigureAwait(false),
-                    Constants.NewLine,
-                    authInfo.ApplicationUuid.ToHyphenString().ToBytes(), Constants.NewLine,
-                    authInfo.SignedTime.ToUnixTimeSeconds().ToString().ToBytes()
-                }
-                .Concat()
-                .AsSHA512Hash();
+            var encodedHttpVerb = request.Method.Method.ToBytes();
+            var encodedResourceUriPath = request.RequestUri.AbsolutePath.ToBytes();
+            var encodedAppUUid = authInfo.ApplicationUuid.ToHyphenString().ToBytes();
+
+            var requestBody = request.Content != null ?
+                await request.Content.ReadAsByteArrayAsync().ConfigureAwait(false) : new byte[] { };
+            var requestBodyDigest = requestBody.AsSha512HashV2();
+
+            var encodedCurrentSecondsSinceEpoch = authInfo.SignedTime.ToUnixTimeSeconds().ToString().ToBytes();
+            var encodedQueryParams = !string.IsNullOrEmpty(request.RequestUri.Query) ?
+                request.RequestUri.Query.Replace("?", "").BuildEncodedQueryParams().ToBytes() : new byte[] { };
+
+            return new byte[][]
+            {
+                encodedHttpVerb, Constants.NewLine,
+                encodedResourceUriPath, Constants.NewLine,
+                requestBodyDigest, Constants.NewLine,
+                encodedAppUUid, Constants.NewLine,
+                encodedCurrentSecondsSinceEpoch, Constants.NewLine,
+                encodedQueryParams
+            }.Concat().AsSha512HashV2();
         }
 
         /// <summary>
@@ -84,14 +91,15 @@ namespace Medidata.MAuth.Core
         /// <returns>
         /// A Task object which will result the request with the authentication information added when it completes.
         /// </returns>
-        internal async Task<HttpRequestMessage> AddAuthenticationInfo(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
+        internal async Task<HttpRequestMessage> AddAuthenticationInfo(
+            HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
         {
             var authHeader =
-                $"{MAuthVersion.MWS} {authInfo.ApplicationUuid.ToHyphenString()}:" +
-                $"{await CalculatePayload(request, authInfo).ConfigureAwait(false)}";
+                $"{MAuthVersion.MWSV2} {authInfo.ApplicationUuid.ToHyphenString()}:" +
+                $"{await CalculatePayload(request, authInfo).ConfigureAwait(false)};";
 
-            request.Headers.Add(Constants.MAuthHeaderKey, authHeader);
-            request.Headers.Add(Constants.MAuthTimeHeaderKey, authInfo.SignedTime.ToUnixTimeSeconds().ToString());
+            request.Headers.Add(Constants.MAuthHeaderKeyV2, authHeader);
+            request.Headers.Add(Constants.MAuthTimeHeaderKeyV2, authInfo.SignedTime.ToUnixTimeSeconds().ToString());
 
             return request;
         }
@@ -107,13 +115,15 @@ namespace Medidata.MAuth.Core
         /// signature and the private key.
         /// </param>
         /// <returns>A task object which will result the payload as a Base64 encoded string when completed.</returns>
-        internal async Task<string> CalculatePayload(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
+        internal async Task<string> CalculatePayload(
+            HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
         {
             var unsignedData = await GetSignature(request, authInfo).ConfigureAwait(false);
-            var signer = new Pkcs1Encoding(new RsaEngine());
-            signer.Init(true, authInfo.PrivateKey.AsCipherParameters());
+            var signer = new RSACryptoServiceProvider();
+            signer.PersistKeyInCsp = false;
+            signer.ImportParameters(authInfo.PrivateKey.AsRsaParameters());
 
-            return Convert.ToBase64String(signer.ProcessBlock(unsignedData, 0, unsignedData.Length));
+            return Convert.ToBase64String(signer.SignHash(unsignedData, CryptoConfig.MapNameToOID("SHA512")));
         }
 
         /// <summary>
@@ -122,16 +132,16 @@ namespace Medidata.MAuth.Core
         /// <returns>The token request path.</returns>
         public string GetMAuthTokenRequestPath()
         {
-            return "/mauth/v1/security_tokens/";
+            return "/mauth/v2/security_tokens/";
         }
 
         /// <summary>
-        /// Gets the MAuthHeader and MAuthTimeHeader keys
+        /// Gets the MAuthHeader and MAuthTimeHeader keys.
         /// </summary>
         /// <returns>MAuthHeaderKey and MAuthTimeHeaderKey.</returns>
         public (string mAuthHeaderKey, string mAuthTimeHeaderKey) GetHeaderKeys()
         {
-            return (Constants.MAuthHeaderKey, Constants.MAuthTimeHeaderKey);
+            return (Constants.MAuthHeaderKeyV2, Constants.MAuthTimeHeaderKeyV2);
         }
     }
 }

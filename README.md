@@ -103,6 +103,7 @@ An example:
 
 ```C#
 using Medidata.MAuth.Core;
+using Medidata.MAuth.Core.Models;
 
 public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage request)
 {
@@ -111,7 +112,13 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
         ApplicationUuid = new Guid("7c872d75-986b-4c61-bb17-f2569d42bfb0"),
 
         // The following can be either a path to the key file or the contents of the file itself
-        PrivateKey = "ClientPrivateKey.pem"
+        PrivateKey = "ClientPrivateKey.pem",
+
+        // With 4.0.0 version, V2 protocol is supported
+        MAuthVersion = (MAuthVersion.MWSV2 || MAuthVersion.MWS)
+
+        // when ready to disable authentication of V1 protococl
+        DisableV1 = true
     });
 
     using (var client = new HttpClient(signingHandler))
@@ -120,6 +127,11 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
     }
 }
 ```
+With the MAuth V2 protocol, there are two new options `MAuthVersion` and `DisableV1` added for Signing MAuth request.
+`MAuthVersion` is passed either as `MAuthVersion.MWSV2` for signing with V2 protocol or `MAuthVersion.MWS` for continue
+signing with V1 protocol. By default, `DisableV1` option is set to false (if not included). When we are ready to 
+disable all the V1 request, then we need to include this disable option as : `DisableV1 = true`. 
+Signing with V2 protocol supports query string.
 
 The example above is creating a new instance of a `HttpClient` with the handler responsible for signing the
 requests and sends the request to its designation. Finally it returns the response from the remote server.
@@ -130,6 +142,8 @@ The `MAuthSigningOptions` has the following properties to determine the required
 | ---- | ----------- |
 | **ApplicationUuid** | Determines the unique identifier of the client application used for the MAuth service authentication requests.  This uuid needs to be registered with the MAuth Server in order for the authenticating server application to be able to authenticate the signed request. |
 | **PrivateKey** | Determines the RSA private key of the client for signing a request. This key must be in a PEM ASN.1 format. The value of this property can be set as a valid path to a readable key file as well. |
+| **MAuthVersion** | Determines the MAuth version of the request used for signing. This is enumeration value which is `MAuthVersion.MWSV2` for V2 requests. |
+| **DisableV1** | Determines the boolean value which controls whether to disable the signing requests with `MAuthVersion.MWS` requests or not. If not supplied, this value is  `false`. |
 
 ### Authenticating Incoming Requests with the OWIN and ASP.NET Core Middlewares
 
@@ -137,6 +151,9 @@ If your application implements the OWIN-specific or ASP.NET Core pipeline, you c
 provided by the Owin and AspNetCore NuGet packages.
 
 The setting and usage is as follows in case of OWIN (in the application's `Startup` class):
+
+With the update of MAuth V2 protocol, the authentication will first check for mauth header with `MWSV2` and if not found then only fallback to authenticate for `MWS` version.
+Also, there is options of `DisableV1`, which is `false` by default and when we are ready to disable authentication of V1 protocl i.e. `MWS` version, then we need to pass this option too as `true`.
 
 ```C#
 using Medidata.MAuth.Owin;
@@ -154,6 +171,9 @@ public class Startup
             options.HideExceptionsAndReturnUnauthorized = true;
             options.PrivateKey = "ServerPrivateKey.pem";
             options.Bypass = (request) => request.Uri.AbsolutePath.StartsWith("/allowed");
+
+            // when ready to disable authentication of V1 protococl
+            options.DisableV1 = true;
         });
     }
 }
@@ -177,6 +197,9 @@ public class Startup
             options.HideExceptionsAndReturnUnauthorized = true;
             options.PrivateKey = "ServerPrivateKey.pem";
             options.Bypass = (request) => request.Uri.AbsolutePath.StartsWith("/allowed");
+
+            // when ready to disable authentication of V1 protococl
+            options.DisableV1 = true;
         });
     }
 }
@@ -193,6 +216,7 @@ The middlewares take an `MAuthMiddlewareOptions` instance to set up the authenti
 | **MAuthServiceRetryPolicy** | The policy for the retry attempts when communicating with the MAuth service. The following policies can be used: `NoRetry` (no retries), `RetryOnce` (one additional attempt), `RetryTwice` (two additional attempts) and `Agressive` (9 additional attempts) - the default value is **RetryOnce**. |
 | **HideExceptionsAndReturnUnauthorized** | An optional parameter that determines if the middleware should swallow all exceptions and return an empty HTTP response with a status code Unauthorized (401) in case of any errors (including authentication and validation errors). The default is **true**. |
 | **Bypass** | Determines a function which evaluates if a given request should bypass the MAuth authentication. |
+| **DisableV1** | Determines the boolean value which controls whether to disable the signing requests with `MAuthVersion.MWS` requests or not. If not supplied, this default value is  `false`. |
 
 The **HideExceptionsAndReturnUnauthorized** parameter is useful (if set to **false**) when you have an exception handler
 mechanism (for example a logger) in your middleware pipeline. In this case the MAuth middleware won't swallow the
@@ -208,6 +232,8 @@ The **Bypass** function takes a `IOwinRequest` in case of OWIN and an `HttpReque
 should produce **true** as a result, if the given request satisfies the conditions to bypass the authentication;
 otherwise it should result **false** therefore an authentication attempt will occur. If no Bypass predicate provided
 in the options, every request will be authenticated by default.
+
+When authentication of V1 requests needs to be disabled, then **DisableV1** should be passed as **true**.
 
 ### Authenticating Incoming Requests with the WebApi Message Handler
 
@@ -232,7 +258,10 @@ public static class WebApiConfig
             AuthenticateRequestTimeoutSeconds = 3,
             MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.RetryOnce,
             HideExceptionsAndReturnUnauthorized = true,
-            PrivateKey = "ServerPrivateKey.pem"
+            PrivateKey = "ServerPrivateKey.pem",
+
+            // when ready to disable authentication of V1 protococl
+            options.DisableV1 = true
         };
 
         config.MessageHandlers.Add(new MAuthAuthenticatingHandler(options));
@@ -273,20 +302,37 @@ The framework is licensed under the [MIT licensing terms](https://github.com/mds
 
 ##### What is the current target .NET Framework version?
 
-The current target is **.NET Framework 4.5.2** - this means that you have to use at least this target framework version
+The current target is **.NET Framework 4.6.1** - this means that you have to use at least this target framework version
 in your project in order to make Medidata.MAuth work for you.
 
 ##### Is there an .NET Standard/Core support?
 
 Yes, for signing outgoing requests you can use the library with any framework which implements
-the **.NET Standard 1.4** and onwards; additionally we support the **ASP.NET Core App 1.1** and onwards with a middleware
+the **.NET Standard 2.0** and onwards; additionally we support the **ASP.NET Core App 2.0** and onwards with a middleware
 for authenticating the incoming requests.
 
 ##### What Cryptographic provider is used for the encryption/decryption?
 
+In the latest version of 4.0.0, we are using the available dotnet security [System.Security.Cryptography] which works 
+for both **.NET Framework 4.6.1** and **.NET Standard 2.0** in case of V2 protocol. However, for the continue support 
+of V1 protcol, we are still maintaining the BouncyCastle library as mentioned below.
+
 On the .NET Framework side (WebAPI, Owin, Core) we are using the latest version (as of date 1.81) of the
 [BouncyCastle](https://github.com/bcgit/bc-csharp) library; on the .NET Standard side (Core, AspNetCore) we are using
 the portable fork of the [BouncyCastle](https://github.com/onovotny/BouncyCastle-PCL) library.
+
+##### What are the major changes in the 4.0.0 version?
+
+In this version we have added support for V2 protocol which uses `MCC-Authentication` as MAuthHeader and  `MCC-Time` as
+MAuthTimeHeader. And, this V2 protocol supports for signing and authenticating url with query string parameters.
+For Signing, we added two new options in `MAuthSigningOptions`: `MAuthVersion` which is mandatory and takes enumeration
+ value of `MAuthVersion.MWSV2` for V2 protocol or `MAuthVersion.MWS` for continue of using V1 protocol.
+Another option `DisableV1` is `false` by default if not provided. But, it is needed to provide as `true` when the client 
+need to sign on by no more supporting V1 protocol.
+
+Also while authentication, the logic defaults to check for V2 protcol header `MWSV2` and if fails then only fallback to 
+check for V1 protocol header for `MWS`. Also, `MAuthOptionsBase` includes new option as `DisableV1` which is `false` by 
+default and need to be passed as `true` if the authenticating client no longer wants to support V1 protocol.
 
 ##### What are the major changes in the 2.0.0 version?
 
@@ -314,5 +360,3 @@ This policy will make the number of requests to the MAuth service to an overall 
 to receive a successful response from the MAuth service is gradually decreasing by the number of attempts (the more
 the clients are sending requests to a presumably overloaded server the less the chance for a successful response) -
 therefore we do not recommend to use this policy in any production scenario.
-
-

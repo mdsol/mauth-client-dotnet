@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Core
 {
@@ -45,7 +46,8 @@ namespace Medidata.MAuth.Core
         public static bool TryParseAuthenticationHeader(this string headerValue,
             out (Guid Uuid, string Base64Payload) result)
         {
-            var match = Constants.AuthenticationHeaderRegex.Match(headerValue);
+            var match = headerValue.Contains("MWSV2") ? Constants.AuthenticationHeaderRegexV2.Match(headerValue) : 
+                Constants.AuthenticationHeaderRegex.Match(headerValue);
 
             result = default((Guid, string));
 
@@ -61,11 +63,36 @@ namespace Medidata.MAuth.Core
         /// <summary>
         /// Authenticates a <see cref="HttpRequestMessage"/> with the provided options.
         /// </summary>
-        /// <param name="request">The requesst message to authenticate.</param>
+        /// <param name="request">The request message to authenticate.</param>
         /// <param name="options">The MAuth options to use for the authentication.</param>
         /// <returns>The task for the operation that is when completes will result in <see langword="true"/> if
         /// the authentication is successful; otherwise <see langword="false"/>.</returns>
         public static Task<bool> Authenticate(this HttpRequestMessage request, MAuthOptionsBase options) =>
-            new MAuthAuthenticator(options).AuthenticateRequest(request);
+                new MAuthAuthenticator(options).AuthenticateRequest(request);
+
+        /// <summary>
+        /// Determines the MAuth version enumerator reading authHeader.
+        /// </summary>
+        /// <param name="authHeader"></param>
+        /// <returns>Enumeration value of MAuthVersion.</returns>
+        public static MAuthVersion GetVersionFromAuthenticationHeader(this string authHeader)
+        {
+            return authHeader.StartsWith(MAuthVersion.MWSV2.ToString())
+                ? MAuthVersion.MWSV2 : MAuthVersion.MWS;
+        }
+
+        /// <summary>
+        /// Determines the correct MAuthHeader value with default check for V2.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns>The MAuthHeader value.</returns>
+        public static string GetAuthHeaderValue(this HttpRequestMessage request)
+        {
+            //By default first check for V2
+            var authHeader = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKeyV2)
+                             ?? request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey);
+            return authHeader ??
+                   throw new ArgumentNullException(nameof(authHeader), "The MAuth header is missing from the request.");
+        }
     }
 }

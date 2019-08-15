@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -96,6 +97,37 @@ namespace Medidata.MAuth.Core
             }
         }
 
+        public static RSAParameters AsRsaParameters(this string key)
+        {
+            var rsaParameter = new RSAParameters();
+            using (var reader = new StringReader(key))
+            {
+                var keyObject = new PemReader(reader).ReadObject();
+
+                if (keyObject is AsymmetricCipherKeyPair pair)
+                {
+                    var privateKeyParams = (RsaPrivateCrtKeyParameters) pair.Private;
+
+                    rsaParameter.Modulus = privateKeyParams.Modulus.ToByteArrayUnsigned();
+                    rsaParameter.P = privateKeyParams.P.ToByteArrayUnsigned();
+                    rsaParameter.Q = privateKeyParams.Q.ToByteArrayUnsigned();
+                    rsaParameter.DP = privateKeyParams.DP.ToByteArrayUnsigned();
+                    rsaParameter.DQ = privateKeyParams.DQ.ToByteArrayUnsigned();
+                    rsaParameter.InverseQ = privateKeyParams.QInv.ToByteArrayUnsigned();
+                    rsaParameter.D = privateKeyParams.Exponent.ToByteArrayUnsigned();
+                    rsaParameter.Exponent = privateKeyParams.PublicExponent.ToByteArrayUnsigned();
+                    return rsaParameter;
+                }
+                else
+                {
+                    var publicKeyParam = (RsaKeyParameters)keyObject;
+                    rsaParameter.Modulus = publicKeyParam.Modulus.ToByteArrayUnsigned();
+                    rsaParameter.Exponent = publicKeyParam.Exponent.ToByteArrayUnsigned();
+                    return rsaParameter;
+                }
+            }
+        }
+
         /// <summary>
         /// Sets the stream position to 0 if the stream is seekable; otherwise it will return the stream with its
         /// current position.
@@ -130,7 +162,6 @@ namespace Medidata.MAuth.Core
         private static string InsertLineBreakBeforeEnd(this string key) =>
             Regex.Replace(key, Constants.KeyNormalizeLinesEndRegexPattern, "\n${end}");
 
-
         public static byte[] ToBytes(this string value) => Encoding.UTF8.GetBytes(value);
 
         public static byte[] Concat(this byte[][] values)
@@ -145,5 +176,34 @@ namespace Medidata.MAuth.Core
 
             return result;
         }
+
+        /// <summary>
+        /// Builds Encoded QueryString after sort by code point and then uri encode key and values
+        /// </summary>
+        /// <param name="queryString"></param>
+        /// <returns>EncodedQueryParameter string.</returns>
+        public static string BuildEncodedQueryParams(this string queryString)
+        {
+            var encodedQueryStrings = new List<string>();
+            var queryArray = queryString.Split('&');
+            Array.Sort(queryArray, StringComparer.Ordinal);
+            Array.ForEach(queryArray, x =>
+            {
+                var keyValue = x.Split('=');
+                var escapedKey = Uri.EscapeDataString(keyValue[0]);
+                var escapedValue = Uri.EscapeDataString(keyValue[1]);
+                encodedQueryStrings.Add($"{escapedKey}={escapedValue}");
+            });
+            return string.Join("&", encodedQueryStrings);
+        }
+
+        /// <summary>
+        /// Provides an SHA512 hash value of bytes.
+        /// </summary>
+        /// <param name="value">The byte value for calculating the hash.</param>
+        /// <returns>SHA512 hash of the input value.</returns>
+        public static byte[] AsSha512HashV2(this byte[] value) =>
+            SHA512.Create().ComputeHash(value);
+
     }
 }

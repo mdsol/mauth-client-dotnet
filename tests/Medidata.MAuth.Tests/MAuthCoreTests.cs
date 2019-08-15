@@ -52,7 +52,7 @@ namespace Medidata.MAuth.Tests
             var mAuthCore = new MAuthCore();
 
             // Act
-            var result = mAuthCore.Verify(signedData, Encoding.UTF8.GetBytes(signature), TestExtensions.ClientPublicKey);
+            var result = mAuthCore.Verify(signedData, unsignedData, TestExtensions.ClientPublicKey);
 
             // Assert
             Assert.True(result);

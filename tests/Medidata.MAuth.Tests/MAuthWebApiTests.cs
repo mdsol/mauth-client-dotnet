@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Medidata.MAuth.Core.Models;
 using Medidata.MAuth.Tests.Infrastructure;
 using Medidata.MAuth.WebApi;
 using Xunit;
@@ -15,7 +16,7 @@ namespace Medidata.MAuth.Tests
         [InlineData("DELETE")]
         [InlineData("POST")]
         [InlineData("PUT")]
-        public static async Task MAuthAuthenticatingHandler_WithValidRequest_WillAuthenticate(string method)
+        public static async Task MAuthAuthenticatingHandler_WithValidMWSRequest_WillAuthenticate(string method)
         {
             // Arrange
             var testData = await method.FromResource();
@@ -37,6 +38,37 @@ namespace Medidata.MAuth.Tests
                 // Assert
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
                 Assert.Equal(testData.MAuthHeader, actual.MAuthHeader);
+                Assert.Equal(testData.SignedTime, actual.MAuthTimeHeader.FromUnixTimeSeconds());
+            }
+        }
+
+        [Theory]
+        [InlineData("GET")]
+        [InlineData("DELETE")]
+        [InlineData("POST")]
+        [InlineData("PUT")]
+        public static async Task MAuthAuthenticatingHandler_WithValidMWSV2Request_WillAuthenticate(string method)
+        {
+            // Arrange
+            var testData = await method.FromResourceV2();
+            var actual = new AssertSigningHandler();
+            var version = MAuthVersion.MWSV2;
+            var handler = new MAuthAuthenticatingHandler(new MAuthWebApiOptions()
+            {
+                ApplicationUuid = TestExtensions.ServerUuid,
+                MAuthServiceUrl = TestExtensions.TestUri,
+                PrivateKey = TestExtensions.ServerPrivateKey,
+                MAuthServerHandler = new MAuthServerHandler()
+            }, actual);
+
+            using (var server = new HttpClient(handler))
+            {
+                // Act
+                var response = await server.SendAsync(testData.ToHttpRequestMessage(version));
+
+                // Assert
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                Assert.Equal(testData.MAuthHeaderV2, actual.MAuthHeader);
                 Assert.Equal(testData.SignedTime, actual.MAuthTimeHeader.FromUnixTimeSeconds());
             }
         }
