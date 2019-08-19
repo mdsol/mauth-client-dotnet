@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 
 namespace Medidata.MAuth.Tests.Infrastructure
@@ -25,7 +26,7 @@ namespace Medidata.MAuth.Tests.Infrastructure
             if (currentNumberOfAttempts < SucceedAfterThisManyAttempts)
                 return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);
 
-            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions);
+            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions, NullLoggerFactory.Instance);
 
             var authInfo = authenticator.GetAuthenticationInfo(request, version);
 

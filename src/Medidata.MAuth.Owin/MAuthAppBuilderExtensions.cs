@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Linq;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Owin;
 
 namespace Medidata.MAuth.Owin
@@ -24,8 +27,8 @@ namespace Medidata.MAuth.Owin
 
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
-
-            return app.Use<MAuthMiddleware>(options);
+            var loggerFactory = NullLoggerFactory.Instance;
+            return app.Use<MAuthMiddleware>(options, loggerFactory);
         }
 
         /// <summary>

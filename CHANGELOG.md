@@ -1,5 +1,8 @@
 # Changes in Medidata.MAuth
 
+## v4.0.1
+- **[All]** Added logging suuport during authentication.
+
 ## v4.0.0
 - **[All]** Added implementation for MWSV2 signinig and authentication. 
 
