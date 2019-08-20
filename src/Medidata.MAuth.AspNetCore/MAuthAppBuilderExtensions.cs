@@ -1,8 +1,5 @@
 ﻿using System;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Medidata.MAuth.AspNetCore
 {
@@ -29,9 +26,7 @@ namespace Medidata.MAuth.AspNetCore
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
 
-            var loggerFactory = app.ApplicationServices.GetService<ILoggerFactory>() ??
-                                NullLoggerFactory.Instance;
-            return app.UseMiddleware<MAuthMiddleware>(options, loggerFactory);
+            return app.UseMiddleware<MAuthMiddleware>(options);
         }
 
         /// <summary>

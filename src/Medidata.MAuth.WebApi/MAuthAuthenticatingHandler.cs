@@ -30,8 +30,7 @@ namespace Medidata.MAuth.WebApi
         public MAuthAuthenticatingHandler(MAuthWebApiOptions options, ILoggerFactory loggerFactory = null)
         {
             this.options = options;
-            var loggerFact = loggerFactory ?? NullLoggerFactory.Instance;
-            authenticator = new MAuthAuthenticator(options, loggerFact);
+            authenticator = new MAuthAuthenticator(options, loggerFactory ?? NullLoggerFactory.Instance);
         }
 
         /// <summary>
@@ -47,8 +46,7 @@ namespace Medidata.MAuth.WebApi
             ILoggerFactory loggerFactory = null) : base(innerHandler)
         {
             this.options = options;
-            var loggerFact = loggerFactory ?? NullLoggerFactory.Instance;
-            authenticator = new MAuthAuthenticator(options, loggerFact);
+            authenticator = new MAuthAuthenticator(options, loggerFactory ?? NullLoggerFactory.Instance);
         }
 
         /// <summary>
