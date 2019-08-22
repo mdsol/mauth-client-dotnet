@@ -266,9 +266,9 @@ public static class WebApiConfig
 
         config.MessageHandlers.Add(new MAuthAuthenticatingHandler(options));
 
-		// or if there is a loggerFactory in the application
-		var loggerFactory = // get the loggerFactory of the logger being used. 
-		config.MessageHandlers.Add(new MAuthAuthenticatingHandler(options, loggerFactory));
+        // or if there is a loggerFactory in the application
+        var loggerFactory = // get the loggerFactory of the logger being used. 
+        config.MessageHandlers.Add(new MAuthAuthenticatingHandler(options, loggerFactory));
     }
 }
 ```

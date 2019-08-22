@@ -41,7 +41,7 @@ namespace Medidata.MAuth.Core
         {
             try
             {
-                _logger.LogInformation("Initiating Authentication of {request}.", request);
+                _logger.LogInformation("Initiating Authentication of the request");
                 var version = request.GetAuthHeaderValue().GetVersionFromAuthenticationHeader();
 
                 _logger.LogInformation("Authentication is for {version}.", version);
@@ -69,7 +69,7 @@ namespace Medidata.MAuth.Core
             }
             catch (InvalidCipherTextException ex)
             {
-                _logger.LogError(ex, "Unable to authenticate due to invalid payload information.");
+                _logger.LogWarning(ex, "Unable to authenticate due to invalid payload information.");
                 throw new AuthenticationException(
                     "The request verification failed due to an invalid payload information.", ex);
             }
