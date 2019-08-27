@@ -1,5 +1,7 @@
 ﻿using System;
 using Medidata.MAuth.Core;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Owin;
 
 namespace Medidata.MAuth.Owin
@@ -26,5 +28,11 @@ namespace Medidata.MAuth.Owin
         /// the options, every request will be authenticated by default.
         /// </remarks>
         public Func<IOwinRequest, bool> Bypass { get; set; } = (request) => false;
+
+        /// <summary>
+        /// Determines the <see cref="ILoggerFactory"/> instance passed by the application to create the logger.
+        /// The default is <see langword="NullLoggerFactory.Instance"/>.
+        /// </summary>
+        public ILoggerFactory LoggerFactory { get; set; } = NullLoggerFactory.Instance;
     }
 }

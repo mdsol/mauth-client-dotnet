@@ -14,7 +14,7 @@ namespace Medidata.MAuth.Owin
         public MAuthMiddleware(OwinMiddleware next, MAuthMiddlewareOptions options) : base(next)
         {
             this.options = options;
-            authenticator = new MAuthAuthenticator(options, NullLoggerFactory.Instance);
+            authenticator = new MAuthAuthenticator(options, options.LoggerFactory ?? NullLoggerFactory.Instance);
         }
 
         public override async Task Invoke(IOwinContext context)

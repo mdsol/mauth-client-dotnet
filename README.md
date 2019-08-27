@@ -174,6 +174,9 @@ public class Startup
 
             // when ready to disable authentication of V1 protococl
             options.DisableV1 = true;
+
+            //or if ILoggerFactory instance available
+            options.LoggerFactory = // get the loggerFactory of the logger being used.
         });
     }
 }
@@ -283,7 +286,7 @@ public static class WebApiConfig
     public static void Register(HttpConfiguration config)
     {
         var options = // See the previous example
-		var loggerFactory = // See the previous example
+        var loggerFactory = // See the previous example
 
         config.Routes.MapHttpRoute(
             name: "Route1",
