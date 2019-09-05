@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Owin;
 
 namespace Medidata.MAuth.Owin
@@ -14,7 +13,7 @@ namespace Medidata.MAuth.Owin
         public MAuthMiddleware(OwinMiddleware next, MAuthMiddlewareOptions options) : base(next)
         {
             this.options = options;
-            authenticator = new MAuthAuthenticator(options, options.LoggerFactory ?? NullLoggerFactory.Instance);
+            authenticator = new MAuthAuthenticator(options);
         }
 
         public override async Task Invoke(IOwinContext context)

@@ -4,8 +4,6 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Medidata.MAuth.WebApi
 {
@@ -26,11 +24,10 @@ namespace Medidata.MAuth.WebApi
         /// <see cref="MAuthWebApiOptions"/>.
         /// </summary>
         /// <param name="options">The options for this message handler.</param>
-        /// <param name="loggerFactory">The logger factory  used by this message handler.</param>
-        public MAuthAuthenticatingHandler(MAuthWebApiOptions options, ILoggerFactory loggerFactory = null)
+        public MAuthAuthenticatingHandler(MAuthWebApiOptions options)
         {
             this.options = options;
-            authenticator = new MAuthAuthenticator(options, loggerFactory ?? NullLoggerFactory.Instance);
+            authenticator = new MAuthAuthenticator(options);
         }
 
         /// <summary>
@@ -41,12 +38,10 @@ namespace Medidata.MAuth.WebApi
         /// <param name="innerHandler">
         /// The inner handler which is responsible for processing the HTTP response messages.
         /// </param>
-        /// <param name="loggerFactory">The logger factory  used by this message handler.</param>
-        public MAuthAuthenticatingHandler(MAuthWebApiOptions options, HttpMessageHandler innerHandler,
-            ILoggerFactory loggerFactory = null) : base(innerHandler)
+        public MAuthAuthenticatingHandler(MAuthWebApiOptions options, HttpMessageHandler innerHandler) : base(innerHandler)
         {
             this.options = options;
-            authenticator = new MAuthAuthenticator(options, loggerFactory ?? NullLoggerFactory.Instance);
+            authenticator = new MAuthAuthenticator(options);
         }
 
         /// <summary>

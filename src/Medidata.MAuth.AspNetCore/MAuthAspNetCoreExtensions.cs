@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Medidata.MAuth.AspNetCore
 {
@@ -45,11 +46,11 @@ namespace Medidata.MAuth.AspNetCore
         /// will throw an exception if any errors occurred during the authentication.
         /// </returns>
         public static async Task<bool> TryAuthenticate(
-            this HttpContext context, MAuthAuthenticator authenticator, bool shouldIgnoreExceptions)
+            this HttpContext context, MAuthAuthenticator authenticator, bool shouldIgnoreExceptions, ILoggerFactory loggerFactory)
         {
             try
             {
-                return await authenticator.AuthenticateRequest(context.Request.ToHttpRequestMessage());
+                return await authenticator.AuthenticateRequest(context.Request.ToHttpRequestMessage(), loggerFactory);
             }
             catch (Exception)
             {

@@ -174,9 +174,6 @@ public class Startup
 
             // when ready to disable authentication of V1 protococl
             options.DisableV1 = true;
-
-            //or if ILoggerFactory instance available
-            options.LoggerFactory = // get the loggerFactory of the logger being used.
         });
     }
 }
@@ -268,10 +265,6 @@ public static class WebApiConfig
         };
 
         config.MessageHandlers.Add(new MAuthAuthenticatingHandler(options));
-
-        // or if there is a loggerFactory in the application
-        var loggerFactory = // get the loggerFactory of the logger being used. 
-        config.MessageHandlers.Add(new MAuthAuthenticatingHandler(options, loggerFactory));
     }
 }
 ```
@@ -286,14 +279,13 @@ public static class WebApiConfig
     public static void Register(HttpConfiguration config)
     {
         var options = // See the previous example
-        var loggerFactory = // See the previous example
 
         config.Routes.MapHttpRoute(
             name: "Route1",
             routeTemplate: "api/{controller}/{id}",
             defaults: new { id = RouteParameter.Optional },
             constraints: null,
-            handler: new MAuthAuthenticatingHandler(options, loggerFactory)
+            handler: new MAuthAuthenticatingHandler(options)
         );
     }
 }

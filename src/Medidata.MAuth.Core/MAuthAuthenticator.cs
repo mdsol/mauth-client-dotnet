@@ -6,6 +6,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Org.BouncyCastle.Crypto;
 using Medidata.MAuth.Core.Models;
 using Microsoft.Extensions.Logging;
+using log4net;
 
 namespace Medidata.MAuth.Core
 {
@@ -13,11 +14,10 @@ namespace Medidata.MAuth.Core
     {
         private readonly MAuthOptionsBase options;
         private readonly IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
-        private readonly ILogger _logger;
 
         public Guid ApplicationUuid => options.ApplicationUuid;
 
-        public MAuthAuthenticator(MAuthOptionsBase options, ILoggerFactory loggerFactory)
+        public MAuthAuthenticator(MAuthOptionsBase options)
         {
             if (options.ApplicationUuid == default(Guid))
                 throw new ArgumentException(nameof(options.ApplicationUuid));
@@ -29,22 +29,23 @@ namespace Medidata.MAuth.Core
                 throw new ArgumentNullException(nameof(options.PrivateKey));
 
             this.options = options;
-            this._logger = loggerFactory.CreateLogger<MAuthAuthenticator>();
         }
 
         /// <summary>
         /// Verifies if the <see cref="HttpRequestMessage"/> request is authenticated or not.
         /// </summary>
         /// <param name="request">The <see cref="HttpRequestMessage"/> request. </param>
+        /// <param name="loggerFactory">The <see cref="ILoggerFactory"/> used with authentication.</param>
         /// <returns>A task object of the boolean value that verifies if the request is authenticated or not.</returns>
-        public async Task<bool> AuthenticateRequest(HttpRequestMessage request)
+        public async Task<bool> AuthenticateRequest(HttpRequestMessage request, ILoggerFactory loggerFactory)
         {
+            var logger = loggerFactory.CreateLogger<MAuthAuthenticator>();
             try
             {
-                _logger.LogInformation("Initiating Authentication of the request");
+                logger.LogInformation("Initiating Authentication of the request");
                 var version = request.GetAuthHeaderValue().GetVersionFromAuthenticationHeader();
 
-                _logger.LogInformation("Authentication is for {version}.", version);
+                logger.LogInformation("Authentication is for {version}.", version);
 
                 if (options.DisableV1 && version == MAuthVersion.MWS)
                     throw new InvalidVersionException($"Authentication with {version} version is disabled.");
@@ -58,29 +59,85 @@ namespace Medidata.MAuth.Core
             }
             catch (ArgumentException ex)
             {
-                _logger.LogError(ex, "Unable to authenticate due to invalid MAuth authentication headers.");
+                logger.LogError(ex, "Unable to authenticate due to invalid MAuth authentication headers.");
                 throw new AuthenticationException("The request has invalid MAuth authentication headers.", ex);
             }
             catch (RetriedRequestException ex)
             {
-                _logger.LogError(ex, "Unable to query the application information from MAuth server.");
+                logger.LogError(ex, "Unable to query the application information from MAuth server.");
                 throw new AuthenticationException(
                     "Could not query the application information for the application from the MAuth server.", ex);
             }
             catch (InvalidCipherTextException ex)
             {
-                _logger.LogWarning(ex, "Unable to authenticate due to invalid payload information.");
+                logger.LogWarning(ex, "Unable to authenticate due to invalid payload information.");
                 throw new AuthenticationException(
                     "The request verification failed due to an invalid payload information.", ex);
             }
             catch (InvalidVersionException ex)
             {
-                _logger.LogError(ex, "Unable to authenticate due to invalid version.");
+                logger.LogError(ex, "Unable to authenticate due to invalid version.");
                 throw new InvalidVersionException(ex.Message, ex);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unable to authenticate due to unexpected error.");
+                logger.LogError(ex, "Unable to authenticate due to unexpected error.");
+                throw new AuthenticationException(
+                    "An unexpected error occured during authentication. Please see the inner exception for details.",
+                    ex
+                );
+            }
+        }
+        /// <summary>
+        /// Verifies if the <see cref="HttpRequestMessage"/> request is authenticated or not.
+        /// </summary>
+        /// <param name="request">The <see cref="HttpRequestMessage"/> request.</param>
+        /// <returns>A task object of the boolean value that verifies if the request is authenticated or not.</returns>
+        public async Task<bool> AuthenticateRequest(HttpRequestMessage request)
+        {
+            var logger = LogManager.GetLogger(typeof(MAuthAuthenticator));
+            try
+            {
+                logger.Info("Initiating Authentication of the request");
+                var version = request.GetAuthHeaderValue().GetVersionFromAuthenticationHeader();
+
+                logger.InfoFormat("Authentication is for the {0}.", version);
+
+                if (options.DisableV1 && version == MAuthVersion.MWS)
+                    throw new InvalidVersionException($"Authentication with {version} version is disabled.");
+
+                var mAuthCore = MAuthCoreFactory.Instantiate(version);
+                var authInfo = GetAuthenticationInfo(request, version);
+                var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid, version);
+
+                return mAuthCore.Verify(authInfo.Payload, await mAuthCore.GetSignature(request, authInfo),
+                    appInfo.PublicKey);
+            }
+            catch (ArgumentException ex)
+            {
+                logger.Error("Unable to authenticate due to invalid MAuth authentication headers.", ex);
+                throw new AuthenticationException("The request has invalid MAuth authentication headers.", ex);
+            }
+            catch (RetriedRequestException ex)
+            {
+                logger.Error("Unable to query the application information from MAuth server.", ex);
+                throw new AuthenticationException(
+                    "Could not query the application information for the application from the MAuth server.", ex);
+            }
+            catch (InvalidCipherTextException ex)
+            {
+                logger.Warn("Unable to authenticate due to invalid payload information.", ex);
+                throw new AuthenticationException(
+                    "The request verification failed due to an invalid payload information.", ex);
+            }
+            catch (InvalidVersionException ex)
+            {
+                logger.Error("Unable to authenticate due to invalid version.", ex);
+                throw new InvalidVersionException(ex.Message, ex);
+            }
+            catch (Exception ex)
+            {
+                logger.Error("Unable to authenticate due to unexpected error.", ex);
                 throw new AuthenticationException(
                     "An unexpected error occured during authentication. Please see the inner exception for details.",
                     ex

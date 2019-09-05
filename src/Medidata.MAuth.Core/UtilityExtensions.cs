@@ -70,7 +70,7 @@ namespace Medidata.MAuth.Core
         /// <returns>The task for the operation that is when completes will result in <see langword="true"/> if
         /// the authentication is successful; otherwise <see langword="false"/>.</returns>
         public static Task<bool> Authenticate(this HttpRequestMessage request, MAuthOptionsBase options, ILoggerFactory loggerFactory) =>
-                new MAuthAuthenticator(options, loggerFactory).AuthenticateRequest(request);
+                new MAuthAuthenticator(options).AuthenticateRequest(request, loggerFactory);
 
         /// <summary>
         /// Determines the MAuth version enumerator reading authHeader.
