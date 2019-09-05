@@ -29,7 +29,7 @@ namespace Medidata.MAuth.AspNetCore
             this.next = next;
             this.options = options;
             this.loggerFactory = loggerFactory ?? NullLoggerFactory.Instance;
-            this.authenticator = new MAuthAuthenticator(options); //, loggerFactory ?? NullLoggerFactory.Instance);
+            this.authenticator = new MAuthAuthenticator(options); 
         }
 
         /// <summary>

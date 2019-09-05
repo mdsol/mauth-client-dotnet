@@ -22,14 +22,14 @@ namespace Medidata.MAuth.Tests
                 ApplicationUuid = TestExtensions.ClientUuid,
                 MAuthServiceUrl = mauthServiceUrl != null ? new Uri(mauthServiceUrl) : null,
                 PrivateKey = privateKey
-            }));//, NullLoggerFactory.Instance));
+            }));
 
         [Fact]
         public static void MAuthAuthenticator_WithDefaultUuid_WillThrowException() =>
             Assert.Throws<ArgumentException>(() => new MAuthAuthenticator(new MAuthTestOptions()
         {
             ApplicationUuid = default(Guid)
-        }));//, NullLoggerFactory.Instance));
+        }));
 
         [Theory]
         [InlineData("GET")]
@@ -41,7 +41,7 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await method.FromResource();
 
-            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions);//, NullLoggerFactory.Instance);
+            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions);
             var mAuthCore = new MAuthCore();
 
             var signedRequest = await mAuthCore
@@ -69,7 +69,7 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await method.FromResourceV2();
             var version = MAuthVersion.MWSV2;
-            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions);//, NullLoggerFactory.Instance);
+            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions);
             var mAuthCore = new MAuthCoreV2();
 
             var signedRequest = await mAuthCore
@@ -100,7 +100,7 @@ namespace Medidata.MAuth.Tests
             var testData = await "GET".FromResource();
 
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
-                policy, shouldSucceedWithin: true));//, NullLoggerFactory.Instance);
+                policy, shouldSucceedWithin: true));
             var mAuthCore = new MAuthCore();
 
             var signedRequest = await mAuthCore
@@ -130,7 +130,7 @@ namespace Medidata.MAuth.Tests
             var testData = await "GET".FromResourceV2();
             var version = MAuthVersion.MWSV2;
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
-                policy, shouldSucceedWithin: true));//, NullLoggerFactory.Instance);
+                policy, shouldSucceedWithin: true));
             var mAuthCore = new MAuthCoreV2();
 
             var signedRequest = await mAuthCore
@@ -160,7 +160,7 @@ namespace Medidata.MAuth.Tests
             var testData = await "GET".FromResource();
 
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
-                policy, shouldSucceedWithin: false));//, NullLoggerFactory.Instance);
+                policy, shouldSucceedWithin: false));
             var mAuthCore = new MAuthCore();
 
             var signedRequest = await mAuthCore
@@ -195,7 +195,7 @@ namespace Medidata.MAuth.Tests
             var testData = await "GET".FromResource();
             var version = MAuthVersion.MWSV2;
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
-                policy, shouldSucceedWithin: false));//, NullLoggerFactory.Instance);
+                policy, shouldSucceedWithin: false));
             var mAuthCore = new MAuthCoreV2();
 
             var signedRequest = await mAuthCore
@@ -277,7 +277,7 @@ namespace Medidata.MAuth.Tests
             var testData = await method.FromResource();
             var testOptions = TestExtensions.ServerOptions;
             testOptions.DisableV1 = true;
-            var authenticator = new MAuthAuthenticator(testOptions);//, NullLoggerFactory.Instance);
+            var authenticator = new MAuthAuthenticator(testOptions);
             var mAuthCore = new MAuthCore();
 
             var signedRequest = await mAuthCore
@@ -308,7 +308,7 @@ namespace Medidata.MAuth.Tests
             var testData = await method.FromResourceV2();
             var version = MAuthVersion.MWSV2;
             var testOptions = TestExtensions.ServerOptions;
-            var authenticator = new MAuthAuthenticator(testOptions);//, NullLoggerFactory.Instance);
+            var authenticator = new MAuthAuthenticator(testOptions);
 
             // Act
             var actual = authenticator.GetAuthenticationInfo(testData.ToHttpRequestMessage(version), version);
@@ -330,7 +330,7 @@ namespace Medidata.MAuth.Tests
             var testData = await method.FromResource();
             var version = MAuthVersion.MWS;
             var testOptions = TestExtensions.ServerOptions;
-            var authenticator = new MAuthAuthenticator(testOptions);//, NullLoggerFactory.Instance);
+            var authenticator = new MAuthAuthenticator(testOptions);
 
             // Act
             var actual = authenticator.GetAuthenticationInfo(testData.ToHttpRequestMessage(version), version);

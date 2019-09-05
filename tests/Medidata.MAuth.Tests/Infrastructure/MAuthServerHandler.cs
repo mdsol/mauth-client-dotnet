@@ -26,7 +26,7 @@ namespace Medidata.MAuth.Tests.Infrastructure
             if (currentNumberOfAttempts < SucceedAfterThisManyAttempts)
                 return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);
 
-            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions);//, NullLoggerFactory.Instance);
+            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions);
 
             var authInfo = authenticator.GetAuthenticationInfo(request, version);
 
