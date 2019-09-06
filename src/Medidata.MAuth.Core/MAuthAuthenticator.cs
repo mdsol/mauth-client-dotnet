@@ -7,6 +7,7 @@ using Org.BouncyCastle.Crypto;
 using Medidata.MAuth.Core.Models;
 using Microsoft.Extensions.Logging;
 using log4net;
+using Microsoft.Extensions.Logging.Abstractions;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Medidata.MAuth.Core
@@ -42,10 +43,9 @@ namespace Medidata.MAuth.Core
         {
             ILogger logger = loggerFactory.CreateLogger<MAuthAuthenticator>();
 
-            MAuthAuthenticatorLogger customLogger = new MAuthAuthenticatorLogger(logger);
-
-            return await AuthenticateRequestCore(request, customLogger);
+            return await AuthenticateRequestCore(request, logger);
         }
+
         /// <summary>
         /// Verifies if the <see cref="HttpRequestMessage"/> request is authenticated or not.
         /// </summary>
@@ -53,21 +53,25 @@ namespace Medidata.MAuth.Core
         /// <returns>A task object of the boolean value that verifies if the request is authenticated or not.</returns>
         public async Task<bool> AuthenticateRequest(HttpRequestMessage request)
         {
-            ILog logger = LogManager.GetLogger(typeof(MAuthAuthenticator));
+            ILog log = LogManager.GetLogger(typeof(MAuthAuthenticator));
 
-            MAuthAuthenticatorLogger customLogger = new MAuthAuthenticatorLogger(logger);
+            ILogger logger;
+            if(log != null)
+                logger = new Log4NetLogger(log);
+            else
+                logger = NullLoggerFactory.Instance.CreateLogger<MAuthAuthenticator>();
 
-            return await AuthenticateRequestCore(request, customLogger);
+            return await AuthenticateRequestCore(request, logger);
         }
 
-        private async Task<bool> AuthenticateRequestCore(HttpRequestMessage request, MAuthAuthenticatorLogger logger)
+        private async Task<bool> AuthenticateRequestCore(HttpRequestMessage request, ILogger logger)
         {
             try
             {
-                logger.LogInformation("Initiating Authentication of the request");
+                logger.LogInformation("Initiating Authentication of the request.");
                 var version = request.GetAuthHeaderValue().GetVersionFromAuthenticationHeader();
 
-                logger.LogInformation($"Authentication is for the {version}.");
+                logger.LogInformation("Authentication is for the {version}.",version);
 
                 if (options.DisableV1 && version == MAuthVersion.MWS)
                     throw new InvalidVersionException($"Authentication with {version} version is disabled.");
