@@ -178,6 +178,16 @@ public class Startup
     }
 }
 ```
+For enabling the logging from Owin application, the follofing configuration will need to be added or updated:
+```C#
+<configuration>
+  <system.diagnostics>
+    <switches>
+      <add name="Microsoft.Owin" value="Information, Error, Warning" />
+    </switches>
+  </system.diagnostics>
+</configuration>
+```
 
 A similar way can be implemented for ASP.NET Core (also in the `Startup` class):
 
@@ -262,6 +272,9 @@ public static class WebApiConfig
 
             // when ready to disable authentication of V1 protococl
             options.DisableV1 = true
+
+            // if loggerfactory is present
+            options.loggerfactory = new Microsoft.Extensions.Logging.LoggerFactory(); // or provide the existing loggerfactory
         };
 
         config.MessageHandlers.Add(new MAuthAuthenticatingHandler(options));

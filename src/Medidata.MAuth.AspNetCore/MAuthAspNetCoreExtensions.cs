@@ -46,11 +46,11 @@ namespace Medidata.MAuth.AspNetCore
         /// will throw an exception if any errors occurred during the authentication.
         /// </returns>
         public static async Task<bool> TryAuthenticate(
-            this HttpContext context, MAuthAuthenticator authenticator, bool shouldIgnoreExceptions, ILoggerFactory loggerFactory)
+            this HttpContext context, MAuthAuthenticator authenticator, bool shouldIgnoreExceptions)
         {
             try
             {
-                return await authenticator.AuthenticateRequest(context.Request.ToHttpRequestMessage(), loggerFactory);
+                return await authenticator.AuthenticateRequest(context.Request.ToHttpRequestMessage());
             }
             catch (Exception)
             {

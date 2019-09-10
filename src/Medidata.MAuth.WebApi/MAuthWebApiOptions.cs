@@ -1,4 +1,5 @@
 ﻿using Medidata.MAuth.Core;
+using Microsoft.Extensions.Logging;
 
 namespace Medidata.MAuth.WebApi
 {
@@ -13,5 +14,10 @@ namespace Medidata.MAuth.WebApi
         /// The default is <see langword="true"/>.
         /// </summary>
         public bool HideExceptionsAndReturnUnauthorized { get; set; } = true;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public ILoggerFactory LoggerFactory { get; set; }
     }
 }

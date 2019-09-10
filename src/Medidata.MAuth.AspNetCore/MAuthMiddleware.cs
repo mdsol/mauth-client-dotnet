@@ -16,7 +16,6 @@ namespace Medidata.MAuth.AspNetCore
         private readonly MAuthMiddlewareOptions options;
         private readonly MAuthAuthenticator authenticator;
         private readonly RequestDelegate next;
-        private readonly ILoggerFactory loggerFactory;
 
         /// <summary>
         /// Creates a new <see cref="MAuthMiddleware"/>
@@ -28,8 +27,9 @@ namespace Medidata.MAuth.AspNetCore
         {
             this.next = next;
             this.options = options;
-            this.loggerFactory = loggerFactory ?? NullLoggerFactory.Instance;
-            this.authenticator = new MAuthAuthenticator(options); 
+            loggerFactory = loggerFactory ?? NullLoggerFactory.Instance;
+            ILogger logger = loggerFactory.CreateLogger<MAuthMiddleware>();
+            this.authenticator = new MAuthAuthenticator(options, logger); 
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Medidata.MAuth.AspNetCore
             context.Request.EnableRewind();
 
             if (!options.Bypass(context.Request) &&
-                !await context.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized, loggerFactory))
+                !await context.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 return;

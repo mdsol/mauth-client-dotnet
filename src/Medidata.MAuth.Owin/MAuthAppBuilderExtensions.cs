@@ -25,7 +25,7 @@ namespace Medidata.MAuth.Owin
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
 
-            return app.Use<MAuthMiddleware>(options);
+            return app.Use<MAuthMiddleware>(options, app);
         }
 
         /// <summary>
