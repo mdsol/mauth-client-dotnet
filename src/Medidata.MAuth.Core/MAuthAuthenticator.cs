@@ -14,7 +14,7 @@ namespace Medidata.MAuth.Core
     {
         private readonly MAuthOptionsBase options;
         private readonly IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
-        private readonly ILogger _logger;
+        private readonly ILogger logger;
 
         public Guid ApplicationUuid => options.ApplicationUuid;
 
@@ -30,7 +30,7 @@ namespace Medidata.MAuth.Core
                 throw new ArgumentNullException(nameof(options.PrivateKey));
 
             this.options = options;
-            this._logger = logger;
+            this.logger = logger;
         }
 
         ///// <summary>
@@ -42,10 +42,10 @@ namespace Medidata.MAuth.Core
         {
             try
             {
-                _logger.LogInformation("Initiating Authentication of the request.");
+                logger.LogInformation("Initiating Authentication of the request.");
                 var version = request.GetAuthHeaderValue().GetVersionFromAuthenticationHeader();
 
-                _logger.LogInformation("Authentication is for the {version}.",version);
+                logger.LogInformation("Authentication is for the {version}.",version);
 
                 if (options.DisableV1 && version == MAuthVersion.MWS)
                     throw new InvalidVersionException($"Authentication with {version} version is disabled.");
@@ -59,29 +59,29 @@ namespace Medidata.MAuth.Core
             }
             catch (ArgumentException ex)
             {
-                _logger.LogError(ex, "Unable to authenticate due to invalid MAuth authentication headers.");
+                logger.LogError(ex, "Unable to authenticate due to invalid MAuth authentication headers.");
                 throw new AuthenticationException("The request has invalid MAuth authentication headers.", ex);
             }
             catch (RetriedRequestException ex)
             {
-                _logger.LogError(ex, "Unable to query the application information from MAuth server.");
+                logger.LogError(ex, "Unable to query the application information from MAuth server.");
                 throw new AuthenticationException(
                     "Could not query the application information for the application from the MAuth server.", ex);
             }
             catch (InvalidCipherTextException ex)
             {
-                _logger.LogWarning(ex, "Unable to authenticate due to invalid payload information.");
+                logger.LogWarning(ex, "Unable to authenticate due to invalid payload information.");
                 throw new AuthenticationException(
                     "The request verification failed due to an invalid payload information.", ex);
             }
             catch (InvalidVersionException ex)
             {
-                _logger.LogError(ex, "Unable to authenticate due to invalid version.");
+                logger.LogError(ex, "Unable to authenticate due to invalid version.");
                 throw new InvalidVersionException(ex.Message, ex);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unable to authenticate due to unexpected error.");
+                logger.LogError(ex, "Unable to authenticate due to unexpected error.");
                 throw new AuthenticationException(
                     "An unexpected error occured during authentication. Please see the inner exception for details.",
                     ex
