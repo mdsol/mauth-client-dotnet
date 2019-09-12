@@ -33,11 +33,11 @@ namespace Medidata.MAuth.Core
             this.logger = logger;
         }
 
-        ///// <summary>
-        ///// Verifies if the <see cref="HttpRequestMessage"/> request is authenticated or not.
-        ///// </summary>
-        ///// <param name="request">The <see cref="HttpRequestMessage"/> request.</param>
-        ///// <returns>A task object of the boolean value that verifies if the request is authenticated or not.</returns>
+        /// <summary>
+        /// Verifies if the <see cref="HttpRequestMessage"/> request is authenticated or not.
+        /// </summary>
+        /// <param name="request">The <see cref="HttpRequestMessage"/> request.</param>
+        /// <returns>A task object of the boolean value that verifies if the request is authenticated or not.</returns>
         public async Task<bool> AuthenticateRequest(HttpRequestMessage request)
         {
             try
@@ -119,7 +119,7 @@ namespace Medidata.MAuth.Core
         /// Extracts the authentication information from a <see cref="HttpRequestMessage"/>.
         /// </summary>
         /// <param name="request">The request that has the authentication information.</param>
-        /// /// <param name="version">Enum value of the MAuthVersion.</param>
+        /// <param name="version">Enum value of the MAuthVersion.</param>
         /// <returns>The authentication information with the payload from the request.</returns>
         internal PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request, MAuthVersion version)
         {
