@@ -15,7 +15,7 @@ namespace Medidata.MAuth.WebApi
     /// </summary>
     public class MAuthAuthenticatingHandler : DelegatingHandler
     {
-        private readonly MAuthWebApiOptions options;
+        private MAuthWebApiOptions options;
         private MAuthAuthenticator authenticator;
 
         /// <summary>Gets the Uuid of the client application.</summary>
@@ -28,8 +28,7 @@ namespace Medidata.MAuth.WebApi
         /// <param name="options">The options for this message handler.</param>
         public MAuthAuthenticatingHandler(MAuthWebApiOptions options)
         {
-            this.options = options;
-            SetupHandler();
+            SetupHandler(options);
         }
 
         /// <summary>
@@ -42,8 +41,7 @@ namespace Medidata.MAuth.WebApi
         /// </param>
         public MAuthAuthenticatingHandler(MAuthWebApiOptions options, HttpMessageHandler innerHandler) : base(innerHandler)
         {
-            this.options = options;
-            SetupHandler();
+            SetupHandler(options);
         }
 
         /// <summary>
@@ -68,8 +66,9 @@ namespace Medidata.MAuth.WebApi
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        private void SetupHandler()
+        private void SetupHandler(MAuthWebApiOptions opt)
         {
+            this.options = opt;
             var loggerFactory = options.LoggerFactory ?? NullLoggerFactory.Instance;
             var logger = loggerFactory.CreateLogger(typeof(MAuthAuthenticatingHandler));
             this.authenticator = new MAuthAuthenticator(options, logger);
