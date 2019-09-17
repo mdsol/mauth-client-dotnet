@@ -178,7 +178,7 @@ public class Startup
     }
 }
 ```
-For enabling the logging from Owin application, the follofing configuration will need to be added or updated:
+For enabling the logging from Owin application, the following configuration will need to be added or updated:
 ```C#
 <configuration>
   <system.diagnostics>
