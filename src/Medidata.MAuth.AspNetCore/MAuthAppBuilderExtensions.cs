@@ -26,7 +26,6 @@ namespace Medidata.MAuth.AspNetCore
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
 
-
             return app.UseMiddleware<MAuthMiddleware>(options);
         }
 

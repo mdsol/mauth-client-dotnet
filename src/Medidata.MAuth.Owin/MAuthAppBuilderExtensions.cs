@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Owin.Logging;
 using Owin;
 
 namespace Medidata.MAuth.Owin
@@ -25,7 +26,8 @@ namespace Medidata.MAuth.Owin
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
 
-            return app.Use<MAuthMiddleware>(options);
+            var owinLogger = app.CreateLogger<MAuthMiddleware>();
+            return app.Use<MAuthMiddleware>(options, owinLogger);
         }
 
         /// <summary>

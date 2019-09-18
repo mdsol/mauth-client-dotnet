@@ -4,6 +4,8 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Medidata.MAuth.WebApi
 {
@@ -27,8 +29,7 @@ namespace Medidata.MAuth.WebApi
         public MAuthAuthenticatingHandler(MAuthWebApiOptions options)
         {
             this.options = options;
-
-            authenticator = new MAuthAuthenticator(options);
+            this.authenticator = this.SetupMAuthAuthenticator(options);
         }
 
         /// <summary>
@@ -42,7 +43,7 @@ namespace Medidata.MAuth.WebApi
         public MAuthAuthenticatingHandler(MAuthWebApiOptions options, HttpMessageHandler innerHandler) : base(innerHandler)
         {
             this.options = options;
-            authenticator = new MAuthAuthenticator(options);
+            this.authenticator = this.SetupMAuthAuthenticator(options);
         }
 
         /// <summary>
@@ -65,6 +66,13 @@ namespace Medidata.MAuth.WebApi
             return await base
                 .SendAsync(request, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
+        }
+
+        private MAuthAuthenticator SetupMAuthAuthenticator(MAuthWebApiOptions opt)
+        {
+            var loggerFactory = options.LoggerFactory ?? NullLoggerFactory.Instance;
+            var logger = loggerFactory.CreateLogger(typeof(MAuthAuthenticatingHandler));
+            return new MAuthAuthenticator(options, logger);
         }
     }
 }

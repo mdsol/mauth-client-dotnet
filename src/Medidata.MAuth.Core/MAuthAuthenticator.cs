@@ -5,6 +5,8 @@ using Medidata.MAuth.Core.Exceptions;
 using Microsoft.Extensions.Caching.Memory;
 using Org.BouncyCastle.Crypto;
 using Medidata.MAuth.Core.Models;
+using Microsoft.Extensions.Logging;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Medidata.MAuth.Core
 {
@@ -12,10 +14,11 @@ namespace Medidata.MAuth.Core
     {
         private readonly MAuthOptionsBase options;
         private readonly IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
+        private readonly ILogger logger;
 
         public Guid ApplicationUuid => options.ApplicationUuid;
 
-        public MAuthAuthenticator(MAuthOptionsBase options)
+        public MAuthAuthenticator(MAuthOptionsBase options, ILogger logger)
         {
             if (options.ApplicationUuid == default(Guid))
                 throw new ArgumentException(nameof(options.ApplicationUuid));
@@ -27,18 +30,22 @@ namespace Medidata.MAuth.Core
                 throw new ArgumentNullException(nameof(options.PrivateKey));
 
             this.options = options;
+            this.logger = logger;
         }
 
         /// <summary>
         /// Verifies if the <see cref="HttpRequestMessage"/> request is authenticated or not.
         /// </summary>
-        /// <param name="request">The <see cref="HttpRequestMessage"/> request. </param>
+        /// <param name="request">The <see cref="HttpRequestMessage"/> request.</param>
         /// <returns>A task object of the boolean value that verifies if the request is authenticated or not.</returns>
         public async Task<bool> AuthenticateRequest(HttpRequestMessage request)
         {
             try
             {
+                logger.LogInformation("Initiating Authentication of the request.");
                 var version = request.GetAuthHeaderValue().GetVersionFromAuthenticationHeader();
+
+                logger.LogInformation("Authentication is for the {version}.",version);
 
                 if (options.DisableV1 && version == MAuthVersion.MWS)
                     throw new InvalidVersionException($"Authentication with {version} version is disabled.");
@@ -52,25 +59,29 @@ namespace Medidata.MAuth.Core
             }
             catch (ArgumentException ex)
             {
+                logger.LogError(ex, "Unable to authenticate due to invalid MAuth authentication headers.");
                 throw new AuthenticationException("The request has invalid MAuth authentication headers.", ex);
             }
             catch (RetriedRequestException ex)
             {
+                logger.LogError(ex, "Unable to query the application information from MAuth server.");
                 throw new AuthenticationException(
                     "Could not query the application information for the application from the MAuth server.", ex);
             }
             catch (InvalidCipherTextException ex)
             {
-
+                logger.LogWarning(ex, "Unable to authenticate due to invalid payload information.");
                 throw new AuthenticationException(
                     "The request verification failed due to an invalid payload information.", ex);
             }
             catch (InvalidVersionException ex)
             {
+                logger.LogError(ex, "Unable to authenticate due to invalid version.");
                 throw new InvalidVersionException(ex.Message, ex);
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Unable to authenticate due to unexpected error.");
                 throw new AuthenticationException(
                     "An unexpected error occured during authentication. Please see the inner exception for details.",
                     ex
@@ -108,7 +119,7 @@ namespace Medidata.MAuth.Core
         /// Extracts the authentication information from a <see cref="HttpRequestMessage"/>.
         /// </summary>
         /// <param name="request">The request that has the authentication information.</param>
-        /// /// <param name="version">Enum value of the MAuthVersion.</param>
+        /// <param name="version">Enum value of the MAuthVersion.</param>
         /// <returns>The authentication information with the payload from the request.</returns>
         internal PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request, MAuthVersion version)
         {
