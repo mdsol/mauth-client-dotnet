@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -39,7 +38,7 @@ namespace Medidata.MAuth.AspNetCore
         /// <returns>A <see cref="Task"/> that completes when the middleware has completed processing.</returns>
         public async Task Invoke(HttpContext context)
         {
-            context.Request.EnableRewind();
+            context.Request.EnableBuffering();
 
             if (!options.Bypass(context.Request) &&
                 !await context.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized))
