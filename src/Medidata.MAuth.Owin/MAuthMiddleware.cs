@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Microsoft.Owin;
+using ILogger = Microsoft.Owin.Logging.ILogger;
 
 namespace Medidata.MAuth.Owin
 {
@@ -10,16 +11,16 @@ namespace Medidata.MAuth.Owin
         private readonly MAuthMiddlewareOptions options;
         private readonly MAuthAuthenticator authenticator;
 
-        public MAuthMiddleware(OwinMiddleware next, MAuthMiddlewareOptions options): base(next)
+        public MAuthMiddleware(OwinMiddleware next, MAuthMiddlewareOptions options, ILogger owinLogger) : base(next)
         {
             this.options = options;
-            authenticator = new MAuthAuthenticator(options);
+            Microsoft.Extensions.Logging.ILogger logger = new OwinLoggerWrapper(owinLogger); 
+            authenticator = new MAuthAuthenticator(options, logger);
         }
 
         public override async Task Invoke(IOwinContext context)
         {
             await context.EnsureRequestBodyStreamSeekable();
-
             if (!options.Bypass(context.Request) &&
                 !await context.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized))
             {

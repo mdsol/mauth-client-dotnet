@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Medidata.MAuth.Core;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Medidata.MAuth.Core;
 
 namespace Medidata.MAuth.WebApi
 {

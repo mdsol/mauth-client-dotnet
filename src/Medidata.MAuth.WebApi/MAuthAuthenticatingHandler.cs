@@ -4,6 +4,8 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Medidata.MAuth.WebApi
 {
@@ -20,14 +22,14 @@ namespace Medidata.MAuth.WebApi
         public Guid ClientAppUuid => authenticator.ApplicationUuid;
 
         /// <summary>
-        /// Initializes a new insance of the <see cref="MAuthAuthenticatingHandler"/> class with the provided
+        /// Initializes a new instance of the <see cref="MAuthAuthenticatingHandler"/> class with the provided
         /// <see cref="MAuthWebApiOptions"/>.
         /// </summary>
         /// <param name="options">The options for this message handler.</param>
         public MAuthAuthenticatingHandler(MAuthWebApiOptions options)
         {
             this.options = options;
-            authenticator = new MAuthAuthenticator(options);
+            this.authenticator = this.SetupMAuthAuthenticator(options);
         }
 
         /// <summary>
@@ -38,11 +40,10 @@ namespace Medidata.MAuth.WebApi
         /// <param name="innerHandler">
         /// The inner handler which is responsible for processing the HTTP response messages.
         /// </param>
-        public MAuthAuthenticatingHandler(MAuthWebApiOptions options, HttpMessageHandler innerHandler)
-            : base(innerHandler)
+        public MAuthAuthenticatingHandler(MAuthWebApiOptions options, HttpMessageHandler innerHandler) : base(innerHandler)
         {
             this.options = options;
-            authenticator = new MAuthAuthenticator(options);
+            this.authenticator = this.SetupMAuthAuthenticator(options);
         }
 
         /// <summary>
@@ -53,7 +54,7 @@ namespace Medidata.MAuth.WebApi
         /// <param name="cancellationToken">A cancellation token to cancel operation.</param>
         /// <returns>Returns <see cref="Task{HttpResponseMessage}"/>. The task object representing the asynchronous
         /// operation.</returns>
-        protected async override Task<HttpResponseMessage> SendAsync(
+        protected override async Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
             if (InnerHandler == null)
@@ -65,6 +66,13 @@ namespace Medidata.MAuth.WebApi
             return await base
                 .SendAsync(request, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
+        }
+
+        private MAuthAuthenticator SetupMAuthAuthenticator(MAuthWebApiOptions opt)
+        {
+            var loggerFactory = options.LoggerFactory ?? NullLoggerFactory.Instance;
+            var logger = loggerFactory.CreateLogger(typeof(MAuthAuthenticatingHandler));
+            return new MAuthAuthenticator(options, logger);
         }
     }
 }

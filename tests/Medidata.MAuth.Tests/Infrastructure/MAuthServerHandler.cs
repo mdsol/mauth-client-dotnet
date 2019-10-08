@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 
 namespace Medidata.MAuth.Tests.Infrastructure
@@ -19,20 +20,26 @@ namespace Medidata.MAuth.Tests.Infrastructure
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
             currentNumberOfAttempts += 1;
+            var version = request.GetAuthHeaderValue().GetVersionFromAuthenticationHeader();
+            var mAuthCore = MAuthCoreFactory.Instantiate(version);
 
             if (currentNumberOfAttempts < SucceedAfterThisManyAttempts)
                 return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);
 
-            var authInfo = request.GetAuthenticationInfo();
+            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions, NullLogger<MAuthAuthenticator>.Instance);
 
-            if (!authInfo.Payload.Verify(
-                await request.GetSignature(authInfo),
+            var authInfo = authenticator.GetAuthenticationInfo(request, version);
+
+            if (!mAuthCore.Verify(authInfo.Payload, 
+                await mAuthCore.GetSignature(request, authInfo),
                 TestExtensions.ServerPublicKey
             ))
                 return new HttpResponseMessage(HttpStatusCode.Unauthorized) { RequestMessage = request };
 
+            var tokenRequestPath = mAuthCore.GetMAuthTokenRequestPath();
+
             if (!request.RequestUri.AbsolutePath.Equals(
-                $"{Constants.MAuthTokenRequestPath}{clientUuid.ToHyphenString()}.json",
+                $"{tokenRequestPath}{clientUuid.ToHyphenString()}.json",
                 StringComparison.OrdinalIgnoreCase))
                 return new HttpResponseMessage(HttpStatusCode.NotFound) { RequestMessage = request };
 

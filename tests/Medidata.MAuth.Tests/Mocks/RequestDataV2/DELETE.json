@@ -1,0 +1,7 @@
+{
+  "Url": "http://localhost:29999/test?one=hello&two=how",
+  "Method": "DELETE",
+  "ApplicationUuid": "192cce84-8466-490e-b03e-074f82da3ee2",
+  "SignedTime": "2016-08-01 05:40:38 +0000",
+  "Payload": "JaFjw0SCWI+y6dLbhSYOBgjmCFZ5nR8hTEK5GZqMjlAnif3J/lAYdbMVPaGkC5qNBKOOwqh2D4CFyOejVrbZ5uGS5q3MteI7pO4jPM3ZbWz2yaa1rc2ZlhKcm42Y1YpgChKwHoN/NuZHogyunv1KlYR8CDOt8k+uIF0G0TNVOEv3Puh3NqM+HbuNhWupZBmsGH7u/mo2yXi1Z5FD9YfeyG5eWFtwQ7Ui5SSTmgF7hlgtqoM5EYCRzp9wy1xZrB+MpsfMsSFTS5aa6Rydbj3bTHHH9AS8fjRtWHAEe/W5OOfQWfc+O70u46AsINhJbA1Sw4mqrTvEuGkkEr3oYyzsrQ=="
+}

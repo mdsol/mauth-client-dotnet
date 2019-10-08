@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Medidata.MAuth.Tests.Infrastructure;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace Medidata.MAuth.Tests
@@ -56,8 +57,10 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await method.FromResource();
 
-            var signedRequest = await testData.ToHttpRequestMessage()
-                .AddAuthenticationInfo(new PrivateKeyAuthenticationInfo()
+            var mAuthCore = new MAuthCore();
+
+            var signedRequest = await mAuthCore
+                .AddAuthenticationInfo(testData.ToHttpRequestMessage(), new PrivateKeyAuthenticationInfo()
                 {
                     ApplicationUuid = testData.ApplicationUuid,
                     PrivateKey = TestExtensions.ClientPrivateKey,
@@ -65,7 +68,7 @@ namespace Medidata.MAuth.Tests
                 });
 
             // Act
-            var isAuthenticated = await signedRequest.Authenticate(TestExtensions.ServerOptions);
+            var isAuthenticated = await signedRequest.Authenticate(TestExtensions.ServerOptions, NullLogger.Instance);
 
             // Assert
             Assert.True(isAuthenticated);

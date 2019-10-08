@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Core
 {
@@ -8,12 +9,13 @@ namespace Medidata.MAuth.Core
     {
         private readonly HttpClient client;
 
-        public MAuthRequestRetrier(MAuthOptionsBase options)
+        public MAuthRequestRetrier(MAuthOptionsBase options, MAuthVersion version)
         {
             var signingHandler = new MAuthSigningHandler(options: new MAuthSigningOptions()
             {
                 ApplicationUuid = options.ApplicationUuid,
-                PrivateKey = options.PrivateKey
+                PrivateKey = options.PrivateKey,
+                MAuthVersion = version
             },
             innerHandler: options.MAuthServerHandler ?? new HttpClientHandler()
             );
@@ -25,7 +27,7 @@ namespace Medidata.MAuth.Core
         }
 
         public async Task<HttpResponseMessage> GetSuccessfulResponse(Guid applicationUuid,
-            Func<Guid, HttpRequestMessage> requestFactory, int requestAttempts)
+            Func<Guid,string, HttpRequestMessage> requestFactory, string tokenRequestPath, int requestAttempts)
         {
             if (requestFactory == null)
                 throw new ArgumentNullException(nameof(requestFactory));
@@ -42,7 +44,7 @@ namespace Medidata.MAuth.Core
             int remainingAttempts = requestAttempts;
             while (remainingAttempts > 0)
             {
-                var request = requestFactory?.Invoke(applicationUuid);
+                var request = requestFactory?.Invoke(applicationUuid, tokenRequestPath);
 
                 if (request == null)
                     throw new ArgumentException(

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Core
 {
@@ -24,5 +21,15 @@ namespace Medidata.MAuth.Core
         /// This property is for testing purposes only.
         /// </summary>
         internal DateTimeOffset? SignedTime { get; set; }
+
+        /// <summary>
+        /// Determines the MAuth version for signing requests.
+        /// </summary>
+        public MAuthVersion MAuthVersion { get; set; }
+
+        /// <summary>
+        /// Determines the boolean value if V1 option of signing should be disabled or not with default value of false.
+        /// </summary>
+        public bool DisableV1 { get; set; } = false;
     }
 }
