@@ -114,10 +114,8 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
         // The following can be either a path to the key file or the contents of the file itself
         PrivateKey = "ClientPrivateKey.pem",
 
-        // With 4.0.0 version, V2 protocol is supported
-        MAuthVersion = (MAuthVersion.MWSV2 || MAuthVersion.MWS)
-
-        // when ready to disable authentication of V1 protococl
+        // when ready to disable authentication of V1 protocol else default is false
+		//signs with both V1 and V2.
         DisableV1 = true
     });
 

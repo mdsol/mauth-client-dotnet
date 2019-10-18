@@ -14,5 +14,8 @@ namespace Medidata.MAuth.Core
         string GetMAuthTokenRequestPath();
 
         (string mAuthHeaderKey, string mAuthTimeHeaderKey) GetHeaderKeys();
+
+        Task<HttpRequestMessage> AddAuthenticationInfo(HttpRequestMessage request,
+            PrivateKeyAuthenticationInfo authInfo);
     }
 }

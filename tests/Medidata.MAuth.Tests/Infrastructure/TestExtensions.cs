@@ -96,6 +96,29 @@ namespace Medidata.MAuth.Tests.Infrastructure
             return result;
         }
 
+        public static HttpRequestMessage ToDefaultHttpRequestMessage(this RequestData data)
+        {
+            var result = new HttpRequestMessage(new HttpMethod(data.Method), data.Url)
+            {
+                Content = !string.IsNullOrEmpty(data.Base64Content) ?
+                    new ByteArrayContent(Convert.FromBase64String(data.Base64Content)) :
+                    null,
+            };
+            var headerKeys = MAuthCoreFactory.Instantiate(MAuthVersion.MWS).GetHeaderKeys();
+            var mAuthHeader = $"{MAuthVersion.MWS} {data.ApplicationUuidString}:{data.Payload}";
+
+
+            var headerKeysV2 = MAuthCoreFactory.Instantiate(MAuthVersion.MWSV2).GetHeaderKeys();
+            var mAuthHeaderV2 = $"{MAuthVersion.MWSV2} {data.ApplicationUuidString}:{data.Payload};";
+
+            result.Headers.Add(headerKeys.mAuthHeaderKey, mAuthHeader);
+            result.Headers.Add(headerKeys.mAuthTimeHeaderKey, data.SignedTimeUnixSeconds.ToString());
+            result.Headers.Add(headerKeysV2.mAuthHeaderKey, mAuthHeaderV2);
+            result.Headers.Add(headerKeysV2.mAuthTimeHeaderKey, data.SignedTimeUnixSeconds.ToString());
+
+            return result;
+        }
+
         public static string ToStringContent(this string base64Content) =>
             base64Content == null ? null : Encoding.UTF8.GetString(Convert.FromBase64String(base64Content));
 

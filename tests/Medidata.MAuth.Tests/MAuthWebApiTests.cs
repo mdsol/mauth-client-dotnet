@@ -27,7 +27,7 @@ namespace Medidata.MAuth.Tests
                 ApplicationUuid = TestExtensions.ServerUuid,
                 MAuthServiceUrl = TestExtensions.TestUri,
                 PrivateKey = TestExtensions.ServerPrivateKey,
-                MAuthServerHandler = new MAuthServerHandler()
+                MAuthServerHandler = new MAuthServerHandler() { AuthenticateOnlyV1 = true }
             }, actual);
 
             using (var server = new HttpClient(handler))
@@ -38,7 +38,7 @@ namespace Medidata.MAuth.Tests
                 // Assert
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
                 Assert.Equal(testData.MAuthHeader, actual.MAuthHeader);
-                Assert.Equal(testData.SignedTime, actual.MAuthTimeHeader.FromUnixTimeSeconds());
+                Assert.Equal(testData.SignedTime, long.Parse(actual.MAuthTimeHeader).FromUnixTimeSeconds());
             }
         }
 
@@ -68,8 +68,8 @@ namespace Medidata.MAuth.Tests
 
                 // Assert
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-                Assert.Equal(testData.MAuthHeaderV2, actual.MAuthHeader);
-                Assert.Equal(testData.SignedTime, actual.MAuthTimeHeader.FromUnixTimeSeconds());
+                Assert.Equal(testData.MAuthHeaderV2, actual.MAuthHeaderV2);
+                Assert.Equal(testData.SignedTime, long.Parse(actual.MAuthTimeHeaderV2).FromUnixTimeSeconds());
             }
         }
 
