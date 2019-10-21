@@ -107,7 +107,6 @@ namespace Medidata.MAuth.Tests.Infrastructure
             var headerKeys = MAuthCoreFactory.Instantiate(MAuthVersion.MWS).GetHeaderKeys();
             var mAuthHeader = $"{MAuthVersion.MWS} {data.ApplicationUuidString}:{data.Payload}";
 
-
             var headerKeysV2 = MAuthCoreFactory.Instantiate(MAuthVersion.MWSV2).GetHeaderKeys();
             var mAuthHeaderV2 = $"{MAuthVersion.MWSV2} {data.ApplicationUuidString}:{data.Payload};";
 

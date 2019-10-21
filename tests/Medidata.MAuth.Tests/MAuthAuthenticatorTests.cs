@@ -44,7 +44,7 @@ namespace Medidata.MAuth.Tests
 
             var testOptions = TestExtensions.ServerOptions;
             testOptions.MAuthServerHandler = new MAuthServerHandler()
-                { AuthenticateOnlyV1 = true};
+                { AuthenticateOnlyV1 = true };
 
             var authenticator = new MAuthAuthenticator(testOptions, NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCore();
