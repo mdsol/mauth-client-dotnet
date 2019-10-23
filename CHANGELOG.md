@@ -2,6 +2,7 @@
 
 ## v4.0.1
 - **[Core]** Fixed default sigining with both MWS and MWSV2 instead of option selected by consuming application.
+- **[Core]** Fixed an issue related to token request path which is same for both MWS and MWSV2 protocol.
 
 ## v4.0.0
 - **[All]** Added implementation for MWSV2 signinig and authentication. Added logging support during MAuthentication.

@@ -115,7 +115,7 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
         PrivateKey = "ClientPrivateKey.pem",
 
         // when ready to disable authentication of V1 protocol else default is false
-        //signs with both V1 and V2.
+        // signs with both V1 and V2.
         DisableV1 = true
     });
 
