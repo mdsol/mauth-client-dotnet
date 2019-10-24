@@ -89,7 +89,7 @@ namespace Medidata.MAuth.Core
                 PrivateKey = opt.PrivateKey.Dereference().NormalizeLines()
             };
            var  mAuthCoreV2 = MAuthCoreFactory.Instantiate(MAuthVersion.MWSV2);
-           request= await mAuthCoreV2.AddAuthenticationInfo(request, authenticationInfo);
+           request = await mAuthCoreV2.AddAuthenticationInfo(request, authenticationInfo);
 
             var mAuthCoreV1= MAuthCoreFactory.Instantiate(MAuthVersion.MWS);
             return await mAuthCoreV1.AddAuthenticationInfo(request, authenticationInfo);
