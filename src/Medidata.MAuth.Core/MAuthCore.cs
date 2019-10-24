@@ -84,7 +84,7 @@ namespace Medidata.MAuth.Core
         /// <returns>
         /// A Task object which will result the request with the authentication information added when it completes.
         /// </returns>
-        public async Task<HttpRequestMessage> AddAuthenticationInfo(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
+        internal async Task<HttpRequestMessage> AddAuthenticationInfo(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
         {
             var authHeader =
                 $"{MAuthVersion.MWS} {authInfo.ApplicationUuid.ToHyphenString()}:" +

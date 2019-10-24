@@ -27,7 +27,7 @@ namespace Medidata.MAuth.Tests
                 ApplicationUuid = TestExtensions.ServerUuid,
                 MAuthServiceUrl = TestExtensions.TestUri,
                 PrivateKey = TestExtensions.ServerPrivateKey,
-                MAuthServerHandler = new MAuthServerHandler() { AuthenticateOnlyV1 = true }
+                MAuthServerHandler = new MAuthServerHandler()
             }, actual);
 
             using (var server = new HttpClient(handler))

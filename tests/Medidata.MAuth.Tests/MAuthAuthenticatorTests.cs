@@ -42,11 +42,11 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await method.FromResource();
 
-            var testOptions = TestExtensions.ServerOptions;
-            testOptions.MAuthServerHandler = new MAuthServerHandler()
-                { AuthenticateOnlyV1 = true };
+            //var testOptions = TestExtensions.ServerOptions;
+            //testOptions.MAuthServerHandler = new MAuthServerHandler()
+            //    { AuthenticateOnlyV1 = true };
 
-            var authenticator = new MAuthAuthenticator(testOptions, NullLogger<MAuthAuthenticator>.Instance);
+            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions, NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCore();
 
             var signedRequest = await mAuthCore

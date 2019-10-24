@@ -12,8 +12,5 @@ namespace Medidata.MAuth.Core
         Task<byte[]> GetSignature(HttpRequestMessage request, AuthenticationInfo authInfo);
 
         (string mAuthHeaderKey, string mAuthTimeHeaderKey) GetHeaderKeys();
-
-        Task<HttpRequestMessage> AddAuthenticationInfo(HttpRequestMessage request,
-            PrivateKeyAuthenticationInfo authInfo);
     }
 }

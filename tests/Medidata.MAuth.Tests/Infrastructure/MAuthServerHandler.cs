@@ -17,14 +17,11 @@ namespace Medidata.MAuth.Tests.Infrastructure
 
         public int SucceedAfterThisManyAttempts { get; set; } = 1;
 
-        public bool AuthenticateOnlyV1 = false;
-
         protected override async Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
             currentNumberOfAttempts += 1;
-            var version = AuthenticateOnlyV1 ? MAuthVersion.MWS
-                :request.GetAuthHeaderValue().GetVersionFromAuthenticationHeader();
+            var version = request.GetAuthHeaderValue().GetVersionFromAuthenticationHeader();
             var mAuthCore = MAuthCoreFactory.Instantiate(version);
 
             if (currentNumberOfAttempts < SucceedAfterThisManyAttempts)

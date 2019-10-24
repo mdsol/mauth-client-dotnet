@@ -52,7 +52,7 @@ namespace Medidata.MAuth.Core
 
                 var mAuthCore = MAuthCoreFactory.Instantiate(version);
                 var authInfo = GetAuthenticationInfo(request, version);
-                var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid, version);
+                var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid, version).ConfigureAwait(false);
 
                 return mAuthCore.Verify(authInfo.Payload, await mAuthCore.GetSignature(request, authInfo),
                     appInfo.PublicKey);

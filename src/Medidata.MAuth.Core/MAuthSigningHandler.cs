@@ -58,8 +58,14 @@ namespace Medidata.MAuth.Core
             if (options.DisableV1 == false) // default
             {
                 // Add headers for both V1 and V2
+                var mAuthCoreV2 = MAuthCoreFactory.Instantiate(MAuthVersion.MWSV2);
+                request = await mAuthCoreV2.Sign(request, options).ConfigureAwait(false);
+
+                var mAuthCoreV1 = MAuthCoreFactory.Instantiate(MAuthVersion.MWS);
+                request = await mAuthCoreV1.Sign(request, options).ConfigureAwait(false);
+
                 return await base
-                    .SendAsync(await DefaultSign(request, options).ConfigureAwait(false), cancellationToken)
+                    .SendAsync(request, cancellationToken)
                     .ConfigureAwait(continueOnCapturedContext: false);
             }
 
@@ -69,30 +75,6 @@ namespace Medidata.MAuth.Core
             return await base
                 .SendAsync(await mAuthCore.Sign(request, options).ConfigureAwait(false), cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
-        }
-
-        /// <summary>
-        /// Signs an HTTP request with the MAuth-specific authentication information.
-        /// </summary>
-        /// <param name="request">The HTTP request message to sign.</param>
-        /// <param name="opt">The options that contains the required information for the signing.</param>
-        /// <returns>
-        /// A Task object which will result the request signed with the authentication information when it completes.
-        /// </returns>
-        private async Task<HttpRequestMessage> DefaultSign(
-            HttpRequestMessage request, MAuthSigningOptions opt)
-        {
-            var authenticationInfo = new PrivateKeyAuthenticationInfo()
-            {
-                ApplicationUuid = opt.ApplicationUuid,
-                SignedTime = opt.SignedTime ?? DateTimeOffset.UtcNow,
-                PrivateKey = opt.PrivateKey.Dereference().NormalizeLines()
-            };
-           var  mAuthCoreV2 = MAuthCoreFactory.Instantiate(MAuthVersion.MWSV2);
-           request = await mAuthCoreV2.AddAuthenticationInfo(request, authenticationInfo);
-
-            var mAuthCoreV1= MAuthCoreFactory.Instantiate(MAuthVersion.MWS);
-            return await mAuthCoreV1.AddAuthenticationInfo(request, authenticationInfo);
         }
     }
 }
