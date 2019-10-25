@@ -57,19 +57,12 @@ namespace Medidata.MAuth.Core
 
             if (options.DisableV1 == false) // default
             {
-                // Add headers for both V1 and V2
-                var mAuthCoreV2 = MAuthCoreFactory.Instantiate(MAuthVersion.MWSV2);
-                request = await mAuthCoreV2.Sign(request, options).ConfigureAwait(false);
-
+                // Add headers for both V1 protocol
                 var mAuthCoreV1 = MAuthCoreFactory.Instantiate(MAuthVersion.MWS);
                 request = await mAuthCoreV1.Sign(request, options).ConfigureAwait(false);
-
-                return await base
-                    .SendAsync(request, cancellationToken)
-                    .ConfigureAwait(continueOnCapturedContext: false);
             }
 
-            // Signing with only V2
+            // Add headers for V2 protocol
             mAuthCore = MAuthCoreFactory.Instantiate(MAuthVersion.MWSV2);
 
             return await base
