@@ -64,9 +64,10 @@ namespace Medidata.MAuth.Core
 
             // Add headers for V2 protocol
             mAuthCore = MAuthCoreFactory.Instantiate(MAuthVersion.MWSV2);
+            request = await mAuthCore.Sign(request, options).ConfigureAwait(false);
 
             return await base
-                .SendAsync(await mAuthCore.Sign(request, options).ConfigureAwait(false), cancellationToken)
+                .SendAsync(request, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
     }
