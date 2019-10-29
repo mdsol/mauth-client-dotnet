@@ -50,7 +50,8 @@ namespace Medidata.MAuth.AspNetCore
         {
             try
             {
-                return await authenticator.AuthenticateRequest(context.Request.ToHttpRequestMessage());
+                return await authenticator.AuthenticateRequest(context.Request.ToHttpRequestMessage())
+                    .ConfigureAwait(false);
             }
             catch (Exception)
             {
