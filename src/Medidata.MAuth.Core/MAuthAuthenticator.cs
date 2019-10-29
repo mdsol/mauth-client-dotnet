@@ -92,12 +92,10 @@ namespace Medidata.MAuth.Core
         private Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid, MAuthVersion version) =>
             cache.GetOrCreateAsync(applicationUuid, async entry =>
             {
-                var mAuthCore = MAuthCoreFactory.Instantiate(version);
-                var tokenRequestPath = mAuthCore.GetMAuthTokenRequestPath();
                 var retrier = new MAuthRequestRetrier(options, version);
                 var response = await retrier.GetSuccessfulResponse(
                     applicationUuid,
-                    CreateRequest, tokenRequestPath,
+                    CreateRequest, Constants.MAuthTokenRequestPath,
                     requestAttempts: (int)options.MAuthServiceRetryPolicy + 1
                 );
 

@@ -55,12 +55,12 @@ namespace Medidata.MAuth.Tests
         public static async Task Authenticate_WithValidRequest_WillAuthenticate(string method)
         {
             // Arrange
-            var testData = await method.FromResource();
+            var testData = await method.FromResourceV2();
 
             var mAuthCore = new MAuthCore();
 
             var signedRequest = await mAuthCore
-                .AddAuthenticationInfo(testData.ToHttpRequestMessage(), new PrivateKeyAuthenticationInfo()
+                .AddAuthenticationInfo(testData.ToDefaultHttpRequestMessage(), new PrivateKeyAuthenticationInfo()
                 {
                     ApplicationUuid = testData.ApplicationUuid,
                     PrivateKey = TestExtensions.ClientPrivateKey,

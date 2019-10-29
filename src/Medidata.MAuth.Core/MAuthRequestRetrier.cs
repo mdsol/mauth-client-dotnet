@@ -15,7 +15,6 @@ namespace Medidata.MAuth.Core
             {
                 ApplicationUuid = options.ApplicationUuid,
                 PrivateKey = options.PrivateKey,
-                MAuthVersion = version
             },
             innerHandler: options.MAuthServerHandler ?? new HttpClientHandler()
             );

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
-using Medidata.MAuth.Core.Exceptions;
 using Medidata.MAuth.Core.Models;
 using Medidata.MAuth.Tests.Infrastructure;
 using Xunit;
@@ -16,7 +14,7 @@ namespace Medidata.MAuth.Tests
         [InlineData("DELETE")]
         [InlineData("POST")]
         [InlineData("PUT")]
-        public static async Task SendAsync_WithValidMWSRequest_WillSignProperly(string method)
+        public static async Task SendAsync_WithDefault_WillSignProperly_BothMWSAndMWSV2(string method)
         {
             // Arrange
             var testData = await method.FromResource();
@@ -26,12 +24,15 @@ namespace Medidata.MAuth.Tests
             // Act
             using (var client = new HttpClient(signingHandler))
             {
-                await client.SendAsync(testData.ToHttpRequestMessage());
+                await client.SendAsync(testData.ToDefaultHttpRequestMessage());
             }
 
             // Assert
             Assert.Equal(testData.MAuthHeader, actual.MAuthHeader);
-            Assert.Equal(testData.SignedTime, actual.MAuthTimeHeader.FromUnixTimeSeconds());
+            Assert.Equal(testData.SignedTime, long.Parse(actual.MAuthTimeHeader).FromUnixTimeSeconds());
+
+            Assert.Equal(testData.MAuthHeaderV2, actual.MAuthHeaderV2);
+            Assert.Equal(testData.SignedTime, long.Parse(actual.MAuthTimeHeader).FromUnixTimeSeconds());
         }
 
         [Theory]
@@ -39,16 +40,17 @@ namespace Medidata.MAuth.Tests
         [InlineData("DELETE")]
         [InlineData("POST")]
         [InlineData("PUT")]
-        public static async Task SendAsync_WithValidMWSV2Request_WillSignProperly(string method)
+        public static async Task SendAsync_WithDisableV1_WillSignProperlyWithMWSV2(string method)
         {
             // Arrange
-            var testData = await method.FromResource();
-            var version = MAuthVersion.MWSV2;
+            var testData = await method.FromResourceV2();
             var actual = new AssertSigningHandler();
+            var version = MAuthVersion.MWSV2;
             var clientOptions = TestExtensions.ClientOptions(testData.SignedTime);
-            clientOptions.MAuthVersion = MAuthVersion.MWSV2;
+            clientOptions.DisableV1 = true;
             var signingHandler = new MAuthSigningHandler(clientOptions, actual);
-           
+
+
             // Act
             using (var client = new HttpClient(signingHandler))
             {
@@ -56,31 +58,8 @@ namespace Medidata.MAuth.Tests
             }
 
             // Assert
-            Assert.Equal(testData.MAuthHeaderV2, actual.MAuthHeader);
-            Assert.Equal(testData.SignedTime, actual.MAuthTimeHeader.FromUnixTimeSeconds());
-        }
-
-        [Theory]
-        [InlineData("GET")]
-        [InlineData("DELETE")]
-        [InlineData("POST")]
-        [InlineData("PUT")]
-        public static async Task SendAsync_WithMWSRequest_WithDisableV1_WillThrowInvalidVersionException(string method)
-        {
-            // Arrange
-            var testData = await method.FromResource();
-            var actual = new AssertSigningHandler();
-            var clientOptions = TestExtensions.ClientOptions(testData.SignedTime);
-            clientOptions.DisableV1 = true;
-            clientOptions.MAuthVersion = MAuthVersion.MWS;
-            var signingHandler = new MAuthSigningHandler(clientOptions, actual);
-
-            // Act, Assert
-            using (var client = new HttpClient(signingHandler))
-            {
-                var exception = (await Assert.ThrowsAsync<InvalidVersionException>(
-                    () => client.SendAsync(testData.ToHttpRequestMessage())));
-            }
+            Assert.Equal(testData.MAuthHeaderV2, actual.MAuthHeaderV2);
+            Assert.Equal(testData.SignedTime, long.Parse(actual.MAuthTimeHeaderV2).FromUnixTimeSeconds());
         }
     }
 }
