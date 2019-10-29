@@ -57,7 +57,7 @@ namespace Medidata.MAuth.Core
 
             if (options.DisableV1 == false) // default
             {
-                // Add headers for both V1 protocol
+                // Add headers for V1 protocol as well
                 var mAuthCoreV1 = MAuthCoreFactory.Instantiate(MAuthVersion.MWS);
                 request = await mAuthCoreV1.Sign(request, options).ConfigureAwait(false);
             }
