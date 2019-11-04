@@ -196,14 +196,5 @@ namespace Medidata.MAuth.Core
             });
             return string.Join("&", encodedQueryStrings);
         }
-
-        /// <summary>
-        /// Provides an SHA512 hash value of bytes.
-        /// </summary>
-        /// <param name="value">The byte value for calculating the hash.</param>
-        /// <returns>SHA512 hash of the input value.</returns>
-        public static byte[] AsSha512HashV2(this byte[] value) =>
-            SHA512.Create().ComputeHash(value);
-
     }
 }
