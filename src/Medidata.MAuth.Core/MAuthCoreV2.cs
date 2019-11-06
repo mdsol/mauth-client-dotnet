@@ -16,10 +16,10 @@ namespace Medidata.MAuth.Core
         /// <returns>
         /// A Task object which will result the request signed with the authentication information when it completes.
         /// </returns>
-        public async Task<HttpRequestMessage> Sign(
+        public Task<HttpRequestMessage> Sign(
             HttpRequestMessage request, MAuthSigningOptions options)
         {
-            return await AddAuthenticationInfo(request, new PrivateKeyAuthenticationInfo()
+            return AddAuthenticationInfo(request, new PrivateKeyAuthenticationInfo()
             {
                 ApplicationUuid = options.ApplicationUuid,
                 SignedTime = options.SignedTime ?? DateTimeOffset.UtcNow,

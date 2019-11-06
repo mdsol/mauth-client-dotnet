@@ -20,9 +20,9 @@ namespace Medidata.MAuth.Owin
 
         public override async Task Invoke(IOwinContext context)
         {
-            await context.EnsureRequestBodyStreamSeekable();
+            await context.EnsureRequestBodyStreamSeekable().ConfigureAwait(false);
             if (!options.Bypass(context.Request) &&
-                !await context.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized))
+                !await context.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized).ConfigureAwait(false))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 return;
@@ -30,7 +30,7 @@ namespace Medidata.MAuth.Owin
 
             context.Request.Body.Rewind();
 
-            await Next.Invoke(context);
+            await Next.Invoke(context).ConfigureAwait(false);
         }
     }
 }

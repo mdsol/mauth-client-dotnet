@@ -71,7 +71,7 @@ namespace Medidata.MAuth.Owin
                 return;
 
             var body = new MemoryStream();
-            await context.Request.Body.CopyToAsync(body);
+            await context.Request.Body.CopyToAsync(body).ConfigureAwait(false);
 
             body.Rewind();
 

@@ -60,7 +60,7 @@ namespace Medidata.MAuth.WebApi
             if (InnerHandler == null)
                 InnerHandler = new HttpClientHandler();
 
-            if (!await request.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized))
+            if (!await request.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized).ConfigureAwait(false))
                 return new HttpResponseMessage(HttpStatusCode.Unauthorized) { RequestMessage = request };
 
             return await base
