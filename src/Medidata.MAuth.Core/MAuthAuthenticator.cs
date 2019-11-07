@@ -52,10 +52,10 @@ namespace Medidata.MAuth.Core
 
                 var mAuthCore = MAuthCoreFactory.Instantiate(version);
                 var authInfo = GetAuthenticationInfo(request, version);
-                var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid, version);
+                var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid, version).ConfigureAwait(false);
+                var signature = await mAuthCore.GetSignature(request, authInfo).ConfigureAwait(false);
 
-                return mAuthCore.Verify(authInfo.Payload, await mAuthCore.GetSignature(request, authInfo),
-                    appInfo.PublicKey);
+                return mAuthCore.Verify(authInfo.Payload, signature, appInfo.PublicKey);
             }
             catch (ArgumentException ex)
             {
@@ -97,9 +97,9 @@ namespace Medidata.MAuth.Core
                     applicationUuid,
                     CreateRequest, Constants.MAuthTokenRequestPath,
                     requestAttempts: (int)options.MAuthServiceRetryPolicy + 1
-                );
+                ).ConfigureAwait(false);
 
-                var result = await response.Content.FromResponse();
+                var result = await response.Content.FromResponse().ConfigureAwait(false);
 
                 entry.SetOptions(
                     new MemoryCacheEntryOptions()

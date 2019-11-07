@@ -47,7 +47,8 @@ namespace Medidata.MAuth.Owin
         {
             try
             {
-                return await authenticator.AuthenticateRequest(context.Request.ToHttpRequestMessage());
+                return await authenticator.AuthenticateRequest(context.Request.ToHttpRequestMessage()).
+                  ConfigureAwait(false);
             }
             catch (Exception)
             {
@@ -70,7 +71,7 @@ namespace Medidata.MAuth.Owin
                 return;
 
             var body = new MemoryStream();
-            await context.Request.Body.CopyToAsync(body);
+            await context.Request.Body.CopyToAsync(body).ConfigureAwait(false);
 
             body.Rewind();
 
