@@ -26,7 +26,7 @@ namespace Medidata.MAuth.Core
         }
 
         public async Task<HttpResponseMessage> GetSuccessfulResponse(Guid applicationUuid,
-            Func<Guid,string, HttpRequestMessage> requestFactory, string tokenRequestPath, int requestAttempts)
+            Func<Guid, HttpRequestMessage> requestFactory, int requestAttempts)
         {
             if (requestFactory == null)
                 throw new ArgumentNullException(nameof(requestFactory));
@@ -43,7 +43,7 @@ namespace Medidata.MAuth.Core
             int remainingAttempts = requestAttempts;
             while (remainingAttempts > 0)
             {
-                var request = requestFactory?.Invoke(applicationUuid, tokenRequestPath);
+                var request = requestFactory?.Invoke(applicationUuid);
 
                 if (request == null)
                     throw new ArgumentException(

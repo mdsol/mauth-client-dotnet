@@ -95,7 +95,7 @@ namespace Medidata.MAuth.Core
                 var retrier = new MAuthRequestRetrier(options, version);
                 var response = await retrier.GetSuccessfulResponse(
                     applicationUuid,
-                    CreateRequest, Constants.MAuthTokenRequestPath,
+                    CreateRequest,
                     requestAttempts: (int)options.MAuthServiceRetryPolicy + 1
                 ).ConfigureAwait(false);
 
@@ -109,9 +109,9 @@ namespace Medidata.MAuth.Core
                 return result;
             });
 
-        private HttpRequestMessage CreateRequest(Guid applicationUuid, string tokenRequestPath) =>
+        private HttpRequestMessage CreateRequest(Guid applicationUuid) =>
             new HttpRequestMessage(HttpMethod.Get, new Uri(options.MAuthServiceUrl,
-                $"{tokenRequestPath}{applicationUuid.ToHyphenString()}.json"));
+                $"{Constants.MAuthTokenRequestPath}{applicationUuid.ToHyphenString()}.json"));
 
         /// <summary>
         /// Extracts the authentication information from a <see cref="HttpRequestMessage"/>.
