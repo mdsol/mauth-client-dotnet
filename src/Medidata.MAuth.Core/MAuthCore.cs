@@ -117,15 +117,6 @@ namespace Medidata.MAuth.Core
         }
 
         /// <summary>
-        /// Determines the correct token request path.
-        /// </summary>
-        /// <returns>The token request path.</returns>
-        public string GetMAuthTokenRequestPath()
-        {
-            return "/mauth/v1/security_tokens/";
-        }
-
-        /// <summary>
         /// Gets the MAuthHeader and MAuthTimeHeader keys
         /// </summary>
         /// <returns>MAuthHeaderKey and MAuthTimeHeaderKey.</returns>

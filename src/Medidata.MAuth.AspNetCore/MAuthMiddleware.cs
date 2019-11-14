@@ -41,7 +41,7 @@ namespace Medidata.MAuth.AspNetCore
             context.Request.EnableBuffering();
 
             if (!options.Bypass(context.Request) &&
-                !await context.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized))
+                !await context.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized).ConfigureAwait(false))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 return;
@@ -49,7 +49,7 @@ namespace Medidata.MAuth.AspNetCore
 
             context.Request.Body.Rewind();
 
-            await next.Invoke(context);
+            await next.Invoke(context).ConfigureAwait(false);
         }
     }
 }

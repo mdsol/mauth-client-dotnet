@@ -24,7 +24,7 @@ namespace Medidata.MAuth.WebApi
         {
             try
             {
-                return await authenticator.AuthenticateRequest(request);
+                return await authenticator.AuthenticateRequest(request).ConfigureAwait(false);
             }
             catch (Exception)
             {

@@ -16,10 +16,10 @@ namespace Medidata.MAuth.Core
         /// <returns>
         /// A Task object which will result the request signed with the authentication information when it completes.
         /// </returns>
-        public async Task<HttpRequestMessage> Sign(
+        public Task<HttpRequestMessage> Sign(
             HttpRequestMessage request, MAuthSigningOptions options)
         {
-            return await AddAuthenticationInfo(request, new PrivateKeyAuthenticationInfo()
+            return AddAuthenticationInfo(request, new PrivateKeyAuthenticationInfo()
             {
                 ApplicationUuid = options.ApplicationUuid,
                 SignedTime = options.SignedTime ?? DateTimeOffset.UtcNow,
@@ -43,7 +43,7 @@ namespace Medidata.MAuth.Core
             var rsa = new RSACryptoServiceProvider();
             rsa.PersistKeyInCsp = false;
             rsa.ImportParameters(publicKey.AsRsaParameters());
-            return rsa.VerifyHash(signature, CryptoConfig.MapNameToOID("SHA512"), signedData);
+            return rsa.VerifyData(signature, CryptoConfig.MapNameToOID("SHA512"), signedData);
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Medidata.MAuth.Core
         /// <param name="authInfo">
         /// The <see cref="AuthenticationInfo"/> which holds the application uuid and the time of the signature.
         /// </param>
-        /// <returns>A Task object which will result the SHA512 hash of the signature when it completes.</returns>
+        /// <returns>A Task object which will result the byte value of signature when it completes.</returns>
         public async Task<byte[]> GetSignature(HttpRequestMessage request, AuthenticationInfo authInfo)
         {
             var encodedHttpVerb = request.Method.Method.ToBytes();
@@ -64,7 +64,7 @@ namespace Medidata.MAuth.Core
 
             var requestBody = request.Content != null ?
                 await request.Content.ReadAsByteArrayAsync().ConfigureAwait(false) : new byte[] { };
-            var requestBodyDigest = requestBody.AsSha512HashV2();
+            var requestBodyDigest = requestBody.AsSHA512Hash();
 
             var encodedCurrentSecondsSinceEpoch = authInfo.SignedTime.ToUnixTimeSeconds().ToString().ToBytes();
             var encodedQueryParams = !string.IsNullOrEmpty(request.RequestUri.Query) ?
@@ -78,7 +78,7 @@ namespace Medidata.MAuth.Core
                 encodedAppUUid, Constants.NewLine,
                 encodedCurrentSecondsSinceEpoch, Constants.NewLine,
                 encodedQueryParams
-            }.Concat().AsSha512HashV2();
+            }.Concat();
         }
 
         /// <summary>
@@ -123,16 +123,7 @@ namespace Medidata.MAuth.Core
             signer.PersistKeyInCsp = false;
             signer.ImportParameters(authInfo.PrivateKey.AsRsaParameters());
 
-            return Convert.ToBase64String(signer.SignHash(unsignedData, CryptoConfig.MapNameToOID("SHA512")));
-        }
-
-        /// <summary>
-        /// Determines the correct token request path.
-        /// </summary>
-        /// <returns>The token request path.</returns>
-        public string GetMAuthTokenRequestPath()
-        {
-            return "/mauth/v2/security_tokens/";
+            return Convert.ToBase64String(signer.SignData(unsignedData, CryptoConfig.MapNameToOID("SHA512")));
         }
 
         /// <summary>

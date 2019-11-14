@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Medidata.MAuth.Core.Exceptions;
 using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Core
@@ -56,14 +55,19 @@ namespace Medidata.MAuth.Core
             if (InnerHandler == null)
                 InnerHandler = new HttpClientHandler();
 
-            if(options.DisableV1 && options.MAuthVersion == MAuthVersion.MWS)
-                throw new InvalidVersionException
-                    ($"Signing with {options.MAuthVersion.ToString()} is disabled.");
+            if (options.DisableV1 == false) // default
+            {
+                // Add headers for V1 protocol as well
+                var mAuthCoreV1 = MAuthCoreFactory.Instantiate(MAuthVersion.MWS);
+                request = await mAuthCoreV1.Sign(request, options).ConfigureAwait(false);
+            }
 
-            mAuthCore = MAuthCoreFactory.Instantiate(options.MAuthVersion);
+            // Add headers for V2 protocol
+            mAuthCore = MAuthCoreFactory.Instantiate(MAuthVersion.MWSV2);
+            request = await mAuthCore.Sign(request, options).ConfigureAwait(false);
 
             return await base
-                .SendAsync(await mAuthCore.Sign(request, options).ConfigureAwait(false), cancellationToken)
+                .SendAsync(request, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
     }

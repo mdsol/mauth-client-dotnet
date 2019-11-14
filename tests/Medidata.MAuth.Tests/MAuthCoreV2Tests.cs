@@ -62,13 +62,13 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var signature = "This is a signature.";
-            var unsignedData = signature.ToBytes().AsSha512HashV2();
+            var unsignedData = signature.ToBytes();
             var mAuthCore = new MAuthCoreV2();
 
             var signer = new RSACryptoServiceProvider();
             signer.PersistKeyInCsp = false;
             signer.ImportParameters(TestExtensions.ClientPrivateKey.AsRsaParameters());
-            var signedData = signer.SignHash(unsignedData, CryptoConfig.MapNameToOID("SHA512"));
+            var signedData = signer.SignData(unsignedData, CryptoConfig.MapNameToOID("SHA512"));
 
             // Act
             var result = mAuthCore.Verify(signedData, unsignedData, TestExtensions.ClientPublicKey);
@@ -98,11 +98,11 @@ namespace Medidata.MAuth.Tests
             {
                 testData.Method.ToBytes(), Constants.NewLine,
                 testData.Url.AbsolutePath.ToBytes(), Constants.NewLine,
-                content.AsSha512HashV2(), Constants.NewLine,
+                content.AsSHA512Hash(), Constants.NewLine,
                 testData.ApplicationUuidString.ToBytes(), Constants.NewLine,
                 testData.SignedTimeUnixSeconds.ToString().ToBytes(), Constants.NewLine,
                 queryParams
-            }.Concat().AsSha512HashV2();
+            }.Concat();
 
             var authInfo = new PrivateKeyAuthenticationInfo()
             {

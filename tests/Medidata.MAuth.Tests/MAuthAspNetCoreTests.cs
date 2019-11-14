@@ -22,7 +22,7 @@ namespace Medidata.MAuth.Tests
         public async Task MAuthMiddleware_WithValidRequest_WillAuthenticate(string method)
         {
             // Arrange
-            var testData = await method.FromResource();
+            var testData = await method.FromResourceV2();
 
             using (var server = new TestServer(new WebHostBuilder().Configure(app =>
             {
@@ -39,7 +39,7 @@ namespace Medidata.MAuth.Tests
             })))
             {
                 // Act
-                var response = await server.CreateClient().SendAsync(testData.ToHttpRequestMessage());
+                var response = await server.CreateClient().SendAsync(testData.ToDefaultHttpRequestMessage());
 
                 // Assert
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -118,7 +118,7 @@ namespace Medidata.MAuth.Tests
         public async Task MAuthMiddleware_WithNonSeekableBodyStream_WillRestoreBodyStream(string method)
         {
             // Arrange
-            var testData = await method.FromResource();
+            var testData = await method.FromResourceV2();
             var canSeek = false;
             var body = string.Empty;
             using (var server = new TestServer(new WebHostBuilder().Configure(app =>
@@ -141,7 +141,7 @@ namespace Medidata.MAuth.Tests
             })))
             {
                 // Act
-                var response = await server.CreateClient().SendAsync(testData.ToHttpRequestMessage());
+                var response = await server.CreateClient().SendAsync(testData.ToDefaultHttpRequestMessage());
 
                 // Assert
                 Assert.True(canSeek);

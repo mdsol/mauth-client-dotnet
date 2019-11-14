@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Medidata.MAuth.Core.Models;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 
@@ -36,10 +37,8 @@ namespace Medidata.MAuth.Tests.Infrastructure
             ))
                 return new HttpResponseMessage(HttpStatusCode.Unauthorized) { RequestMessage = request };
 
-            var tokenRequestPath = mAuthCore.GetMAuthTokenRequestPath();
-
             if (!request.RequestUri.AbsolutePath.Equals(
-                $"{tokenRequestPath}{clientUuid.ToHyphenString()}.json",
+                $"{Constants.MAuthTokenRequestPath}{clientUuid.ToHyphenString()}.json",
                 StringComparison.OrdinalIgnoreCase))
                 return new HttpResponseMessage(HttpStatusCode.NotFound) { RequestMessage = request };
 

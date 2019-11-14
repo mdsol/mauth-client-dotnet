@@ -37,16 +37,20 @@ namespace Medidata.MAuth.Tests
         [InlineData("DELETE")]
         [InlineData("POST")]
         [InlineData("PUT")]
-        public static async Task AuthenticateRequest_WithValidRequest_WillAuthenticate(string method)
+        public static async Task AuthenticateRequest_WithValidMWSRequest_WillAuthenticate(string method)
         {
             // Arrange
             var testData = await method.FromResource();
+
+            //var testOptions = TestExtensions.ServerOptions;
+            //testOptions.MAuthServerHandler = new MAuthServerHandler()
+            //    { AuthenticateOnlyV1 = true };
 
             var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions, NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCore();
 
             var signedRequest = await mAuthCore
-                .AddAuthenticationInfo(testData.ToHttpRequestMessage(), new PrivateKeyAuthenticationInfo()
+                .AddAuthenticationInfo(testData.ToHttpRequestMessage(MAuthVersion.MWS), new PrivateKeyAuthenticationInfo()
                 {
                     ApplicationUuid = testData.ApplicationUuid,
                     PrivateKey = TestExtensions.ClientPrivateKey,
@@ -98,14 +102,14 @@ namespace Medidata.MAuth.Tests
             MAuthServiceRetryPolicy policy)
         {
             // Arrange
-            var testData = await "GET".FromResource();
+            var testData = await "GET".FromResourceV2();
 
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
                 policy, shouldSucceedWithin: true), NullLogger<MAuthAuthenticator>.Instance);
-            var mAuthCore = new MAuthCore();
+            var mAuthCore = new MAuthCoreV2();
 
             var signedRequest = await mAuthCore
-                .AddAuthenticationInfo(testData.ToHttpRequestMessage(),new PrivateKeyAuthenticationInfo()
+                .AddAuthenticationInfo(testData.ToDefaultHttpRequestMessage(),new PrivateKeyAuthenticationInfo()
                 {
                     ApplicationUuid = testData.ApplicationUuid,
                     PrivateKey = TestExtensions.ClientPrivateKey,

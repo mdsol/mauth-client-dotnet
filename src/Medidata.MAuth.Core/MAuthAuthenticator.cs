@@ -52,10 +52,10 @@ namespace Medidata.MAuth.Core
 
                 var mAuthCore = MAuthCoreFactory.Instantiate(version);
                 var authInfo = GetAuthenticationInfo(request, version);
-                var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid, version);
+                var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid, version).ConfigureAwait(false);
+                var signature = await mAuthCore.GetSignature(request, authInfo).ConfigureAwait(false);
 
-                return mAuthCore.Verify(authInfo.Payload, await mAuthCore.GetSignature(request, authInfo),
-                    appInfo.PublicKey);
+                return mAuthCore.Verify(authInfo.Payload, signature, appInfo.PublicKey);
             }
             catch (ArgumentException ex)
             {
@@ -92,16 +92,14 @@ namespace Medidata.MAuth.Core
         private Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid, MAuthVersion version) =>
             cache.GetOrCreateAsync(applicationUuid, async entry =>
             {
-                var mAuthCore = MAuthCoreFactory.Instantiate(version);
-                var tokenRequestPath = mAuthCore.GetMAuthTokenRequestPath();
                 var retrier = new MAuthRequestRetrier(options, version);
                 var response = await retrier.GetSuccessfulResponse(
                     applicationUuid,
-                    CreateRequest, tokenRequestPath,
+                    CreateRequest,
                     requestAttempts: (int)options.MAuthServiceRetryPolicy + 1
-                );
+                ).ConfigureAwait(false);
 
-                var result = await response.Content.FromResponse();
+                var result = await response.Content.FromResponse().ConfigureAwait(false);
 
                 entry.SetOptions(
                     new MemoryCacheEntryOptions()
@@ -111,9 +109,9 @@ namespace Medidata.MAuth.Core
                 return result;
             });
 
-        private HttpRequestMessage CreateRequest(Guid applicationUuid, string tokenRequestPath) =>
+        private HttpRequestMessage CreateRequest(Guid applicationUuid) =>
             new HttpRequestMessage(HttpMethod.Get, new Uri(options.MAuthServiceUrl,
-                $"{tokenRequestPath}{applicationUuid.ToHyphenString()}.json"));
+                $"{Constants.MAuthTokenRequestPath}{applicationUuid.ToHyphenString()}.json"));
 
         /// <summary>
         /// Extracts the authentication information from a <see cref="HttpRequestMessage"/>.

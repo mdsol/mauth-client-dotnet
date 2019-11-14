@@ -14,18 +14,20 @@ namespace Medidata.MAuth.Tests.Infrastructure
     {
         public string MAuthHeader { get; private set; }
 
-        public long MAuthTimeHeader { get; private set; }
+        public string MAuthTimeHeader { get; private set; }
+
+        public string MAuthHeaderV2 { get; private set; }
+
+        public string MAuthTimeHeaderV2 { get; private set; }
 
         protected override Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            MAuthHeader = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKeyV2) ?? 
-                          request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey);
+            MAuthHeaderV2 = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKeyV2);
+            MAuthHeader   = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey);
 
-            var timeHeader = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthTimeHeaderKeyV2) ??
-                             request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthTimeHeaderKey);
-
-            MAuthTimeHeader = long.Parse(timeHeader);
+            MAuthTimeHeaderV2 = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthTimeHeaderKeyV2);
+            MAuthTimeHeader = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthTimeHeaderKey);
 
             return Task.Run(() => new HttpResponseMessage(HttpStatusCode.OK));
         }
