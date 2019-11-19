@@ -125,9 +125,8 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
     }
 }
 ```
-With the MAuth V2 protocol, there are two new options `MAuthVersion` and `DisableV1` added for Signing MAuth request.
-`MAuthVersion` is passed either as `MAuthVersion.MWSV2` for signing with V2 protocol or `MAuthVersion.MWS` for continue
-signing with V1 protocol. By default, `DisableV1` option is set to false (if not included). When we are ready to 
+With the release of support for MAuth V2 protocol, by default MAuth request signs with both V1 and V2 protocol.
+Also by default, `DisableV1` option is set to false (if not included). When we are ready to 
 disable all the V1 request, then we need to include this disable option as : `DisableV1 = true`. 
 Signing with V2 protocol supports query string.
 
@@ -140,8 +139,7 @@ The `MAuthSigningOptions` has the following properties to determine the required
 | ---- | ----------- |
 | **ApplicationUuid** | Determines the unique identifier of the client application used for the MAuth service authentication requests.  This uuid needs to be registered with the MAuth Server in order for the authenticating server application to be able to authenticate the signed request. |
 | **PrivateKey** | Determines the RSA private key of the client for signing a request. This key must be in a PEM ASN.1 format. The value of this property can be set as a valid path to a readable key file as well. |
-| **MAuthVersion** | Determines the MAuth version of the request used for signing. This is enumeration value which is `MAuthVersion.MWSV2` for V2 requests. |
-| **DisableV1** | Determines the boolean value which controls whether to disable the signing requests with `MAuthVersion.MWS` requests or not. If not supplied, this value is  `false`. |
+| **DisableV1** | Determines the boolean value which controls whether to disable the signing requests with V1 protocol or not. If not supplied, this value is `false`. |
 
 ### Authenticating Incoming Requests with the OWIN and ASP.NET Core Middlewares
 
