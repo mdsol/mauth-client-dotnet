@@ -317,7 +317,7 @@ in your project in order to make Medidata.MAuth work for you.
 ##### Is there an .NET Standard/Core support?
 
 Yes, for signing outgoing requests you can use the library with any framework which implements
-the **.NET Standard 2.0** and onwards; additionally we support the **ASP.NET Core App 2.0** and onwards with a middleware
+the **.NET Standard 2.0** and onwards; additionally we support the **ASP.NET Core App 2.1** and onwards with a middleware
 for authenticating the incoming requests.
 
 ##### What Cryptographic provider is used for the encryption/decryption?

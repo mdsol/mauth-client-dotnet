@@ -2,7 +2,7 @@
   <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <Description>This package contains an ASP.NET Core middleware to validate signed http requests with the Medidata MAuth protocol. The middleware communicates with an MAuth server in order to confirm the validity of the request authentication header. Include this package in your ASP.NET Core web api if you want to authenticate the api requests signed with the MAuth protocol.</Description>
     <AssemblyTitle>Medidata.MAuth.AspNetCore</AssemblyTitle>
     <AssemblyName>Medidata.MAuth.AspNetCore</AssemblyName>
@@ -14,9 +14,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.1.1" />
   </ItemGroup>
 
   <ItemGroup>
