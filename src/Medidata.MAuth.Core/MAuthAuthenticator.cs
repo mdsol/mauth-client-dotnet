@@ -45,13 +45,15 @@ namespace Medidata.MAuth.Core
                 logger.LogInformation("Initiating Authentication of the request.");
                 var version = request.GetAuthHeaderValue().GetVersionFromAuthenticationHeader();
 
-                logger.LogInformation("Authentication is for the {version}.",version);
-
                 if (options.DisableV1 && version == MAuthVersion.MWS)
                     throw new InvalidVersionException($"Authentication with {version} version is disabled.");
 
                 var mAuthCore = MAuthCoreFactory.Instantiate(version);
                 var authInfo = GetAuthenticationInfo(request, version);
+                var logMessage = "Mauth-client attempting to authenticate request from app with mauth app uuid" +
+                        $" {authInfo.ApplicationUuid} using version {version}";
+                logger.LogInformation(logMessage);
+
                 var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid, version).ConfigureAwait(false);
                 var signature = await mAuthCore.GetSignature(request, authInfo).ConfigureAwait(false);
 
