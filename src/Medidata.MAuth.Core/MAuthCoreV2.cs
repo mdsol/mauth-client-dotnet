@@ -67,8 +67,9 @@ namespace Medidata.MAuth.Core
             var requestBodyDigest = requestBody.AsSHA512Hash();
 
             var encodedCurrentSecondsSinceEpoch = authInfo.SignedTime.ToUnixTimeSeconds().ToString().ToBytes();
-            var encodedQueryParams = !string.IsNullOrEmpty(request.RequestUri.Query) ?
-                request.RequestUri.Query.Replace("?", "").BuildEncodedQueryParams().ToBytes() : new byte[] { };
+
+            var queryString = ExtractQueryStringFromRequest(request);
+            var encodedQueryParams = queryString != "" ? queryString.BuildEncodedQueryParams().ToBytes() : new byte[] { };
 
             return new byte[][]
             {
@@ -133,6 +134,16 @@ namespace Medidata.MAuth.Core
         public (string mAuthHeaderKey, string mAuthTimeHeaderKey) GetHeaderKeys()
         {
             return (Constants.MAuthHeaderKeyV2, Constants.MAuthTimeHeaderKeyV2);
+        }
+
+        private string ExtractQueryStringFromRequest(HttpRequestMessage request)
+        {
+            if (string.IsNullOrEmpty(request.RequestUri.Query))
+                return string.Empty;
+
+            var requestString = request.RequestUri.OriginalString;
+            return requestString.Substring(requestString.IndexOf("?", StringComparison.Ordinal) + 1);
+
         }
     }
 }

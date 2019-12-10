@@ -12,6 +12,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Mocks\Fixtures\blank.jpeg" />
+    <None Remove="Mocks\Fixtures\mauth_signature_testing.json" />
     <None Remove="Mocks\RequestDataV2\DELETE.json" />
     <None Remove="Mocks\RequestDataV2\GET.json" />
     <None Remove="Mocks\RequestDataV2\POST.json" />
@@ -24,6 +26,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Mocks\Fixtures\blank.jpeg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Mocks\Fixtures\mauth_signature_testing.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Mocks\Keys\ClientPrivateKey.pem" />
     <EmbeddedResource Include="Mocks\Keys\ClientPublicKey.pem" />
     <EmbeddedResource Include="Mocks\Keys\LinuxLineEnding.pem" />
