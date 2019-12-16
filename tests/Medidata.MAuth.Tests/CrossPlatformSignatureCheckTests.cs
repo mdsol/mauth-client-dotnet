@@ -36,7 +36,7 @@ namespace Medidata.MAuth.Tests
         }
 
         [Fact]
-        public async Task Signature_IsValidForV1_WithNullContent()
+        public async Task SignatureIsValid_ForV1_WithNullContent()
         {
             // Arrange
             var testData = ReadCrossPlatformSignatureValues();
@@ -86,7 +86,7 @@ namespace Medidata.MAuth.Tests
         }
 
         [Fact]
-        public async Task Signature_IsValidForV2_WithNullContent()
+        public async Task SignatureIsValid_ForV2_WithNullContent()
         {
             // Arrange
             var testData = ReadCrossPlatformSignatureValues();

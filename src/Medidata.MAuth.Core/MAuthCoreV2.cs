@@ -143,7 +143,6 @@ namespace Medidata.MAuth.Core
 
             var requestString = request.RequestUri.OriginalString;
             return requestString.Substring(requestString.IndexOf("?", StringComparison.Ordinal) + 1);
-
         }
     }
 }
