@@ -48,16 +48,17 @@ namespace Medidata.MAuth.Core
                 if (options.DisableV1 && version == MAuthVersion.MWS)
                     throw new InvalidVersionException($"Authentication with {version} version is disabled.");
 
-                var mAuthCore = MAuthCoreFactory.Instantiate(version);
-                var authInfo = GetAuthenticationInfo(request, version);
                 var logMessage = "Mauth-client attempting to authenticate request from app with mauth app uuid" +
-                        $" {authInfo.ApplicationUuid} using version {version}";
+                        $" {options.ApplicationUuid} using version {version}";
                 logger.LogInformation(logMessage);
-
-                var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid, version).ConfigureAwait(false);
-                var signature = await mAuthCore.GetSignature(request, authInfo).ConfigureAwait(false);
-
-                return mAuthCore.Verify(authInfo.Payload, signature, appInfo.PublicKey);
+                var authenticated = await Authenticate(request, version).ConfigureAwait(false);
+                if (version == MAuthVersion.MWSV2 && !authenticated && !options.DisableV1)
+                {
+                    // fall back to V1 authentication
+                    authenticated = await Authenticate(request, MAuthVersion.MWS).ConfigureAwait(false);
+                    logger.LogWarning("Completed successful authentication attempt after fallback to v1");
+                }
+                return authenticated;
             }
             catch (ArgumentException ex)
             {
@@ -91,10 +92,20 @@ namespace Medidata.MAuth.Core
             }
         }
 
-        private Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid, MAuthVersion version) =>
+        private async Task<bool> Authenticate(HttpRequestMessage request, MAuthVersion version)
+        {
+            var authInfo = GetAuthenticationInfo(request, version);
+            var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid).ConfigureAwait(false);
+
+            var mAuthCore = MAuthCoreFactory.Instantiate(version);
+            var signature = await mAuthCore.GetSignature(request, authInfo).ConfigureAwait(false);
+            return mAuthCore.Verify(authInfo.Payload, signature, appInfo.PublicKey);
+        }
+
+        private Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid) =>
             cache.GetOrCreateAsync(applicationUuid, async entry =>
             {
-                var retrier = new MAuthRequestRetrier(options, version);
+                var retrier = new MAuthRequestRetrier(options);
                 var response = await retrier.GetSuccessfulResponse(
                     applicationUuid,
                     CreateRequest,
