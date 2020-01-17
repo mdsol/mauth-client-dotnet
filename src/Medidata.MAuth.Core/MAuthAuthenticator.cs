@@ -52,11 +52,11 @@ namespace Medidata.MAuth.Core
                         $" {options.ApplicationUuid} using version {version}";
                 logger.LogInformation(logMessage);
                 var authenticated = await Authenticate(request, version).ConfigureAwait(false);
-                if (version == MAuthVersion.MWSV2 && !authenticated && !options.DisableV1)
+                if (!authenticated && version == MAuthVersion.MWSV2 && !options.DisableV1)
                 {
                     // fall back to V1 authentication
                     authenticated = await Authenticate(request, MAuthVersion.MWS).ConfigureAwait(false);
-                    logger.LogWarning("Completed successful authentication attempt after fallback to v1");
+                    logger.LogWarning("Completed successful authentication attempt after fallback to V1");
                 }
                 return authenticated;
             }

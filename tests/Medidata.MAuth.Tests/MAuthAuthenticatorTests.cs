@@ -362,7 +362,7 @@ namespace Medidata.MAuth.Tests
             mockLogger.Verify(x => x.Log(
                     LogLevel.Warning, It.IsAny<EventId>(),
                     It.Is<FormattedLogValues>(v => v.ToString()
-                        .Contains("Completed successful authentication attempt after fallback to v1")),
+                        .Contains("Completed successful authentication attempt after fallback to V1")),
                     It.IsAny<Exception>(), It.IsAny<Func<object, Exception, string>>()
                 ));
         }
@@ -387,7 +387,7 @@ namespace Medidata.MAuth.Tests
             mockLogger.Verify(x => x.Log(
                 LogLevel.Warning, It.IsAny<EventId>(),
                 It.Is<FormattedLogValues>(v => v.ToString()
-                    .Contains("Completed successful authentication attempt after fallback to v1")),
+                    .Contains("Completed successful authentication attempt after fallback to V1")),
                 It.IsAny<Exception>(), It.IsAny<Func<object, Exception, string>>()
             ), Times.Never);
         }
