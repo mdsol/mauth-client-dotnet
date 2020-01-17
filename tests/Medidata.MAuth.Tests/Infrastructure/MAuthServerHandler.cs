@@ -29,7 +29,7 @@ namespace Medidata.MAuth.Tests.Infrastructure
 
             var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions, NullLogger<MAuthAuthenticator>.Instance);
 
-            var authInfo = authenticator.GetAuthenticationInfo(request, version);
+            var authInfo = authenticator.GetAuthenticationInfo(request, mAuthCore);
 
             if (!mAuthCore.Verify(authInfo.Payload, 
                 await mAuthCore.GetSignature(request, authInfo),

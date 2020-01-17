@@ -94,10 +94,10 @@ namespace Medidata.MAuth.Core
 
         private async Task<bool> Authenticate(HttpRequestMessage request, MAuthVersion version)
         {
-            var authInfo = GetAuthenticationInfo(request, version);
+            var mAuthCore = MAuthCoreFactory.Instantiate(version);
+            var authInfo = GetAuthenticationInfo(request, mAuthCore);
             var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid).ConfigureAwait(false);
 
-            var mAuthCore = MAuthCoreFactory.Instantiate(version);
             var signature = await mAuthCore.GetSignature(request, authInfo).ConfigureAwait(false);
             return mAuthCore.Verify(authInfo.Payload, signature, appInfo.PublicKey);
         }
@@ -130,11 +130,10 @@ namespace Medidata.MAuth.Core
         /// Extracts the authentication information from a <see cref="HttpRequestMessage"/>.
         /// </summary>
         /// <param name="request">The request that has the authentication information.</param>
-        /// <param name="version">Enum value of the MAuthVersion.</param>
+        /// <param name="mAuthCore">Instantiation of mAuthCore class.</param>
         /// <returns>The authentication information with the payload from the request.</returns>
-        internal PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request, MAuthVersion version)
+        internal PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request, IMAuthCore mAuthCore)
         {
-            var mAuthCore = MAuthCoreFactory.Instantiate(version);
             var headerKeys = mAuthCore.GetHeaderKeys();
             var authHeader = request.Headers.GetFirstValueOrDefault<string>(headerKeys.mAuthHeaderKey);
 
