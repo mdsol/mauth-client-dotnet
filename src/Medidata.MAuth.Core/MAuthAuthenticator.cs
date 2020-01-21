@@ -48,9 +48,6 @@ namespace Medidata.MAuth.Core
                 if (options.DisableV1 && version == MAuthVersion.MWS)
                     throw new InvalidVersionException($"Authentication with {version} version is disabled.");
 
-                var logMessage = "Mauth-client attempting to authenticate request from app with mauth app uuid" +
-                        $" {options.ApplicationUuid} using version {version}";
-                logger.LogInformation(logMessage);
                 var authenticated = await Authenticate(request, version).ConfigureAwait(false);
                 if (!authenticated && version == MAuthVersion.MWSV2 && !options.DisableV1)
                 {
@@ -94,6 +91,10 @@ namespace Medidata.MAuth.Core
 
         private async Task<bool> Authenticate(HttpRequestMessage request, MAuthVersion version)
         {
+            var logMessage = "Mauth-client attempting to authenticate request from app with mauth app uuid" +
+                             $" {options.ApplicationUuid} using version {version}";
+            logger.LogInformation(logMessage);
+
             var mAuthCore = MAuthCoreFactory.Instantiate(version);
             var authInfo = GetAuthenticationInfo(request, mAuthCore);
             var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid).ConfigureAwait(false);
