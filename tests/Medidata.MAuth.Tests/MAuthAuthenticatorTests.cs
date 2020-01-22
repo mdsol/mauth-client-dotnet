@@ -311,11 +311,10 @@ namespace Medidata.MAuth.Tests
             var testData = await method.FromResourceV2();
             var version = MAuthVersion.MWSV2;
             var testOptions = TestExtensions.ServerOptions;
-            var authenticator = new MAuthAuthenticator(testOptions, NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = MAuthCoreFactory.Instantiate(version);
 
             // Act
-            var actual = authenticator.GetAuthenticationInfo(testData.ToHttpRequestMessage(version), mAuthCore);
+            var actual = MAuthAuthenticator.GetAuthenticationInfo(testData.ToHttpRequestMessage(version), mAuthCore);
 
             // Assert
             Assert.Equal(testData.ApplicationUuid, actual.ApplicationUuid);
@@ -334,11 +333,10 @@ namespace Medidata.MAuth.Tests
             var testData = await method.FromResource();
             var version = MAuthVersion.MWS;
             var testOptions = TestExtensions.ServerOptions;
-            var authenticator = new MAuthAuthenticator(testOptions, NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = MAuthCoreFactory.Instantiate(version);
 
             // Act
-            var actual = authenticator.GetAuthenticationInfo(testData.ToHttpRequestMessage(version), mAuthCore);
+            var actual = MAuthAuthenticator.GetAuthenticationInfo(testData.ToHttpRequestMessage(version), mAuthCore);
 
             // Assert
             Assert.Equal(testData.ApplicationUuid, actual.ApplicationUuid);

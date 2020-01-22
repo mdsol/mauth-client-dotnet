@@ -123,37 +123,41 @@ namespace Medidata.MAuth.Core
                 return result;
             });
 
-        private HttpRequestMessage CreateRequest(Guid applicationUuid) =>
-            new HttpRequestMessage(HttpMethod.Get, new Uri(options.MAuthServiceUrl,
-                $"{Constants.MAuthTokenRequestPath}{applicationUuid.ToHyphenString()}.json"));
-
         /// <summary>
         /// Extracts the authentication information from a <see cref="HttpRequestMessage"/>.
         /// </summary>
         /// <param name="request">The request that has the authentication information.</param>
         /// <param name="mAuthCore">Instantiation of mAuthCore class.</param>
         /// <returns>The authentication information with the payload from the request.</returns>
-        internal PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request, IMAuthCore mAuthCore)
+        internal static PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request, IMAuthCore mAuthCore)
         {
             var headerKeys = mAuthCore.GetHeaderKeys();
             var authHeader = request.Headers.GetFirstValueOrDefault<string>(headerKeys.mAuthHeaderKey);
 
             if (authHeader == null)
+            {
                 throw new ArgumentNullException(nameof(authHeader), "The MAuth header is missing from the request.");
+            }
 
             var signedTime = request.Headers.GetFirstValueOrDefault<long>(headerKeys.mAuthTimeHeaderKey);
 
             if (signedTime == default(long))
+            {
                 throw new ArgumentException("Invalid MAuth signed time header value.", nameof(signedTime));
+            }
 
             var (uuid, payload) = authHeader.ParseAuthenticationHeader();
 
-            return new PayloadAuthenticationInfo()
+            return new PayloadAuthenticationInfo
             {
                 ApplicationUuid = uuid,
                 Payload = Convert.FromBase64String(payload),
                 SignedTime = signedTime.FromUnixTimeSeconds()
             };
         }
+
+        private HttpRequestMessage CreateRequest(Guid applicationUuid) =>
+            new HttpRequestMessage(HttpMethod.Get, new Uri(options.MAuthServiceUrl,
+                $"{Constants.MAuthTokenRequestPath}{applicationUuid.ToHyphenString()}.json"));
     }
 }
