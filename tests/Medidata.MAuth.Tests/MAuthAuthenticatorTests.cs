@@ -6,7 +6,10 @@ using Medidata.MAuth.Core;
 using Medidata.MAuth.Core.Exceptions;
 using Medidata.MAuth.Core.Models;
 using Medidata.MAuth.Tests.Infrastructure;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging.Internal;
+using Moq;
 using Xunit;
 
 namespace Medidata.MAuth.Tests
@@ -41,11 +44,6 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResource();
-
-            //var testOptions = TestExtensions.ServerOptions;
-            //testOptions.MAuthServerHandler = new MAuthServerHandler()
-            //    { AuthenticateOnlyV1 = true };
-
             var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions, NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCore();
 
@@ -313,10 +311,10 @@ namespace Medidata.MAuth.Tests
             var testData = await method.FromResourceV2();
             var version = MAuthVersion.MWSV2;
             var testOptions = TestExtensions.ServerOptions;
-            var authenticator = new MAuthAuthenticator(testOptions, NullLogger<MAuthAuthenticator>.Instance);
+            var mAuthCore = MAuthCoreFactory.Instantiate(version);
 
             // Act
-            var actual = authenticator.GetAuthenticationInfo(testData.ToHttpRequestMessage(version), version);
+            var actual = MAuthAuthenticator.GetAuthenticationInfo(testData.ToHttpRequestMessage(version), mAuthCore);
 
             // Assert
             Assert.Equal(testData.ApplicationUuid, actual.ApplicationUuid);
@@ -335,15 +333,63 @@ namespace Medidata.MAuth.Tests
             var testData = await method.FromResource();
             var version = MAuthVersion.MWS;
             var testOptions = TestExtensions.ServerOptions;
-            var authenticator = new MAuthAuthenticator(testOptions, NullLogger<MAuthAuthenticator>.Instance);
+            var mAuthCore = MAuthCoreFactory.Instantiate(version);
 
             // Act
-            var actual = authenticator.GetAuthenticationInfo(testData.ToHttpRequestMessage(version), version);
+            var actual = MAuthAuthenticator.GetAuthenticationInfo(testData.ToHttpRequestMessage(version), mAuthCore);
 
             // Assert
             Assert.Equal(testData.ApplicationUuid, actual.ApplicationUuid);
             Assert.Equal(Convert.FromBase64String(testData.Payload), actual.Payload);
             Assert.Equal(testData.SignedTime, actual.SignedTime);
+        }
+
+        [Fact]
+        public static async Task AuthenticateRequest_WithDefaultRequest_WhenV2Fails_FallBackToV1AndAuthenticate()
+        {
+            // Arrange
+            var testData = await "GET".FromResource();
+            var mockLogger = new Mock<ILogger>();
+
+            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions, mockLogger.Object);
+            var requestData = testData.ToDefaultHttpRequestMessage();
+
+            // Act
+            var isAuthenticated = await authenticator.AuthenticateRequest(requestData);
+
+            // Assert
+            Assert.True(isAuthenticated);
+            mockLogger.Verify(x => x.Log(
+                    LogLevel.Warning, It.IsAny<EventId>(),
+                    It.Is<FormattedLogValues>(v => v.ToString()
+                        .Contains("Completed successful authentication attempt after fallback to V1")),
+                    It.IsAny<Exception>(), It.IsAny<Func<object, Exception, string>>()
+                ));
+        }
+
+        [Fact]
+        public static async Task AuthenticateRequest_WithDefaultRequest_AndDisableV1_WhenV2Fails_NotFallBackToV1()
+        {
+            // Arrange
+            var testData = await "GET".FromResource();
+            var mockLogger = new Mock<ILogger>();
+            var testOptions = TestExtensions.ServerOptions;
+            testOptions.DisableV1 = true;
+
+            var authenticator = new MAuthAuthenticator(testOptions, mockLogger.Object);
+            var requestData = testData.ToDefaultHttpRequestMessage();
+
+            // Act
+            var isAuthenticated = await authenticator.AuthenticateRequest(requestData);
+
+            // Assert
+            Assert.False(isAuthenticated);
+            mockLogger.Verify(x => x.Log(
+                LogLevel.Warning, It.IsAny<EventId>(),
+                It.Is<FormattedLogValues>(v => v.ToString()
+                    .Contains("Completed successful authentication attempt after fallback to V1")),
+                It.IsAny<Exception>(), It.IsAny<Func<object, Exception, string>>()
+            ), Times.Never);
         }
     }
 }

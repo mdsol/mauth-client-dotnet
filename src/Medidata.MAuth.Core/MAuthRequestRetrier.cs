@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Core
 {
@@ -9,7 +8,7 @@ namespace Medidata.MAuth.Core
     {
         private readonly HttpClient client;
 
-        public MAuthRequestRetrier(MAuthOptionsBase options, MAuthVersion version)
+        public MAuthRequestRetrier(MAuthOptionsBase options)
         {
             var signingHandler = new MAuthSigningHandler(options: new MAuthSigningOptions()
             {

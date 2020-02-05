@@ -1,5 +1,9 @@
 # Changes in Medidata.MAuth
 
+## v4.0.2
+- **[AspNetCore]** Update aspnetcore version to aspnetcore2.1 LTS.
+- **[Core]** Fallback to V1 protocol when V2 athentication fails.
+
 ## v4.0.1
 - **[Core]** Fixed default sigining with both MWS and MWSV2 instead of option selected by consuming application.
 - **[Core]** Fixed an issue related to token request path which is same for both MWS and MWSV2 protocol.
