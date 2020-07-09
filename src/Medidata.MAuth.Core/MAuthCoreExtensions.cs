@@ -184,17 +184,58 @@ namespace Medidata.MAuth.Core
         /// <returns>EncodedQueryParameter string.</returns>
         public static string BuildEncodedQueryParams(this string queryString)
         {
+            if (string.IsNullOrEmpty(queryString))
+                return string.Empty;
+
             var encodedQueryStrings = new List<string>();
+            var unEscapedQueryStrings = new List<string>();
             var queryArray = queryString.Split('&');
-            Array.Sort(queryArray, StringComparer.Ordinal);
             Array.ForEach(queryArray, x =>
+            {
+                var keyValue = x.Split('=');
+                var unEscapedKey = Uri.UnescapeDataString(keyValue[0]);
+                var unEscapedValue = Uri.UnescapeDataString(keyValue[1]);
+                unEscapedQueryStrings.Add($"{unEscapedKey}={unEscapedValue}");
+            });
+            var unEscapedQueryArray = unEscapedQueryStrings.ToArray();
+            Array.Sort(unEscapedQueryArray, StringComparer.Ordinal);
+            Array.ForEach(unEscapedQueryArray, x =>
             {
                 var keyValue = x.Split('=');
                 var escapedKey = Uri.EscapeDataString(keyValue[0]);
                 var escapedValue = Uri.EscapeDataString(keyValue[1]);
                 encodedQueryStrings.Add($"{escapedKey}={escapedValue}");
             });
-            return string.Join("&", encodedQueryStrings);
+            var result = string.Join("&", encodedQueryStrings);
+            return result.Replace("%2B","%20");
+        }
+
+        /// <summary>
+        /// Normalizes the UriPath
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns>Normalized Uri Resource Path</returns>
+        public static string NormalizeUriPath(this string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return string.Empty;
+
+            // Normalize percent encoding to uppercase i.e. %cf%80 => %CF%80
+            Regex regexHexLowcase = new Regex("%[a-f0-9]{2}", RegexOptions.Compiled);
+            var match = regexHexLowcase.Match(path);
+            string normalizedPath = path;
+            while(match.Success)
+            {
+                normalizedPath = normalizedPath.Replace(match.Value, match.Value.ToUpperInvariant());
+                match = match.NextMatch();
+            }
+
+            // Replacing "//" and "///" into single "/"
+            normalizedPath = normalizedPath.Replace("///", "/").Replace("//", "/");
+
+            if (!normalizedPath.EndsWith("/") && (path.EndsWith("/") || path.EndsWith("/.") || path.EndsWith("/..")))
+                normalizedPath = $"{normalizedPath}/";
+            return normalizedPath; 
         }
     }
 }
