@@ -207,7 +207,12 @@ namespace Medidata.MAuth.Core
                 encodedQueryStrings.Add($"{escapedKey}={escapedValue}");
             });
             var result = string.Join("&", encodedQueryStrings);
-            return result.Replace("%2B","%20");
+
+            // Above encoding converts space as `%20` and `+` as `%2B`
+            // But space and `+` both needs to be converted as `%20` as per
+            // reference https://github.com/mdsol/mauth-client-ruby/blob/master/lib/mauth/request_and_response.rb#L113
+            // so this convert `%2B` into `%20` to match encodedqueryparams to that of other languages.
+            return result.Replace("%2B", "%20");
         }
 
         /// <summary>
@@ -233,8 +238,6 @@ namespace Medidata.MAuth.Core
             // Replacing "//" and "///" into single "/"
             normalizedPath = normalizedPath.Replace("///", "/").Replace("//", "/");
 
-            if (!normalizedPath.EndsWith("/") && (path.EndsWith("/") || path.EndsWith("/.") || path.EndsWith("/..")))
-                normalizedPath = $"{normalizedPath}/";
             return normalizedPath; 
         }
     }
