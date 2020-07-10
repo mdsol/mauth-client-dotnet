@@ -235,8 +235,8 @@ namespace Medidata.MAuth.Core
                 match = match.NextMatch();
             }
 
-            // Replacing "//" and "///" into single "/"
-            normalizedPath = normalizedPath.Replace("///", "/").Replace("//", "/");
+            // Replaces multiple slashes into single "/"
+            normalizedPath = Regex.Replace(normalizedPath, "//+", "/");
 
             return normalizedPath; 
         }
