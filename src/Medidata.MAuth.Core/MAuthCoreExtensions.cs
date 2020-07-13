@@ -198,6 +198,7 @@ namespace Medidata.MAuth.Core
                 unEscapedQueryStrings.Add($"{unEscapedKey}={unEscapedValue}");
             });
             var unEscapedQueryArray = unEscapedQueryStrings.ToArray();
+
             Array.Sort(unEscapedQueryArray, StringComparer.Ordinal);
             Array.ForEach(unEscapedQueryArray, x =>
             {

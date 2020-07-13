@@ -69,8 +69,7 @@ namespace Medidata.MAuth.Core
             var encodedCurrentSecondsSinceEpoch = authInfo.SignedTime.ToUnixTimeSeconds().ToString().ToBytes();
             var queryString = request.RequestUri.Query;
             var encodedQueryParams = !string.IsNullOrEmpty(queryString) 
-                ? queryString.Substring(queryString.IndexOf("?") + 1, queryString.Length - 1)
-                    .BuildEncodedQueryParams().ToBytes() 
+                ? queryString.Substring(1).BuildEncodedQueryParams().ToBytes()
                 : new byte[] { };
 
             return new byte[][]
