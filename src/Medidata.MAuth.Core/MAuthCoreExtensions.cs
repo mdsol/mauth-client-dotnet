@@ -187,33 +187,34 @@ namespace Medidata.MAuth.Core
             if (string.IsNullOrEmpty(queryString))
                 return string.Empty;
 
-            var encodedQueryStrings = new List<string>();
-            var unEscapedQueryStrings = new List<string>();
             var queryArray = queryString.Split('&');
-            Array.ForEach(queryArray, x =>
+
+            // unescaping
+            for (int i = 0; i < queryArray.Length; i++)
             {
-                var keyValue = x.Split('=');
+                var keyValue = queryArray.ElementAt(i).Split('=');
                 var unEscapedKey = Uri.UnescapeDataString(keyValue[0]);
                 var unEscapedValue = Uri.UnescapeDataString(keyValue[1]);
-                unEscapedQueryStrings.Add($"{unEscapedKey}={unEscapedValue}");
-            });
-            var unEscapedQueryArray = unEscapedQueryStrings.ToArray();
+                queryArray[i] = queryArray[i].Replace(queryArray.ElementAt(i), $"{unEscapedKey}={unEscapedValue}");
+            }
 
-            Array.Sort(unEscapedQueryArray, StringComparer.Ordinal);
-            Array.ForEach(unEscapedQueryArray, x =>
+            // sorting
+            Array.Sort(queryArray, StringComparer.Ordinal);
+
+            // escaping
+            for (int i = 0; i < queryArray.Length; i++)
             {
-                var keyValue = x.Split('=');
+                var keyValue = queryArray.ElementAt(i).Split('=');
                 var escapedKey = Uri.EscapeDataString(keyValue[0]);
                 var escapedValue = Uri.EscapeDataString(keyValue[1]);
-                encodedQueryStrings.Add($"{escapedKey}={escapedValue}");
-            });
-            var result = string.Join("&", encodedQueryStrings);
+                queryArray[i] = queryArray[i].Replace(queryArray.ElementAt(i), $"{escapedKey}={escapedValue}");
+            }
 
             // Above encoding converts space as `%20` and `+` as `%2B`
             // But space and `+` both needs to be converted as `%20` as per
             // reference https://github.com/mdsol/mauth-client-ruby/blob/v6.0.0/lib/mauth/request_and_response.rb#L113
             // so this convert `%2B` into `%20` to match encodedqueryparams to that of other languages.
-            return result.Replace("%2B", "%20");
+            return string.Join("&", queryArray).Replace("%2B", "%20");
         }
 
         /// <summary>
@@ -227,19 +228,15 @@ namespace Medidata.MAuth.Core
                 return string.Empty;
 
             // Normalize percent encoding to uppercase i.e. %cf%80 => %CF%80
-            Regex regexHexLowcase = new Regex("%[a-f0-9]{2}", RegexOptions.Compiled);
-            var match = regexHexLowcase.Match(path);
-            string normalizedPath = path;
+            var match = new Regex("%[a-f0-9]{2}").Match(path);
             while(match.Success)
             {
-                normalizedPath = normalizedPath.Replace(match.Value, match.Value.ToUpperInvariant());
+                path = path.Replace(match.Value, match.Value.ToUpperInvariant());
                 match = match.NextMatch();
             }
 
             // Replaces multiple slashes into single "/"
-            normalizedPath = Regex.Replace(normalizedPath, "//+", "/");
-
-            return normalizedPath; 
+            return new Regex("//+").Replace(path, "/");
         }
     }
 }
