@@ -67,31 +67,20 @@ namespace Medidata.MAuth.Tests
             Assert.Empty(path.NormalizeUriPath());
         }
 
-        [Fact]
-        public static void NormalizeUriPath_WithValues()
+        [Theory]
+        [InlineData("/example/sample", "/example/sample")]
+        [InlineData("/example//sample/", "/example/sample/")]
+        [InlineData("//example///sample/", "/example/sample/")]
+        [InlineData("/%2a%80", "/%2A%80")]
+        [InlineData("/example/", "/example/")]
+        [InlineData("/example/sample/..", "/example/")]
+        [InlineData("/example/sample/../../../..", "/")]
+        [InlineData("/example//./.", "/example/")]
+        [InlineData("/./example/./.", "/example/")]
+        public static void NormalizeUriPath_WithValues(string input, string expected)
         {
-            var testcases = CreateUriPathArray();
-            for(int i = 0; i <= testcases.GetUpperBound(0); i++)
-            {
-                var request = new Uri("http://localhost:2999" + testcases[i, 0]);
-               Assert.Equal(testcases[i,1], request.AbsolutePath.NormalizeUriPath());
-            }
-        }
-
-        private static string [ , ] CreateUriPathArray()
-        {
-            return new string [10, 2] {
-                { "/example/sample", "/example/sample"},
-                {"/example//sample/", "/example/sample/"},
-                {"//example///sample/", "/example/sample/"},
-                {"/%2a%80", "/%2A%80"},
-                { "/example/", "/example/" },
-                {"/example/sample/..", "/example/"},
-                {"/example/sample/..", "/example/"},
-                {"/example/sample/../../../..", "/"},
-                {"/example//./.", "/example/"},
-                {"/./example/./.", "/example/"}
-            };
+            var request = new Uri("http://localhost:2999" + input);
+            Assert.Equal(expected, request.AbsolutePath.NormalizeUriPath());
         }
     }
 }
