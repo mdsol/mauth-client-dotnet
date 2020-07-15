@@ -192,10 +192,10 @@ namespace Medidata.MAuth.Core
             // unescaping
             for (int i = 0; i < queryArray.Length; i++)
             {
-                var keyValue = queryArray.ElementAt(i).Split('=');
+                var keyValue = queryArray[i].Split('=');
                 var unEscapedKey = Uri.UnescapeDataString(keyValue[0]);
                 var unEscapedValue = Uri.UnescapeDataString(keyValue[1]);
-                queryArray[i] = queryArray[i].Replace(queryArray.ElementAt(i), $"{unEscapedKey}={unEscapedValue}");
+                queryArray[i] = $"{unEscapedKey}={unEscapedValue}";
             }
 
             // sorting
@@ -204,10 +204,10 @@ namespace Medidata.MAuth.Core
             // escaping
             for (int i = 0; i < queryArray.Length; i++)
             {
-                var keyValue = queryArray.ElementAt(i).Split('=');
+                var keyValue = queryArray[i].Split('=');
                 var escapedKey = Uri.EscapeDataString(keyValue[0]);
                 var escapedValue = Uri.EscapeDataString(keyValue[1]);
-                queryArray[i] = queryArray[i].Replace(queryArray.ElementAt(i), $"{escapedKey}={escapedValue}");
+                queryArray[i] = $"{escapedKey}={escapedValue}";
             }
 
             // Above encoding converts space as `%20` and `+` as `%2B`
