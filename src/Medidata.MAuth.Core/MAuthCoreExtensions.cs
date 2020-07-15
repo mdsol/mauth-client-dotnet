@@ -228,15 +228,15 @@ namespace Medidata.MAuth.Core
                 return string.Empty;
 
             // Normalize percent encoding to uppercase i.e. %cf%80 => %CF%80
-            var match = new Regex("%[a-f0-9]{2}").Match(path);
-            while(match.Success)
+            var matches = Constants.LowerCaseHexPattern.Matches(path);
+            var normalizedPath = new StringBuilder(path);
+            foreach(var item in matches)
             {
-                path = path.Replace(match.Value, match.Value.ToUpperInvariant());
-                match = match.NextMatch();
+                normalizedPath.Replace(item.ToString(), item.ToString().ToUpper());
             }
 
             // Replaces multiple slashes into single "/"
-            return new Regex("//+").Replace(path, "/");
+            return Constants.SlashPattern.Replace(normalizedPath.ToString(), "/");
         }
     }
 }

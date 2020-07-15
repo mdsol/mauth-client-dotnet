@@ -45,5 +45,9 @@ namespace Medidata.MAuth.Core
         public static readonly string MAuthTimeHeaderKeyV2 = "MCC-Time";
 
         public static readonly string MAuthTokenRequestPath = "/mauth/v1/security_tokens/";
+
+        public static readonly Regex LowerCaseHexPattern = new Regex("%[a-f0-9]{2}", RegexOptions.Compiled);
+
+        public static readonly Regex SlashPattern = new Regex("//+", RegexOptions.Compiled);
     }
 }
