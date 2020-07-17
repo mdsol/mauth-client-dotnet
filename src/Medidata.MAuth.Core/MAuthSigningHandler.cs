@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Medidata.MAuth.Core.Exceptions;
 using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Core
@@ -55,20 +58,41 @@ namespace Medidata.MAuth.Core
             if (InnerHandler == null)
                 InnerHandler = new HttpClientHandler();
 
-            if (options.DisableV1 == false) // default
+            var signingVersions = GetSigningVersions(options.SigningOptions);
+            foreach(var version in signingVersions)
             {
-                // Add headers for V1 protocol as well
-                var mAuthCoreV1 = MAuthCoreFactory.Instantiate(MAuthVersion.MWS);
-                request = await mAuthCoreV1.Sign(request, options).ConfigureAwait(false);
+                var mAuthCore = MAuthCoreFactory.Instantiate(version);
+                request = await mAuthCore.Sign(request, options).ConfigureAwait(false);
             }
-
-            // Add headers for V2 protocol
-            mAuthCore = MAuthCoreFactory.Instantiate(MAuthVersion.MWSV2);
-            request = await mAuthCore.Sign(request, options).ConfigureAwait(false);
 
             return await base
                 .SendAsync(request, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
+        }
+
+        private List<MAuthVersion> GetSigningVersions(string signingOptions)
+        {
+            var signVersions = new List<MAuthVersion>();
+            if (string.IsNullOrEmpty(signingOptions))
+                return new List<MAuthVersion>() { MAuthVersion.MWSV2 };
+
+            var signingArray = signingOptions.ToLower().Split(',');
+            foreach(var item in signingArray)
+            {
+                switch (item.Trim())
+                {
+                    case "v1":
+                        signVersions.Add(MAuthVersion.MWS);
+                        break;
+                    case "v2":
+                        signVersions.Add(MAuthVersion.MWSV2);
+                        break;
+                }
+            }
+            if(signingArray.Any() && !signVersions.Any())
+                throw new InvalidVersionException($"Signing with {signingOptions} version is not allowed.");
+
+            return signVersions;
         }
     }
 }

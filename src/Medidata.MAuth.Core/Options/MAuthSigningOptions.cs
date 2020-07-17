@@ -1,5 +1,4 @@
 ﻿using System;
-using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Core
 {
@@ -23,8 +22,8 @@ namespace Medidata.MAuth.Core
         internal DateTimeOffset? SignedTime { get; set; }
 
         /// <summary>
-        /// Determines the boolean value if V1 option of signing should be disabled or not with default value of false.
+        /// Comma-separated protocol versions to sign requests, if not provided defaults to "v2".
         /// </summary>
-        public bool DisableV1 { get; set; } = false;
+        public string SigningOptions { get; set; }
     }
 }

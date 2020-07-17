@@ -114,9 +114,8 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
         // The following can be either a path to the key file or the contents of the file itself
         PrivateKey = "ClientPrivateKey.pem",
 
-        // when ready to disable authentication of V1 protocol else default is false
-        // signs with both V1 and V2.
-        DisableV1 = true
+        // comma-separated values of signing protocols, if not provided defaults to v2 
+        SigningOptions = "v1,v2"
     });
 
     using (var client = new HttpClient(signingHandler))
@@ -125,9 +124,11 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
     }
 }
 ```
-With the release of support for MAuth V2 protocol, by default MAuth request signs with both V1 and V2 protocol.
-Also by default, `DisableV1` option is set to false (if not included). When we are ready to 
-disable all the V1 request, then we need to include this disable option as : `DisableV1 = true`. 
+The `SigningOptions` parameter can be used to specify which protocol version to sign outgoing requests. Like as:
+`SigningOptions ="v1"`: signs with v1 protocol only.
+`SigningOptions ="v1, v2"` : signs with both v1 and v2 protocol.
+If not supplied, it sign by `v2` by default.
+
 Signing with V2 protocol supports query string.
 
 The example above is creating a new instance of a `HttpClient` with the handler responsible for signing the
@@ -139,7 +140,7 @@ The `MAuthSigningOptions` has the following properties to determine the required
 | ---- | ----------- |
 | **ApplicationUuid** | Determines the unique identifier of the client application used for the MAuth service authentication requests.  This uuid needs to be registered with the MAuth Server in order for the authenticating server application to be able to authenticate the signed request. |
 | **PrivateKey** | Determines the RSA private key of the client for signing a request. This key must be in a PEM ASN.1 format. The value of this property can be set as a valid path to a readable key file as well. |
-| **DisableV1** | Determines the boolean value which controls whether to disable the signing requests with V1 protocol or not. If not supplied, this value is `false`. |
+| **SigningOptions** | (optional) Comma-separated protocol versions to sign requests. If not supplied, defaults to `v2`.
 
 ### Authenticating Incoming Requests with the OWIN and ASP.NET Core Middlewares
 
