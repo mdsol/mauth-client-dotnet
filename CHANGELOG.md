@@ -1,5 +1,9 @@
 # Changes in Medidata.MAuth
 
+## v4.1.0
+ - **[Core]** Added normalization of Uri AbsolutePath.
+ - **[Core]** Added unescape step in query_string encoding to remove `double encoding`.
+
 ## v4.0.2
 - **[AspNetCore]** Update aspnetcore version to aspnetcore2.1 LTS.
 - **[Core]** Fallback to V1 protocol when V2 athentication fails.

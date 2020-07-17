@@ -1,4 +1,5 @@
 ﻿using Medidata.MAuth.Core;
+using System;
 using Xunit;
 
 namespace Medidata.MAuth.Tests
@@ -9,7 +10,7 @@ namespace Medidata.MAuth.Tests
         public static void BuildEncodedQueryParams_WillEncodeQueryStringWithSpecialCharacters()
         {
             var queryString = "key=-_.~!@#$%^*()+{}|:\"'`<>?";
-            var expected = "key=-_.~%21%40%23%24%25%5E%2A%28%29%2B%7B%7D%7C%3A%22%27%60%3C%3E%3F";
+            var expected = "key=-_.~%21%40%23%24%25%5E%2A%28%29%20%7B%7D%7C%3A%22%27%60%3C%3E%3F";
             Assert.Equal(queryString.BuildEncodedQueryParams(), expected);
         }
 
@@ -34,6 +35,52 @@ namespace Medidata.MAuth.Tests
         {
             var queryString = "k=&k=v";
             Assert.Equal(queryString.BuildEncodedQueryParams(), queryString);
+        }
+
+        [Fact]
+        public static void BuildEncodedQueryParams_WithUnescapedTilda()
+        {
+            var queryString = "k=%7E";
+            var expectedString = "k=~";
+            Assert.Equal(expectedString, queryString.BuildEncodedQueryParams());
+        }
+
+        [Fact]
+        public static void BuildEncodedQueryParams_SortAfterUnescaping()
+        {
+            var queryString = "k=%7E&k=~&k=%40&k=a";
+            var expectedString = "k=%40&k=a&k=~&k=~";
+            Assert.Equal(expectedString, queryString.BuildEncodedQueryParams());
+        }
+
+        [Fact]
+        public static void BuildEncodedQueryParams_WithNullQueryString()
+        {
+            string queryString = null;
+            Assert.Empty(queryString.BuildEncodedQueryParams());
+        }
+
+        [Fact]
+        public static void NormalizeUriPath_WithNullPath()
+        {
+            string path =null;
+            Assert.Empty(path.NormalizeUriPath());
+        }
+
+        [Theory]
+        [InlineData("/example/sample", "/example/sample")]
+        [InlineData("/example//sample/", "/example/sample/")]
+        [InlineData("//example///sample/", "/example/sample/")]
+        [InlineData("/%2a%80", "/%2A%80")]
+        [InlineData("/example/", "/example/")]
+        [InlineData("/example/sample/..", "/example/")]
+        [InlineData("/example/sample/../../../..", "/")]
+        [InlineData("/example//./.", "/example/")]
+        [InlineData("/./example/./.", "/example/")]
+        public static void NormalizeUriPath_WithValues(string input, string expected)
+        {
+            var request = new Uri("http://localhost:2999" + input);
+            Assert.Equal(expected, request.AbsolutePath.NormalizeUriPath());
         }
     }
 }

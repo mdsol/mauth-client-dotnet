@@ -97,7 +97,7 @@ namespace Medidata.MAuth.Tests
             var expectedSignature = new byte[][]
             {
                 testData.Method.ToBytes(), Constants.NewLine,
-                testData.Url.AbsolutePath.ToBytes(), Constants.NewLine,
+                testData.Url.AbsolutePath.NormalizeUriPath().ToBytes(), Constants.NewLine,
                 content.AsSHA512Hash(), Constants.NewLine,
                 testData.ApplicationUuidString.ToBytes(), Constants.NewLine,
                 testData.SignedTimeUnixSeconds.ToString().ToBytes(), Constants.NewLine,

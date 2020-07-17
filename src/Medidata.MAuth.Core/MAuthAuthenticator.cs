@@ -43,16 +43,19 @@ namespace Medidata.MAuth.Core
             try
             {
                 logger.LogInformation("Initiating Authentication of the request.");
-                var version = request.GetAuthHeaderValue().GetVersionFromAuthenticationHeader();
+
+                var authHeader = request.GetAuthHeaderValue();
+                var version = authHeader.GetVersionFromAuthenticationHeader();
+                var parsedHeader = authHeader.ParseAuthenticationHeader();
 
                 if (options.DisableV1 && version == MAuthVersion.MWS)
                     throw new InvalidVersionException($"Authentication with {version} version is disabled.");
 
-                var authenticated = await Authenticate(request, version).ConfigureAwait(false);
+                var authenticated = await Authenticate(request, version, parsedHeader.Uuid).ConfigureAwait(false);
                 if (!authenticated && version == MAuthVersion.MWSV2 && !options.DisableV1)
                 {
                     // fall back to V1 authentication
-                    authenticated = await Authenticate(request, MAuthVersion.MWS).ConfigureAwait(false);
+                    authenticated = await Authenticate(request, MAuthVersion.MWS, parsedHeader.Uuid).ConfigureAwait(false);
                     logger.LogWarning("Completed successful authentication attempt after fallback to V1");
                 }
                 return authenticated;
@@ -89,10 +92,10 @@ namespace Medidata.MAuth.Core
             }
         }
 
-        private async Task<bool> Authenticate(HttpRequestMessage request, MAuthVersion version)
+        private async Task<bool> Authenticate(HttpRequestMessage request, MAuthVersion version, Guid signedAppUuid)
         {
-            var logMessage = "Mauth-client attempting to authenticate request from app with mauth app uuid" +
-                             $" {options.ApplicationUuid} using version {version}";
+            var logMessage = "Mauth-client attempting to authenticate request from app with mauth app uuid " +
+                $"{signedAppUuid} to app with mauth app uuid {options.ApplicationUuid} using version {version}";
             logger.LogInformation(logMessage);
 
             var mAuthCore = MAuthCoreFactory.Instantiate(version);
