@@ -58,7 +58,7 @@ namespace Medidata.MAuth.Core
             if (InnerHandler == null)
                 InnerHandler = new HttpClientHandler();
 
-            var signingVersions = GetSigningVersions(options.SigningOptions);
+            var signingVersions = GetSigningVersions(options.SignVersions);
             foreach(var version in signingVersions)
             {
                 var mAuthCore = MAuthCoreFactory.Instantiate(version);
@@ -70,12 +70,12 @@ namespace Medidata.MAuth.Core
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        private List<MAuthVersion> GetSigningVersions(string signingOptions)
+        private IEnumerable<MAuthVersion> GetSigningVersions(string signingOptions)
         {
-            var signVersions = new List<MAuthVersion>();
             if (string.IsNullOrEmpty(signingOptions))
                 return new List<MAuthVersion>() { MAuthVersion.MWSV2 };
 
+            var signVersions = new List<MAuthVersion>();
             var signingArray = signingOptions.ToLower().Split(',');
             foreach(var item in signingArray)
             {
@@ -89,6 +89,7 @@ namespace Medidata.MAuth.Core
                         break;
                 }
             }
+
             if(signingArray.Any() && !signVersions.Any())
                 throw new InvalidVersionException($"Signing with {signingOptions} version is not allowed.");
 

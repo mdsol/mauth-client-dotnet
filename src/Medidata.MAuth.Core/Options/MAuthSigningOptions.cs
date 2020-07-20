@@ -24,6 +24,6 @@ namespace Medidata.MAuth.Core
         /// <summary>
         /// Comma-separated protocol versions to sign requests, if not provided defaults to "v2".
         /// </summary>
-        public string SigningOptions { get; set; }
+        public string SignVersions { get; set; }
     }
 }

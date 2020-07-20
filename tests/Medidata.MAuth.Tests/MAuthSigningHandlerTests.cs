@@ -48,7 +48,7 @@ namespace Medidata.MAuth.Tests
             var testData = await method.FromResourceV2();
             var actual = new AssertSigningHandler();
             var clientOptions = TestExtensions.ClientOptions(testData.SignedTime);
-            clientOptions.SigningOptions = "v1";
+            clientOptions.SignVersions = "v1";
             var version = MAuthVersion.MWS;
             var signingHandler = new MAuthSigningHandler(clientOptions, actual);
 
@@ -77,7 +77,7 @@ namespace Medidata.MAuth.Tests
             var testData = await method.FromResourceV2();
             var actual = new AssertSigningHandler();
             var clientOptions = TestExtensions.ClientOptions(testData.SignedTime);
-            clientOptions.SigningOptions = "v1,v2";
+            clientOptions.SignVersions = "v1,v2";
             var signingHandler = new MAuthSigningHandler(clientOptions, actual);
 
             // Act
@@ -105,7 +105,7 @@ namespace Medidata.MAuth.Tests
             var testData = await method.FromResourceV2();
             var actual = new AssertSigningHandler();
             var clientOptions = TestExtensions.ClientOptions(testData.SignedTime);
-            clientOptions.SigningOptions = "v12";
+            clientOptions.SignVersions = "v12";
             var signingHandler = new MAuthSigningHandler(clientOptions, actual);
 
             // Act
@@ -115,7 +115,7 @@ namespace Medidata.MAuth.Tests
                 var exception = await Assert.ThrowsAsync<InvalidVersionException>(() 
                     => client.SendAsync(testData.ToDefaultHttpRequestMessage()));
                 Assert.Equal(exception.Message, 
-                    $"Signing with {clientOptions.SigningOptions} version is not allowed.");
+                    $"Signing with {clientOptions.SignVersions} version is not allowed.");
             }
         }
     }
