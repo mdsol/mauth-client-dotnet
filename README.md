@@ -115,7 +115,7 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
         PrivateKey = "ClientPrivateKey.pem",
 
         // comma-separated values of signing protocols, if not provided defaults to v2 
-        SigningOptions = "v1,v2"
+        SignVersions = "v1,v2"
     });
 
     using (var client = new HttpClient(signingHandler))
@@ -124,9 +124,9 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
     }
 }
 ```
-The `SigningOptions` parameter can be used to specify which protocol version to sign outgoing requests. Like as:
-`SigningOptions ="v1"`: signs with v1 protocol only.
-`SigningOptions ="v1, v2"` : signs with both v1 and v2 protocol.
+The `SignVersions` parameter can be used to specify which protocol version to sign outgoing requests. Like as:
+`SignVersions ="v1"`: signs with v1 protocol only.
+`SignVersions ="v1, v2"` : signs with both v1 and v2 protocol.
 If not supplied, it sign by `v2` by default.
 
 Signing with V2 protocol supports query string.
@@ -140,7 +140,7 @@ The `MAuthSigningOptions` has the following properties to determine the required
 | ---- | ----------- |
 | **ApplicationUuid** | Determines the unique identifier of the client application used for the MAuth service authentication requests.  This uuid needs to be registered with the MAuth Server in order for the authenticating server application to be able to authenticate the signed request. |
 | **PrivateKey** | Determines the RSA private key of the client for signing a request. This key must be in a PEM ASN.1 format. The value of this property can be set as a valid path to a readable key file as well. |
-| **SigningOptions** | (optional) Comma-separated protocol versions to sign requests. If not supplied, defaults to `v2`.
+| **SignVersions** | (optional) Comma-separated protocol versions to sign requests. If not supplied, defaults to `v2`.
 
 ### Authenticating Incoming Requests with the OWIN and ASP.NET Core Middlewares
 

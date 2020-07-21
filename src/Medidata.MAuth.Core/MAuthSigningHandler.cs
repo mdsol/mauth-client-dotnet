@@ -58,8 +58,8 @@ namespace Medidata.MAuth.Core
             if (InnerHandler == null)
                 InnerHandler = new HttpClientHandler();
 
-            var signingVersions = GetSigningVersions(options.SignVersions);
-            foreach(var version in signingVersions)
+            var mauthVersions = GetMAuthSigningVersions(options.SignVersions);
+            foreach(var version in mauthVersions)
             {
                 var mAuthCore = MAuthCoreFactory.Instantiate(version);
                 request = await mAuthCore.Sign(request, options).ConfigureAwait(false);
@@ -70,30 +70,30 @@ namespace Medidata.MAuth.Core
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        private IEnumerable<MAuthVersion> GetSigningVersions(string signingOptions)
+        private IEnumerable<MAuthVersion> GetMAuthSigningVersions(string signingVersions)
         {
-            if (string.IsNullOrEmpty(signingOptions))
+            if (string.IsNullOrEmpty(signingVersions))
                 return new List<MAuthVersion>() { MAuthVersion.MWSV2 };
 
-            var signVersions = new List<MAuthVersion>();
-            var signingArray = signingOptions.ToLower().Split(',');
+            var mauthVersions = new List<MAuthVersion>();
+            var signingArray = signingVersions.ToLower().Split(',');
             foreach(var item in signingArray)
             {
                 switch (item.Trim())
                 {
                     case "v1":
-                        signVersions.Add(MAuthVersion.MWS);
+                        mauthVersions.Add(MAuthVersion.MWS);
                         break;
                     case "v2":
-                        signVersions.Add(MAuthVersion.MWSV2);
+                        mauthVersions.Add(MAuthVersion.MWSV2);
                         break;
                 }
             }
 
-            if(signingArray.Any() && !signVersions.Any())
-                throw new InvalidVersionException($"Signing with {signingOptions} version is not allowed.");
+            if(signingArray.Any() && !mauthVersions.Any())
+                throw new InvalidVersionException($"Signing with {signingVersions} version is not allowed.");
 
-            return signVersions;
+            return mauthVersions;
         }
     }
 }
