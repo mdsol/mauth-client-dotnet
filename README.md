@@ -124,9 +124,9 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
     }
 }
 ```
-The `SignVersions` parameter can be used to specify which protocol version to sign outgoing requests. Like as:
-`SignVersions ="v1"`: signs with v1 protocol only.
-`SignVersions ="v1, v2"` : signs with both v1 and v2 protocol.
+The `SignVersions` parameter can be used to specify which protocol version to sign outgoing requests. Like as:  
+`SignVersions ="v1"`: signs with v1 protocol only.  
+`SignVersions ="v1, v2"` : signs with both v1 and v2 protocol.  
 If not supplied, it sign by `v2` by default.
 
 Signing with V2 protocol supports query string.
@@ -330,6 +330,11 @@ of V1 protcol, we are still maintaining the BouncyCastle library as mentioned be
 On the .NET Framework side (WebAPI, Owin, Core) we are using the latest version (as of date 1.81) of the
 [BouncyCastle](https://github.com/bcgit/bc-csharp) library; on the .NET Standard side (Core, AspNetCore) we are using
 the portable fork of the [BouncyCastle](https://github.com/onovotny/BouncyCastle-PCL) library.
+
+##### What are the major changes in the 5.0.0 version?
+In this version we have removed the property `DisableV1` from `MAuthSigningOptions`. Instead, we have added new option as 
+`SignVersions` in `MAuthSigningOptions` which takes comma-separated values of "v1" and "v2" protocol. If this option is not 
+provided, then it will sign in by "v2" protocol as default. 
 
 ##### What are the major changes in the 4.0.0 version?
 

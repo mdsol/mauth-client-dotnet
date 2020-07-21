@@ -77,7 +77,8 @@ namespace Medidata.MAuth.Core
 
             var mauthVersions = new List<MAuthVersion>();
             var signingArray = signingVersions.ToLower().Split(',');
-            foreach(var item in signingArray)
+
+            foreach (var item in signingArray)
             {
                 switch (item.Trim())
                 {
@@ -90,7 +91,7 @@ namespace Medidata.MAuth.Core
                 }
             }
 
-            if(signingArray.Any() && !mauthVersions.Any())
+            if (signingArray.Any() && !mauthVersions.Any())
                 throw new InvalidVersionException($"Signing with {signingVersions} version is not allowed.");
 
             return mauthVersions;

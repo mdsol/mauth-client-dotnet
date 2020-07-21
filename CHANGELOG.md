@@ -1,6 +1,6 @@
 # Changes in Medidata.MAuth
 
-## v4.1.0
+## v5.0.0
  - **[Core]** Added normalization of Uri AbsolutePath.
  - **[Core]** Added unescape step in query_string encoding to remove `double encoding`.
  - **[Core]** Replace `DisableV1`option with `SignVersions` option and change the default to `v2` only.
