@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
-using Microsoft.Extensions.Logging.Abstractions;
+using Medidata.MAuth.Tests.ProtocolTestSuite;
 using Newtonsoft.Json;
 
 namespace Medidata.MAuth.Tests.Infrastructure
@@ -15,6 +15,11 @@ namespace Medidata.MAuth.Tests.Infrastructure
         private int currentNumberOfAttempts = 0;
 
         public int SucceedAfterThisManyAttempts { get; set; } = 1;
+
+        private static ProtocolTestSuiteHelper _protocolSuiteHelper = new ProtocolTestSuiteHelper();
+
+        public static readonly string SigningPublicKey = _protocolSuiteHelper.GetPublicKey().Result;
+        public static readonly Guid SigningAppUuid = _protocolSuiteHelper.ReadSignInAppUuid().Result;
 
         protected override async Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request, CancellationToken cancellationToken)
@@ -35,8 +40,16 @@ namespace Medidata.MAuth.Tests.Infrastructure
 
             if (!request.RequestUri.AbsolutePath.Equals(
                 $"{Constants.MAuthTokenRequestPath}{clientUuid.ToHyphenString()}.json",
+                StringComparison.OrdinalIgnoreCase) &&
+                !request.RequestUri.AbsolutePath.Equals(
+                $"{Constants.MAuthTokenRequestPath}{SigningAppUuid.ToHyphenString()}.json",
                 StringComparison.OrdinalIgnoreCase))
+            {
                 return new HttpResponseMessage(HttpStatusCode.NotFound) { RequestMessage = request };
+            }
+
+            bool isProtocolSuiteTest = request.RequestUri.AbsolutePath.Contains(
+                SigningAppUuid.ToHyphenString());
 
             return new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -46,10 +59,11 @@ namespace Medidata.MAuth.Tests.Infrastructure
                     {
                         security_token = new ApplicationInfo()
                         {
-                            Uuid = clientUuid,
+                            Uuid = isProtocolSuiteTest ? SigningAppUuid : clientUuid,
                             Name = "Medidata.MAuth.Tests",
                             CreationDate = new DateTimeOffset(2016, 8, 1, 0, 0, 0, TimeSpan.Zero),
-                            PublicKey = TestExtensions.ClientPublicKey
+                            PublicKey = isProtocolSuiteTest 
+                            ? SigningPublicKey : TestExtensions.ClientPublicKey
                         }
                     })
                 )
