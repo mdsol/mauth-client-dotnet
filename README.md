@@ -115,7 +115,7 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
         PrivateKey = "ClientPrivateKey.pem",
 
         // Enumerations of signing protocols, if not provided defaults to `MAuthVersion.MWSV2`for sign-in.
-        SignVersions = new List<MAuthVersion> { MAuthVersion.MWS, MAuthVersion.MWSV2 }
+        SignVersions = MAuthVersion.MWS | MAuthVersion.MWSV2
     });
 
     using (var client = new HttpClient(signingHandler))
@@ -125,8 +125,8 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
 }
 ```
 The `SignVersions` parameter can be used to specify which protocol version to sign outgoing requests. Like as:  
-`SignVersions =new List<MAuthVersion> { MAuthVersion.MWS }`: signs with `MWS` protocol only.  
-`SignVersions =new List<MAuthVersion> { MAuthVersion.MWS, MAuthVersion.MWSV2 }` : signs with both `MWS` and `MWSV2` protocol.  
+`SignVersions = MAuthVersion.MWS`: signs with `MWS` protocol only.  
+`SignVersions = MAuthVersion.MWS | MAuthVersion.MWSV2` : signs with both `MWS` and `MWSV2` protocol.  
 If not supplied, it sign by `MWSV2` protocol by default.
 
 Signing with `MWSV2` protocol supports query string.

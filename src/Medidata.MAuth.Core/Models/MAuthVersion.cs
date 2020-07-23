@@ -8,11 +8,11 @@
         /// <summary>
         /// Defines the enumeration value for V1 protocol.
         /// </summary>
-        MWS,
+        MWS = 1,
 
         /// <summary>
         /// Defines the enumeration value for V2 protocol.
         /// </summary>
-        MWSV2
+        MWSV2 = 2
     }
 }

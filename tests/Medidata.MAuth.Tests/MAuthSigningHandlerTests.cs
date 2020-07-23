@@ -49,7 +49,7 @@ namespace Medidata.MAuth.Tests
             var actual = new AssertSigningHandler();
             var clientOptions = TestExtensions.ClientOptions(testData.SignedTime);
             var version = MAuthVersion.MWS;
-            clientOptions.SignVersions = new List<MAuthVersion> { version };
+            clientOptions.SignVersions = version;
             var signingHandler = new MAuthSigningHandler(clientOptions, actual);
 
             // Act
@@ -77,7 +77,8 @@ namespace Medidata.MAuth.Tests
             var testData = await method.FromResourceV2();
             var actual = new AssertSigningHandler();
             var clientOptions = TestExtensions.ClientOptions(testData.SignedTime);
-            clientOptions.SignVersions = new List<MAuthVersion> { MAuthVersion.MWS, MAuthVersion.MWSV2 };
+            clientOptions.SignVersions = MAuthVersion.MWS | MAuthVersion.MWSV2;
+
             var signingHandler = new MAuthSigningHandler(clientOptions, actual);
 
             // Act

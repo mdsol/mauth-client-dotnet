@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,7 +25,7 @@ namespace Medidata.MAuth.Core
         public MAuthSigningHandler(MAuthSigningOptions options)
         {
             this.options = options;
-            this.options.SignVersions = options.SignVersions ?? new List<MAuthVersion> { MAuthVersion.MWSV2 };
+            this.options.SignVersions = options.SignVersions ?? MAuthVersion.MWSV2;
         }
 
         /// <summary>
@@ -40,7 +39,7 @@ namespace Medidata.MAuth.Core
         public MAuthSigningHandler(MAuthSigningOptions options, HttpMessageHandler innerHandler): base(innerHandler)
         {
             this.options = options;
-            this.options.SignVersions = options.SignVersions ?? new List<MAuthVersion> { MAuthVersion.MWSV2 };
+            this.options.SignVersions = options.SignVersions ?? MAuthVersion.MWSV2;
         }
 
         /// <summary>
@@ -57,10 +56,13 @@ namespace Medidata.MAuth.Core
             if (InnerHandler == null)
                 InnerHandler = new HttpClientHandler();
 
-            foreach (var version in options.SignVersions)
+            foreach (MAuthVersion version in Enum.GetValues(typeof(MAuthVersion)))
             {
-                var mAuthCore = MAuthCoreFactory.Instantiate(version);
-                request = await mAuthCore.Sign(request, options).ConfigureAwait(false);
+                if (options.SignVersions.HasFlag(version))
+                {
+                    var mAuthCore = MAuthCoreFactory.Instantiate(version);
+                    request = await mAuthCore.Sign(request, options).ConfigureAwait(false);
+                }
             }
 
             return await base
