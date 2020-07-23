@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Medidata.MAuth.Core.Models;
+using System;
+using System.Collections.Generic;
 
 namespace Medidata.MAuth.Core
 {
@@ -22,8 +24,8 @@ namespace Medidata.MAuth.Core
         internal DateTimeOffset? SignedTime { get; set; }
 
         /// <summary>
-        /// Comma-separated protocol versions to sign requests, if not provided defaults to "v2".
+        /// Enumeration of MAuth protocol versions to sign requests, if not provided defaults to "v2".
         /// </summary>
-        public string SignVersions { get; set; }
+        public IEnumerable<MAuthVersion> SignVersions { get; set; }
     }
 }

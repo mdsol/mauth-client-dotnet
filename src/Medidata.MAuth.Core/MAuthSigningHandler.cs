@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Medidata.MAuth.Core.Exceptions;
 using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Core
@@ -16,7 +14,6 @@ namespace Medidata.MAuth.Core
     public class MAuthSigningHandler: DelegatingHandler
     {
         private readonly MAuthSigningOptions options;
-        private IMAuthCore mAuthCore;
 
         /// <summary>Gets the Uuid of the client application.</summary>
         public Guid ClientAppUuid => options.ApplicationUuid;
@@ -29,6 +26,7 @@ namespace Medidata.MAuth.Core
         public MAuthSigningHandler(MAuthSigningOptions options)
         {
             this.options = options;
+            this.options.SignVersions = options.SignVersions ?? new List<MAuthVersion> { MAuthVersion.MWSV2 };
         }
 
         /// <summary>
@@ -42,6 +40,7 @@ namespace Medidata.MAuth.Core
         public MAuthSigningHandler(MAuthSigningOptions options, HttpMessageHandler innerHandler): base(innerHandler)
         {
             this.options = options;
+            this.options.SignVersions = options.SignVersions ?? new List<MAuthVersion> { MAuthVersion.MWSV2 };
         }
 
         /// <summary>
@@ -58,8 +57,7 @@ namespace Medidata.MAuth.Core
             if (InnerHandler == null)
                 InnerHandler = new HttpClientHandler();
 
-            var mauthVersions = GetMAuthSigningVersions(options.SignVersions);
-            foreach(var version in mauthVersions)
+            foreach (var version in options.SignVersions)
             {
                 var mAuthCore = MAuthCoreFactory.Instantiate(version);
                 request = await mAuthCore.Sign(request, options).ConfigureAwait(false);
@@ -68,33 +66,6 @@ namespace Medidata.MAuth.Core
             return await base
                 .SendAsync(request, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
-        }
-
-        private IEnumerable<MAuthVersion> GetMAuthSigningVersions(string signingVersions)
-        {
-            if (string.IsNullOrEmpty(signingVersions))
-                return new List<MAuthVersion>() { MAuthVersion.MWSV2 };
-
-            var mauthVersions = new List<MAuthVersion>();
-            var signingArray = signingVersions.ToLower().Split(',');
-
-            foreach (var item in signingArray)
-            {
-                switch (item.Trim())
-                {
-                    case "v1":
-                        mauthVersions.Add(MAuthVersion.MWS);
-                        break;
-                    case "v2":
-                        mauthVersions.Add(MAuthVersion.MWSV2);
-                        break;
-                }
-            }
-
-            if (signingArray.Any() && !mauthVersions.Any())
-                throw new InvalidVersionException($"Signing with {signingVersions} version is not allowed.");
-
-            return mauthVersions;
         }
     }
 }
