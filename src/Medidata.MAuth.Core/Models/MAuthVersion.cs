@@ -1,8 +1,11 @@
-﻿namespace Medidata.MAuth.Core.Models
+﻿using System;
+
+namespace Medidata.MAuth.Core.Models
 {
     /// <summary>
     /// Contains the Enumeration values for different versions supported by the library.
     /// </summary>
+    [Flags]
     public enum MAuthVersion
     {
         /// <summary>

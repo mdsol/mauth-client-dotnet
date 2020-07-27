@@ -26,6 +26,6 @@ namespace Medidata.MAuth.Core
         /// <summary>
         /// Enumeration values of MAuth protocol versions to sign requests, if not provided defaults to `MWSV2`.
         /// </summary>
-        public Enum SignVersions { get; set; }
+        public MAuthVersion SignVersions { get; set; } = MAuthVersion.MWSV2;
     }
 }
