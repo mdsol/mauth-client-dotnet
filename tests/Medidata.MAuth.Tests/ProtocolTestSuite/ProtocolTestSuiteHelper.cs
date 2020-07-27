@@ -17,13 +17,13 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
             var currentDirectory = Environment.CurrentDirectory;
             _testSuitePath = Environment.GetEnvironmentVariable("TEST_SUITE_PATH") != null
                 ? Environment.GetEnvironmentVariable("TEST_SUITE_PATH")
-                : Path.GetFullPath(Path.Combine(currentDirectory, @"..\..\..\..\..\..\mauth-protocol-test-suite"));
-            _testCasePath = $"{_testSuitePath}/protocols/MWSV2";
+                : Path.GetFullPath(Path.Combine(currentDirectory, "../../../../../../mauth-protocol-test-suite"));
+            _testCasePath = Path.Combine(_testSuitePath, "protocols/MWSV2");
         }
 
         public async Task<SigningConfig> LoadSigningConfig()
         {
-            var configFile = $"{_testSuitePath}/signing-config.json";
+            var configFile = Path.Combine(_testSuitePath, "signing-config.json");
 
             var signingConfig = await ReadSigningConfigParameters(configFile);
             if (signingConfig is null )return null;
@@ -40,19 +40,19 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
 
         public async Task<string> GetPrivateKey()
         {
-            var filePath = $"{_testSuitePath}/signing-params/rsa-key";
+            var filePath = Path.Combine(_testSuitePath, "signing-params/rsa-key");
             return await ReadValueFromPath(filePath);
         }
 
         public async Task<string> GetPublicKey()
         {
-            var publicKeyFilePath = $"{_testSuitePath}/signing-params/rsa-key-pub";
+            var publicKeyFilePath = Path.Combine(_testSuitePath, "signing-params/rsa-key-pub");
             return await ReadValueFromPath(publicKeyFilePath);
         }
 
         public async Task<UnSignedRequest> LoadUnsignedRequest(string testCaseName)
         {
-            var reqFilePath = $"{_testCasePath}/{testCaseName}/{testCaseName}.req";
+            var reqFilePath = Path.Combine(_testCasePath, testCaseName, $"{testCaseName}.req");
             var unsignedRequest = await ReadRequestParameters(reqFilePath);
             unsignedRequest.Body = !string.IsNullOrEmpty(unsignedRequest.Body) 
                 ? Convert.ToBase64String(unsignedRequest.Body.ToBytes()) : unsignedRequest.Body;
@@ -68,7 +68,7 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
         {
             if (string.IsNullOrEmpty(bodyFilepath))
                 return null;
-            var completebodyFilePath = $"{_testCasePath}/{caseName}/{bodyFilepath}";
+            var completebodyFilePath = Path.Combine(_testCasePath, caseName, bodyFilepath);
             var bytes = File.ReadAllBytes(completebodyFilePath);
             return Convert.ToBase64String(bytes);
         }
@@ -82,20 +82,20 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
 
         public async Task<string> ReadStringToSign(string testCaseName)
         {
-            var stsFilePath = $"{_testCasePath}/{testCaseName}/{testCaseName}.sts";
+            var stsFilePath = Path.Combine(_testCasePath, testCaseName, $"{testCaseName}.sts");
             var sts = await ReadValueFromPath(stsFilePath);
             return sts.Replace("\r", "");
         }
 
         public async Task<string> ReadDigitalSignature(string testCaseName)
         {
-            var sigFilePath = $"{_testCasePath}/{testCaseName}/{testCaseName}.sig";
+            var sigFilePath = Path.Combine(_testCasePath, testCaseName, $"{testCaseName}.sig");
             return await ReadValueFromPath(sigFilePath);
         }
 
         public async Task<AuthenticationHeader> ReadAuthenticationHeader(string testCaseName)
         {
-            var authzFilePath = $"{_testCasePath}/{testCaseName}/{testCaseName}.authz";
+            var authzFilePath = Path.Combine(_testCasePath, testCaseName, $"{testCaseName}.authz");
             return JsonConvert.DeserializeObject<AuthenticationHeader>(
                 await ReadValueFromPath(authzFilePath));
         }
@@ -109,7 +109,6 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
             var signingConfig = await ReadValueFromPath(signingConfigJson);
             return signingConfig != null ? JsonConvert.DeserializeObject<SigningConfig>(signingConfig) : null;
         }
-           
 
         private async Task<string> ReadValueFromPath(string filePath)
         {
