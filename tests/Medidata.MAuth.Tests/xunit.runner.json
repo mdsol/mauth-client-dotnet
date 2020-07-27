@@ -1,5 +1,3 @@
 ﻿{
-  "methodDisplay": "method",
-  "parallelizeTestCollections": false,
-  "maxParallelThreads": 1
+  "methodDisplay": "method"
 }

@@ -188,7 +188,7 @@ namespace Medidata.MAuth.Core
                 return string.Empty;
 
             var queryArray = queryString.Split('&');
-            var unescapedKeysAndValues = new KeyValuePair<string, string>[queryArray.Count()];
+            var unescapedKeysAndValues = new KeyValuePair<string, string>[queryArray.Length];
 
             // unescaping
             for (int i = 0; i < queryArray.Length; i++)

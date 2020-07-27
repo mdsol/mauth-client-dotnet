@@ -25,22 +25,22 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
                 return;
 
             // Arrange
-            var _signConfig = _protcolTestHelper.LoadSigningConfig().Result;
+            var signConfig = await _protcolTestHelper.LoadSigningConfig();
             var requestData = await _protcolTestHelper.LoadUnsignedRequest(caseName);
             var authz = await _protcolTestHelper.ReadAuthenticationHeader(caseName);
 
             var actual = new AssertSigningHandler();
             var clientOptions = TestExtensions.ProtocolTestClientOptions(
-                    _signConfig.AppUuid, _signConfig.PrivateKey, _signConfig.RequestTime.FromUnixTimeSeconds());
+                    signConfig.AppUuid, signConfig.PrivateKey, signConfig.RequestTime.FromUnixTimeSeconds());
             clientOptions.DisableV1 = true;
             var signingHandler = new MAuthSigningHandler(clientOptions, actual);
             var request = requestData.ToHttpRequestMessage();
 
             var authInfo = new PrivateKeyAuthenticationInfo()
             {
-                ApplicationUuid = _signConfig.AppUuid,
-                SignedTime = _signConfig.RequestTime.FromUnixTimeSeconds(),
-                PrivateKey = _signConfig.PrivateKey
+                ApplicationUuid = signConfig.AppUuid,
+                SignedTime = signConfig.RequestTime.FromUnixTimeSeconds(),
+                PrivateKey = signConfig.PrivateKey
             };
 
             // Verify Signing and auth headers matches .authz file
@@ -82,9 +82,9 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
                 var signedRequest = await new MAuthCoreV2()
                     .AddAuthenticationInfo(request, new PrivateKeyAuthenticationInfo()
                     {
-                        ApplicationUuid = _signConfig.AppUuid,
-                        PrivateKey = _signConfig.PrivateKey,
-                        SignedTime = _signConfig.RequestTime.FromUnixTimeSeconds()
+                        ApplicationUuid = signConfig.AppUuid,
+                        PrivateKey = signConfig.PrivateKey,
+                        SignedTime = signConfig.RequestTime.FromUnixTimeSeconds()
                     });
 
                 // Act
