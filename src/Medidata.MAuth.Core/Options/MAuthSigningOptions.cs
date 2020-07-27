@@ -24,8 +24,8 @@ namespace Medidata.MAuth.Core
         internal DateTimeOffset? SignedTime { get; set; }
 
         /// <summary>
-        /// Enumeration values of MAuth protocol versions to sign requests, if not provided defaults to `MWSV2`.
+        /// Enumeration values of MAuth protocol versions to sign requests, if not provided defaults to `MWS`.
         /// </summary>
-        public MAuthVersion SignVersions { get; set; } = MAuthVersion.MWSV2;
+        public MAuthVersion SignVersions { get; set; } = MAuthVersion.MWS;
     }
 }

@@ -3,7 +3,7 @@
 ## v5.0.0
  - **[Core]** Added normalization of Uri AbsolutePath.
  - **[Core]** Added unescape step in query_string encoding to remove `double encoding`.
- - **[Core]** Replace `DisableV1`option with `SignVersions` option and change the default signing to `MAuthVersion.MWSV2` only.
+ - **[Core]** Replace `DisableV1`option with `SignVersions` option and change the default signing to `MAuthVersion.MWS` only.
 
 ## v4.0.2
 - **[AspNetCore]** Update aspnetcore version to aspnetcore2.1 LTS.

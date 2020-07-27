@@ -15,12 +15,12 @@ namespace Medidata.MAuth.Tests
         [InlineData("DELETE")]
         [InlineData("POST")]
         [InlineData("PUT")]
-        public static async Task SendAsync_WithNoSignVersions_WillSignWithOnlyMWSV2(string method)
+        public static async Task SendAsync_WithNoSignVersions_WillSignWithOnlyMWS(string method)
         {
             // Arrange
             var testData = await method.FromResource();
             var actual = new AssertSigningHandler();
-            var version = MAuthVersion.MWSV2;
+            var version = MAuthVersion.MWS;
             var signingHandler = new MAuthSigningHandler(TestExtensions.ClientOptions(testData.SignedTime), actual);
 
             // Act
@@ -30,11 +30,11 @@ namespace Medidata.MAuth.Tests
             }
 
             // Assert
-            Assert.Null(actual.MAuthHeader);
-            Assert.Null(actual.MAuthTimeHeader);
+            Assert.Null(actual.MAuthHeaderV2);
+            Assert.Null(actual.MAuthTimeHeaderV2);
 
-            Assert.Equal(testData.MAuthHeaderV2, actual.MAuthHeaderV2);
-            Assert.Equal(testData.SignedTime, long.Parse(actual.MAuthTimeHeaderV2).FromUnixTimeSeconds());
+            Assert.Equal(testData.MAuthHeader, actual.MAuthHeader);
+            Assert.Equal(testData.SignedTime, long.Parse(actual.MAuthTimeHeader).FromUnixTimeSeconds());
         }
 
         [Theory]
