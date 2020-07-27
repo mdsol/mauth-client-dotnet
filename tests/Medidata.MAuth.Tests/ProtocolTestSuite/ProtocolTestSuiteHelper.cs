@@ -75,10 +75,9 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
 
         public string[] GetTestCases()
         {
-            var cases = Directory.Exists(_testCasePath)
+            return Directory.Exists(_testCasePath)
                 ? Directory.GetDirectories(_testCasePath).Select(x => Path.GetFileName(x)).ToArray()
-                : new string[1];
-            return cases;
+                : null;
         }
 
         public async Task<string> ReadStringToSign(string testCaseName)

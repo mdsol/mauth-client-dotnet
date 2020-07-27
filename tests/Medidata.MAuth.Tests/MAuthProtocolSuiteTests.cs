@@ -101,11 +101,16 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
             {
                 // Or this could read from a file. :)
                 var cases = new ProtocolTestSuiteHelper().GetTestCases();
+
+                if (cases is null)
+                    return new List<object[]> { new object[] { string.Empty } };
+
                 var data = new List<object[]>();
-                foreach(var item in cases)
+                foreach (string item in cases)
                 {
                     data.Add(new object[] { item });
                 }
+
                 return data;
             }
         }
