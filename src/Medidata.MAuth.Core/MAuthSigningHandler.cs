@@ -12,10 +12,10 @@ namespace Medidata.MAuth.Core
     /// </summary>
     public class MAuthSigningHandler: DelegatingHandler
     {
-        private readonly MAuthSigningOptions options;
+        private readonly MAuthSigningOptions _options;
 
         /// <summary>Gets the Uuid of the client application.</summary>
-        public Guid ClientAppUuid => options.ApplicationUuid;
+        public Guid ClientAppUuid => _options.ApplicationUuid;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MAuthSigningHandler"/> class with the provided
@@ -24,7 +24,7 @@ namespace Medidata.MAuth.Core
         /// <param name="options">The options for this message handler.</param>
         public MAuthSigningHandler(MAuthSigningOptions options)
         {
-            this.options = options;
+            _options = options;
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Medidata.MAuth.Core
         /// </param>
         public MAuthSigningHandler(MAuthSigningOptions options, HttpMessageHandler innerHandler): base(innerHandler)
         {
-            this.options = options;
+            _options = options;
         }
 
         /// <summary>
@@ -56,10 +56,10 @@ namespace Medidata.MAuth.Core
 
             foreach (MAuthVersion version in Enum.GetValues(typeof(MAuthVersion)))
             {
-                if (options.SignVersions.HasFlag(version))
+                if (_options.SignVersions.HasFlag(version))
                 {
                     var mAuthCore = MAuthCoreFactory.Instantiate(version);
-                    request = await mAuthCore.Sign(request, options).ConfigureAwait(false);
+                    request = await mAuthCore.Sign(request, _options).ConfigureAwait(false);
                 }
             }
 
