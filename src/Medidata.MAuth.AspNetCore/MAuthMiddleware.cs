@@ -12,9 +12,9 @@ namespace Medidata.MAuth.AspNetCore
     /// </summary>
     internal class MAuthMiddleware
     {
-        private readonly MAuthMiddlewareOptions options;
-        private readonly MAuthAuthenticator authenticator;
-        private readonly RequestDelegate next;
+        private readonly MAuthMiddlewareOptions _options;
+        private readonly MAuthAuthenticator _authenticator;
+        private readonly RequestDelegate _next;
 
         /// <summary>
         /// Creates a new <see cref="MAuthMiddleware"/>
@@ -24,11 +24,11 @@ namespace Medidata.MAuth.AspNetCore
         /// <param name="loggerFactory">The <see cref="ILoggerFactory"/> representing the factory that used to create logger instances.</param>
         public MAuthMiddleware(RequestDelegate next, MAuthMiddlewareOptions options, ILoggerFactory loggerFactory)
         {
-            this.next = next;
-            this.options = options;
+            _next = next;
+            _options = options;
             loggerFactory = loggerFactory ?? NullLoggerFactory.Instance;
             ILogger logger = loggerFactory.CreateLogger<MAuthMiddleware>();
-            this.authenticator = new MAuthAuthenticator(options, logger); 
+            _authenticator = new MAuthAuthenticator(options, logger); 
         }
 
         /// <summary>
@@ -40,8 +40,8 @@ namespace Medidata.MAuth.AspNetCore
         {
             context.Request.EnableBuffering();
 
-            if (!options.Bypass(context.Request) &&
-                !await context.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized).ConfigureAwait(false))
+            if (!_options.Bypass(context.Request) &&
+                !await context.TryAuthenticate(_authenticator, _options.HideExceptionsAndReturnUnauthorized).ConfigureAwait(false))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 return;
@@ -49,7 +49,7 @@ namespace Medidata.MAuth.AspNetCore
 
             context.Request.Body.Rewind();
 
-            await next.Invoke(context).ConfigureAwait(false);
+            await _next.Invoke(context).ConfigureAwait(false);
         }
     }
 }
