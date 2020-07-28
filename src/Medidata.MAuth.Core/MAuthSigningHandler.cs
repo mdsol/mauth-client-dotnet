@@ -25,7 +25,6 @@ namespace Medidata.MAuth.Core
         public MAuthSigningHandler(MAuthSigningOptions options)
         {
             this.options = options;
-            this.options.SignVersions = options.SignVersions;
         }
 
         /// <summary>
@@ -39,7 +38,6 @@ namespace Medidata.MAuth.Core
         public MAuthSigningHandler(MAuthSigningOptions options, HttpMessageHandler innerHandler): base(innerHandler)
         {
             this.options = options;
-            this.options.SignVersions = options.SignVersions;
         }
 
         /// <summary>
