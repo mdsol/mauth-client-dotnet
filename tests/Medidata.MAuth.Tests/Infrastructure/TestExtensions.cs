@@ -137,7 +137,7 @@ namespace Medidata.MAuth.Tests.Infrastructure
             var result = new HttpRequestMessage(new HttpMethod(data.Verb), new Uri($"https://example.com{data.Url}"))
             {
                 Content = !string.IsNullOrEmpty(data.Body) 
-                ? new ByteArrayContent(Convert.FromBase64String(data.Body)) : null,
+                    ? new ByteArrayContent(Convert.FromBase64String(data.Body)) : null,
             };
 
             return result;

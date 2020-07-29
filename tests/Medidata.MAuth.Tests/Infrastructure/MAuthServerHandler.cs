@@ -62,8 +62,7 @@ namespace Medidata.MAuth.Tests.Infrastructure
                             Uuid = isProtocolSuiteTest ? SigningAppUuid : clientUuid,
                             Name = "Medidata.MAuth.Tests",
                             CreationDate = new DateTimeOffset(2016, 8, 1, 0, 0, 0, TimeSpan.Zero),
-                            PublicKey = isProtocolSuiteTest 
-                            ? SigningPublicKey : TestExtensions.ClientPublicKey
+                            PublicKey = isProtocolSuiteTest ? SigningPublicKey : TestExtensions.ClientPublicKey
                         }
                     })
                 )

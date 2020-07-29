@@ -1,4 +1,5 @@
 ﻿using Medidata.MAuth.Core;
+using Medidata.MAuth.Core.Models;
 using Medidata.MAuth.Tests.Infrastructure;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
             var actual = new AssertSigningHandler();
             var clientOptions = TestExtensions.ProtocolTestClientOptions(
                     signConfig.AppUuid, signConfig.PrivateKey, signConfig.RequestTime.FromUnixTimeSeconds());
-            clientOptions.DisableV1 = true;
+            clientOptions.SignVersions = MAuthVersion.MWS | MAuthVersion.MWSV2;
             var signingHandler = new MAuthSigningHandler(clientOptions, actual);
             var request = requestData.ToHttpRequestMessage();
 
