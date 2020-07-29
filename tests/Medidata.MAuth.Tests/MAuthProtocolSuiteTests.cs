@@ -77,8 +77,11 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
             }
             else
             {
+                var serverOptions = TestExtensions.ServerOptions;
+                serverOptions.MAuthServerHandler = await new MAuthServerHandler().InitializeAsync();
+
                 var authenticator = new MAuthAuthenticator(
-                    TestExtensions.ServerOptions, NullLogger<MAuthAuthenticator>.Instance);
+                    serverOptions, NullLogger<MAuthAuthenticator>.Instance);
 
                 var signedRequest = await new MAuthCoreV2()
                     .AddAuthenticationInfo(request, new PrivateKeyAuthenticationInfo()
