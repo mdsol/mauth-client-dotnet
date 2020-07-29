@@ -8,21 +8,22 @@ namespace Medidata.MAuth.Owin
 {
     internal class MAuthMiddleware: OwinMiddleware
     {
-        private readonly MAuthMiddlewareOptions options;
-        private readonly MAuthAuthenticator authenticator;
+        private readonly MAuthMiddlewareOptions _options;
+        private readonly MAuthAuthenticator _authenticator;
 
         public MAuthMiddleware(OwinMiddleware next, MAuthMiddlewareOptions options, ILogger owinLogger) : base(next)
         {
-            this.options = options;
+            _options = options;
             Microsoft.Extensions.Logging.ILogger logger = new OwinLoggerWrapper(owinLogger); 
-            authenticator = new MAuthAuthenticator(options, logger);
+            _authenticator = new MAuthAuthenticator(options, logger);
         }
 
         public override async Task Invoke(IOwinContext context)
         {
             await context.EnsureRequestBodyStreamSeekable().ConfigureAwait(false);
-            if (!options.Bypass(context.Request) &&
-                !await context.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized).ConfigureAwait(false))
+            if (!_options.Bypass(context.Request) &&
+                !await context.TryAuthenticate(_authenticator, _options.HideExceptionsAndReturnUnauthorized)
+                .ConfigureAwait(false))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 return;

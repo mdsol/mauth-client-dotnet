@@ -12,11 +12,11 @@ namespace Medidata.MAuth.Core
 {
     internal class MAuthAuthenticator
     {
-        private readonly MAuthOptionsBase options;
-        private readonly IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
-        private readonly ILogger logger;
+        private readonly MAuthOptionsBase _options;
+        private readonly IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
+        private readonly ILogger _logger;
 
-        public Guid ApplicationUuid => options.ApplicationUuid;
+        public Guid ApplicationUuid => _options.ApplicationUuid;
 
         public MAuthAuthenticator(MAuthOptionsBase options, ILogger logger)
         {
@@ -29,8 +29,8 @@ namespace Medidata.MAuth.Core
             if (string.IsNullOrWhiteSpace(options.PrivateKey))
                 throw new ArgumentNullException(nameof(options.PrivateKey));
 
-            this.options = options;
-            this.logger = logger;
+            _options = options;
+            _logger = logger;
         }
 
         /// <summary>
@@ -42,49 +42,49 @@ namespace Medidata.MAuth.Core
         {
             try
             {
-                logger.LogInformation("Initiating Authentication of the request.");
+                _logger.LogInformation("Initiating Authentication of the request.");
 
                 var authHeader = request.GetAuthHeaderValue();
                 var version = authHeader.GetVersionFromAuthenticationHeader();
                 var parsedHeader = authHeader.ParseAuthenticationHeader();
 
-                if (options.DisableV1 && version == MAuthVersion.MWS)
+                if (_options.DisableV1 && version == MAuthVersion.MWS)
                     throw new InvalidVersionException($"Authentication with {version} version is disabled.");
 
                 var authenticated = await Authenticate(request, version, parsedHeader.Uuid).ConfigureAwait(false);
-                if (!authenticated && version == MAuthVersion.MWSV2 && !options.DisableV1)
+                if (!authenticated && version == MAuthVersion.MWSV2 && !_options.DisableV1)
                 {
                     // fall back to V1 authentication
                     authenticated = await Authenticate(request, MAuthVersion.MWS, parsedHeader.Uuid).ConfigureAwait(false);
-                    logger.LogWarning("Completed successful authentication attempt after fallback to V1");
+                    _logger.LogWarning("Completed successful authentication attempt after fallback to V1");
                 }
                 return authenticated;
             }
             catch (ArgumentException ex)
             {
-                logger.LogError(ex, "Unable to authenticate due to invalid MAuth authentication headers.");
+                _logger.LogError(ex, "Unable to authenticate due to invalid MAuth authentication headers.");
                 throw new AuthenticationException("The request has invalid MAuth authentication headers.", ex);
             }
             catch (RetriedRequestException ex)
             {
-                logger.LogError(ex, "Unable to query the application information from MAuth server.");
+                _logger.LogError(ex, "Unable to query the application information from MAuth server.");
                 throw new AuthenticationException(
                     "Could not query the application information for the application from the MAuth server.", ex);
             }
             catch (InvalidCipherTextException ex)
             {
-                logger.LogWarning(ex, "Unable to authenticate due to invalid payload information.");
+                _logger.LogWarning(ex, "Unable to authenticate due to invalid payload information.");
                 throw new AuthenticationException(
                     "The request verification failed due to an invalid payload information.", ex);
             }
             catch (InvalidVersionException ex)
             {
-                logger.LogError(ex, "Unable to authenticate due to invalid version.");
+                _logger.LogError(ex, "Unable to authenticate due to invalid version.");
                 throw new InvalidVersionException(ex.Message, ex);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Unable to authenticate due to unexpected error.");
+                _logger.LogError(ex, "Unable to authenticate due to unexpected error.");
                 throw new AuthenticationException(
                     "An unexpected error occured during authentication. Please see the inner exception for details.",
                     ex
@@ -95,8 +95,8 @@ namespace Medidata.MAuth.Core
         private async Task<bool> Authenticate(HttpRequestMessage request, MAuthVersion version, Guid signedAppUuid)
         {
             var logMessage = "Mauth-client attempting to authenticate request from app with mauth app uuid " +
-                $"{signedAppUuid} to app with mauth app uuid {options.ApplicationUuid} using version {version}";
-            logger.LogInformation(logMessage);
+                $"{signedAppUuid} to app with mauth app uuid {_options.ApplicationUuid} using version {version}";
+            _logger.LogInformation(logMessage);
 
             var mAuthCore = MAuthCoreFactory.Instantiate(version);
             var authInfo = GetAuthenticationInfo(request, mAuthCore);
@@ -107,13 +107,13 @@ namespace Medidata.MAuth.Core
         }
 
         private Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid) =>
-            cache.GetOrCreateAsync(applicationUuid, async entry =>
+            _cache.GetOrCreateAsync(applicationUuid, async entry =>
             {
-                var retrier = new MAuthRequestRetrier(options);
+                var retrier = new MAuthRequestRetrier(_options);
                 var response = await retrier.GetSuccessfulResponse(
                     applicationUuid,
                     CreateRequest,
-                    requestAttempts: (int)options.MAuthServiceRetryPolicy + 1
+                    requestAttempts: (int)_options.MAuthServiceRetryPolicy + 1
                 ).ConfigureAwait(false);
 
                 var result = await response.Content.FromResponse().ConfigureAwait(false);
@@ -160,7 +160,7 @@ namespace Medidata.MAuth.Core
         }
 
         private HttpRequestMessage CreateRequest(Guid applicationUuid) =>
-            new HttpRequestMessage(HttpMethod.Get, new Uri(options.MAuthServiceUrl,
+            new HttpRequestMessage(HttpMethod.Get, new Uri(_options.MAuthServiceUrl,
                 $"{Constants.MAuthTokenRequestPath}{applicationUuid.ToHyphenString()}.json"));
     }
 }

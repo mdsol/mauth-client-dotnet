@@ -15,11 +15,11 @@ namespace Medidata.MAuth.WebApi
     /// </summary>
     public class MAuthAuthenticatingHandler : DelegatingHandler
     {
-        private readonly MAuthWebApiOptions options;
-        private readonly MAuthAuthenticator authenticator;
+        private readonly MAuthWebApiOptions _options;
+        private readonly MAuthAuthenticator _authenticator;
 
         /// <summary>Gets the Uuid of the client application.</summary>
-        public Guid ClientAppUuid => authenticator.ApplicationUuid;
+        public Guid ClientAppUuid => _authenticator.ApplicationUuid;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MAuthAuthenticatingHandler"/> class with the provided
@@ -28,8 +28,8 @@ namespace Medidata.MAuth.WebApi
         /// <param name="options">The options for this message handler.</param>
         public MAuthAuthenticatingHandler(MAuthWebApiOptions options)
         {
-            this.options = options;
-            this.authenticator = this.SetupMAuthAuthenticator(options);
+            _options = options;
+            _authenticator = SetupMAuthAuthenticator(options);
         }
 
         /// <summary>
@@ -42,8 +42,8 @@ namespace Medidata.MAuth.WebApi
         /// </param>
         public MAuthAuthenticatingHandler(MAuthWebApiOptions options, HttpMessageHandler innerHandler) : base(innerHandler)
         {
-            this.options = options;
-            this.authenticator = this.SetupMAuthAuthenticator(options);
+            _options = options;
+            _authenticator = SetupMAuthAuthenticator(options);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Medidata.MAuth.WebApi
             if (InnerHandler == null)
                 InnerHandler = new HttpClientHandler();
 
-            if (!await request.TryAuthenticate(authenticator, options.HideExceptionsAndReturnUnauthorized).ConfigureAwait(false))
+            if (!await request.TryAuthenticate(_authenticator, _options.HideExceptionsAndReturnUnauthorized).ConfigureAwait(false))
                 return new HttpResponseMessage(HttpStatusCode.Unauthorized) { RequestMessage = request };
 
             return await base
@@ -70,9 +70,9 @@ namespace Medidata.MAuth.WebApi
 
         private MAuthAuthenticator SetupMAuthAuthenticator(MAuthWebApiOptions opt)
         {
-            var loggerFactory = options.LoggerFactory ?? NullLoggerFactory.Instance;
+            var loggerFactory = _options.LoggerFactory ?? NullLoggerFactory.Instance;
             var logger = loggerFactory.CreateLogger(typeof(MAuthAuthenticatingHandler));
-            return new MAuthAuthenticator(options, logger);
+            return new MAuthAuthenticator(_options, logger);
         }
     }
 }
