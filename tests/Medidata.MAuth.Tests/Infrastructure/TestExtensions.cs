@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Newtonsoft.Json;
 using Medidata.MAuth.Core.Models;
-using Medidata.MAuth.Tests.ProtocolTestSuite;
 
 namespace Medidata.MAuth.Tests.Infrastructure
 {
@@ -124,23 +123,5 @@ namespace Medidata.MAuth.Tests.Infrastructure
 
         public static HttpMethod ToHttpMethod(this string method) => new HttpMethod(method);
 
-        public static MAuthSigningOptions ProtocolTestClientOptions(Guid clientUuid, 
-            string clientPrivateKey, DateTimeOffset signedTime) => new MAuthSigningOptions()
-        {
-            ApplicationUuid = clientUuid,
-            PrivateKey = clientPrivateKey,
-            SignedTime = signedTime
-        };
-
-        public static HttpRequestMessage ToHttpRequestMessage(this UnSignedRequest data)
-        {
-            var result = new HttpRequestMessage(new HttpMethod(data.Verb), new Uri($"https://example.com{data.Url}"))
-            {
-                Content = !string.IsNullOrEmpty(data.Body) 
-                    ? new ByteArrayContent(Convert.FromBase64String(data.Body)) : null,
-            };
-
-            return result;
-        }
     }
 }

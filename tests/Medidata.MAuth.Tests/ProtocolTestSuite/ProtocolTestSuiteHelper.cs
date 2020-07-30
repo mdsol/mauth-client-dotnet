@@ -53,23 +53,23 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
         public async Task<UnSignedRequest> LoadUnsignedRequest(string testCaseName)
         {
             var reqFilePath = Path.Combine(_testCasePath, testCaseName, $"{testCaseName}.req");
-            var unsignedRequest = await ReadRequestParameters(reqFilePath);
+            var unsignedRequest = await ReadUnsignedRequest(reqFilePath);
             unsignedRequest.Body = !string.IsNullOrEmpty(unsignedRequest.Body) 
                 ? Convert.ToBase64String(unsignedRequest.Body.ToBytes()) : unsignedRequest.Body;
 
             if (!string.IsNullOrEmpty(unsignedRequest.BodyFilePath))
             {
-                unsignedRequest.Body = GetTestRequestBody(testCaseName, unsignedRequest.BodyFilePath);
+                unsignedRequest.Body = await GetTestRequestBody(testCaseName, unsignedRequest.BodyFilePath);
             }
             return unsignedRequest;
         }
 
-        public string GetTestRequestBody(string caseName, string bodyFilepath)
+        public async Task<string> GetTestRequestBody(string caseName, string bodyFilepath)
         {
             if (string.IsNullOrEmpty(bodyFilepath))
                 return null;
             var completebodyFilePath = Path.Combine(_testCasePath, caseName, bodyFilepath);
-            var bytes = File.ReadAllBytes(completebodyFilePath);
+            var bytes = await ReadBytes(completebodyFilePath);
             return Convert.ToBase64String(bytes);
         }
 
@@ -100,7 +100,7 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
                 await ReadValueFromPath(authzFilePath));
         }
 
-        private async Task<UnSignedRequest> ReadRequestParameters(string requestPath) =>
+        private async Task<UnSignedRequest> ReadUnsignedRequest(string requestPath) =>
             JsonConvert.DeserializeObject<UnSignedRequest>(
                 await ReadValueFromPath(requestPath));
 
@@ -122,6 +122,16 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
             catch (Exception ex)
             {
                 return null;
+            }
+        }
+
+        private async Task<byte[]> ReadBytes(string filePath)
+        {
+            using (FileStream stream = File.OpenRead(filePath))
+            {
+                byte[] result = new byte[stream.Length];
+                await stream.ReadAsync(result, 0, (int)stream.Length);
+                return result;
             }
         }
     }

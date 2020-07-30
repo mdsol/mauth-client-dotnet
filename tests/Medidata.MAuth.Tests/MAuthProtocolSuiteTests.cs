@@ -2,7 +2,9 @@
 using Medidata.MAuth.Core.Models;
 using Medidata.MAuth.Tests.Infrastructure;
 using Microsoft.Extensions.Logging.Abstractions;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,10 +15,12 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
     public class MAuthProtocolSuiteTests
     {
         private readonly ProtocolTestSuiteHelper _protcolTestHelper;
+        private readonly MAuthCoreV2 _mAuthCore;
 
         public MAuthProtocolSuiteTests()
         {
             _protcolTestHelper = new ProtocolTestSuiteHelper();
+            _mAuthCore = new MAuthCoreV2();
         }
 
         [Theory, MemberData(nameof(TestCases))]
@@ -31,11 +35,11 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
             var authz = await _protcolTestHelper.ReadAuthenticationHeader(caseName);
 
             var actual = new AssertSigningHandler();
-            var clientOptions = TestExtensions.ProtocolTestClientOptions(
+            var clientOptions = ProtocolTestClientOptions(
                     signConfig.AppUuid, signConfig.PrivateKey, signConfig.RequestTime.FromUnixTimeSeconds());
             clientOptions.SignVersions = MAuthVersion.MWS | MAuthVersion.MWSV2;
             var signingHandler = new MAuthSigningHandler(clientOptions, actual);
-            var request = requestData.ToHttpRequestMessage();
+            var request = ToHttpRequestMessage(requestData);
 
             var authInfo = new PrivateKeyAuthenticationInfo()
             {
@@ -61,15 +65,14 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
 
                 // Verify payload matches digital signature
                 // Act
-                var actualPayload = await new MAuthCoreV2().CalculatePayload(request, authInfo);
+                var actualPayload = await _mAuthCore.CalculatePayload(request, authInfo);
 
                 // Assert
                 Assert.Equal(sig, actualPayload);
 
-
                 // Verify string_to_sign is matched
                 // Act 
-                var result = await new MAuthCoreV2().GetSignature(request, authInfo);
+                var result = await _mAuthCore.GetSignature(request, authInfo);
                 var sts = await _protcolTestHelper.ReadStringToSign(caseName);
 
                 // Assert
@@ -83,7 +86,7 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
                 var authenticator = new MAuthAuthenticator(
                     serverOptions, NullLogger<MAuthAuthenticator>.Instance);
 
-                var signedRequest = await new MAuthCoreV2()
+                var signedRequest = await _mAuthCore
                     .AddAuthenticationInfo(request, new PrivateKeyAuthenticationInfo()
                     {
                         ApplicationUuid = signConfig.AppUuid,
@@ -109,14 +112,27 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
                 if (cases is null)
                     return new List<object[]> { new object[] { string.Empty } };
 
-                var data = new List<object[]>();
-                foreach (string item in cases)
-                {
-                    data.Add(new object[] { item });
-                }
-
-                return data;
+                return cases.Select(tc => new object[] { tc });
             }
+        }
+
+        private static MAuthSigningOptions ProtocolTestClientOptions(Guid clientUuid,
+            string clientPrivateKey, DateTimeOffset signedTime) => new MAuthSigningOptions()
+            {
+                ApplicationUuid = clientUuid,
+                PrivateKey = clientPrivateKey,
+                SignedTime = signedTime
+            };
+
+        private static HttpRequestMessage ToHttpRequestMessage(UnSignedRequest data)
+        {
+            var result = new HttpRequestMessage(new HttpMethod(data.Verb), new Uri($"https://example.com{data.Url}"))
+            {
+                Content = !string.IsNullOrEmpty(data.Body)
+                    ? new ByteArrayContent(Convert.FromBase64String(data.Body)) : null,
+            };
+
+            return result;
         }
     }
 }
