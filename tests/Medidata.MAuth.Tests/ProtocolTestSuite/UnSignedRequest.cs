@@ -15,9 +15,5 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
 
         [JsonProperty(PropertyName = "body_filepath")]
         public string BodyFilePath { get; set; }
-
-        public string BodyResourcePath { get; }
-
-        public string QueryString { get; }
     }
 }
