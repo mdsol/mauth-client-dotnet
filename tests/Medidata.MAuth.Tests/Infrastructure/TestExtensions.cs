@@ -20,13 +20,13 @@ namespace Medidata.MAuth.Tests.Infrastructure
         public static readonly string ServerPrivateKey = GetKeyFromResource(nameof(ServerPrivateKey)).Result;
         public static readonly string ServerPublicKey = GetKeyFromResource(nameof(ServerPublicKey)).Result;
 
-        public static MAuthOptionsBase ServerOptions => new MAuthTestOptions()
+        public static MAuthOptionsBase ServerOptions(MAuthServerHandler serverHandler) => new MAuthTestOptions()
         {
             ApplicationUuid = ServerUuid,
             MAuthServiceUrl = TestUri,
             PrivateKey = ServerPrivateKey,
             MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.RetryOnce,
-            MAuthServerHandler = new MAuthServerHandler()
+            MAuthServerHandler = serverHandler
         };
 
         public static MAuthSigningOptions ClientOptions(DateTimeOffset signedTime) => new MAuthSigningOptions()
@@ -37,18 +37,18 @@ namespace Medidata.MAuth.Tests.Infrastructure
         };
 
         public static MAuthOptionsBase GetServerOptionsWithAttempts(MAuthServiceRetryPolicy policy,
-            bool shouldSucceedWithin) =>
-            new MAuthTestOptions()
+            bool shouldSucceedWithin, MAuthServerHandler serverHandler)
+        {
+            serverHandler.SucceedAfterThisManyAttempts = (int)policy + (shouldSucceedWithin ? 1 : 2);
+            return new MAuthTestOptions()
             {
                 ApplicationUuid = ServerUuid,
                 MAuthServiceUrl = TestUri,
                 PrivateKey = ServerPrivateKey,
                 MAuthServiceRetryPolicy = policy,
-                MAuthServerHandler = new MAuthServerHandler()
-                {
-                    SucceedAfterThisManyAttempts = (int)policy + (shouldSucceedWithin ? 1 : 2)
-                }
+                MAuthServerHandler = serverHandler
             };
+        }
 
         public static Task<string> GetStringFromResource(string resourceName)
         {

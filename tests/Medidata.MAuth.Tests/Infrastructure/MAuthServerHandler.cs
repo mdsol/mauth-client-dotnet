@@ -11,6 +11,8 @@ namespace Medidata.MAuth.Tests.Infrastructure
 {
     internal class MAuthServerHandler : HttpMessageHandler
     {
+        private MAuthServerHandler() { }
+
         private static readonly Guid _clientUuid = new Guid("192cce84-8466-490e-b03e-074f82da3ee2");
         private int _currentNumberOfAttempts = 0;
 
@@ -19,12 +21,18 @@ namespace Medidata.MAuth.Tests.Infrastructure
         private static string _signingPublicKey;
         private static Guid _signingAppUuid;
 
-        public async Task<MAuthServerHandler> InitializeAsync()
+        private async Task<MAuthServerHandler> InitializeAsync()
         {
             var protocolSuite = new ProtocolTestSuiteHelper();
             _signingPublicKey = await protocolSuite.GetPublicKey();
             _signingAppUuid = await protocolSuite.ReadSignInAppUuid();
             return this;
+        }
+
+        public static Task<MAuthServerHandler> CreateAsync()
+        {
+            var ret = new MAuthServerHandler();
+            return ret.InitializeAsync();
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(

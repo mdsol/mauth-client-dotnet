@@ -68,7 +68,8 @@ namespace Medidata.MAuth.Tests
                 });
 
             // Act
-            var isAuthenticated = await signedRequest.Authenticate(TestExtensions.ServerOptions, NullLogger.Instance);
+            var isAuthenticated = await signedRequest.Authenticate(
+                TestExtensions.ServerOptions(await MAuthServerHandler.CreateAsync()), NullLogger.Instance);
 
             // Assert
             Assert.True(isAuthenticated);
