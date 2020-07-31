@@ -48,7 +48,14 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
         public async Task<string> GetPublicKey()
         {
             var publicKeyFilePath = Path.Combine(_testSuitePath, "signing-params/rsa-key-pub");
-            return Encoding.UTF8.GetString(await ReadAsBytes(publicKeyFilePath));
+            try
+            {
+                return Encoding.UTF8.GetString(await ReadAsBytes(publicKeyFilePath));
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return null;
+            }
         }
 
         public async Task<UnSignedRequest> LoadUnsignedRequest(string testCaseName)
@@ -56,14 +63,14 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
             var reqFilePath = Path.Combine(_testCasePath, testCaseName, $"{testCaseName}.req");
             var unsignedRequest = await ReadUnsignedRequest(reqFilePath);
             unsignedRequest.Body = !string.IsNullOrEmpty(unsignedRequest.BodyFilePath)
-                ? await GetTestRequestBody(testCaseName, unsignedRequest.BodyFilePath)
+                ? await GetBinaryBody(testCaseName, unsignedRequest.BodyFilePath)
                 : !string.IsNullOrEmpty(unsignedRequest.Body) 
                     ? Convert.ToBase64String(unsignedRequest.Body.ToBytes()) : unsignedRequest.Body;
 
             return unsignedRequest;
         }
 
-        public async Task<string> GetTestRequestBody(string caseName, string bodyFilepath)
+        public async Task<string> GetBinaryBody(string caseName, string bodyFilepath)
         {
             if (string.IsNullOrEmpty(bodyFilepath))
                 return null;
@@ -105,8 +112,15 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
 
         private async Task<SigningConfig> ReadSigningConfigParameters(string signingConfigJson)
         {
-            var signingConfig = Encoding.UTF8.GetString(await ReadAsBytes(signingConfigJson));
-            return signingConfig != null ? JsonConvert.DeserializeObject<SigningConfig>(signingConfig) : null;
+            try
+            {
+                var signingConfigBytes = await ReadAsBytes(signingConfigJson);
+                return JsonConvert.DeserializeObject<SigningConfig>(Encoding.UTF8.GetString(signingConfigBytes));
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return null;
+            }
         }
 
         private async Task<byte[]> ReadAsBytes(string filePath)

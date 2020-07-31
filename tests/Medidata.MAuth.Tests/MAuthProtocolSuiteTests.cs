@@ -37,7 +37,7 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
             var actual = new AssertSigningHandler();
             var clientOptions = ProtocolTestClientOptions(
                     signConfig.AppUuid, signConfig.PrivateKey, signConfig.RequestTime.FromUnixTimeSeconds());
-            clientOptions.SignVersions = MAuthVersion.MWS | MAuthVersion.MWSV2;
+            clientOptions.SignVersions = MAuthVersion.MWSV2;
             var signingHandler = new MAuthSigningHandler(clientOptions, actual);
             var request = ToHttpRequestMessage(requestData);
 
@@ -80,9 +80,7 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
             }
             else
             {
-                var serverOptions = TestExtensions.ServerOptions;
-                serverOptions.MAuthServerHandler = await new MAuthServerHandler().InitializeAsync();
-
+                var serverOptions = TestExtensions.ServerOptions(await MAuthServerHandler.CreateAsync());
                 var authenticator = new MAuthAuthenticator(
                     serverOptions, NullLogger<MAuthAuthenticator>.Instance);
 
