@@ -11,7 +11,7 @@ To run tests, go the folder `mauth-client-dotnet\tests\Medidata.MAuth.Tests`
 Next, run the tests as:
 
 ```
-dotnet test
+dotnet xunit -notrait "Category=ProtocolTestSuite"
 ```
 
 ## Running mauth-protocol-test-suite
@@ -21,5 +21,5 @@ Then navigate to :`mauth-client-dotnet\tests\Medidata.MAuth.Tests`
 And, run the tests as:
 
 ```
-dotnet test --filter "FullyQualifiedName~MAuthProtocolSuiteTests"
+dotnet xunit -trait "Category=ProtocolTestSuite"
 ```

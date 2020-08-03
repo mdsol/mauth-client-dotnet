@@ -24,11 +24,9 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
         }
 
         [Theory, MemberData(nameof(TestCases))]
+        [Trait("Category","ProtocolTestSuite")]
         public async Task MAuth_Execute_ProtocolTestSuite(string caseName)
         {
-            if (string.IsNullOrEmpty(caseName))
-                return;
-
             // Arrange
             var signConfig = await _protcolTestHelper.LoadSigningConfig();
             var requestData = await _protcolTestHelper.LoadUnsignedRequest(caseName);
@@ -100,19 +98,9 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
             }
         }
 
-        public static IEnumerable<object[]> TestCases
-        {
-            get
-            {
-                // Or this could read from a file. :)
-                var cases = new ProtocolTestSuiteHelper().GetTestCases();
-
-                if (cases is null)
-                    return new List<object[]> { new object[] { string.Empty } };
-
-                return cases.Select(tc => new object[] { tc });
-            }
-        }
+        public static IEnumerable<object[]> TestCases =>
+            new ProtocolTestSuiteHelper().GetTestCases()
+            .Select(tc => new object[] { tc });
 
         private static MAuthSigningOptions ProtocolTestClientOptions(Guid clientUuid,
             string clientPrivateKey, DateTimeOffset signedTime) => new MAuthSigningOptions()
