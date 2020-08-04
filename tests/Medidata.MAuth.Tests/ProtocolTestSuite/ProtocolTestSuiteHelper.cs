@@ -48,6 +48,8 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
         public async Task<string> GetPublicKey()
         {
             var publicKeyFilePath = Path.Combine(_testSuitePath, "signing-params/rsa-key-pub");
+
+            // TODO: remove this try catch when "mauth-protocol-test-suite" is added as submodule
             try
             {
                 return Encoding.UTF8.GetString(await ReadAsBytes(publicKeyFilePath));
@@ -112,6 +114,7 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
 
         private async Task<SigningConfig> ReadSigningConfigParameters(string signingConfigJson)
         {
+            // TODO: remove this try catch when "mauth-protocol-test-suite" is added as submodule
             try
             {
                 var signingConfigBytes = await ReadAsBytes(signingConfigJson);
