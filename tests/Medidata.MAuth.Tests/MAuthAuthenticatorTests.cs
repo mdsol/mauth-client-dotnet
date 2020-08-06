@@ -44,7 +44,8 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResource();
-            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions, NullLogger<MAuthAuthenticator>.Instance);
+            var serverHandler = await MAuthServerHandler.CreateAsync();
+            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions(serverHandler), NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCore();
 
             var signedRequest = await mAuthCore
@@ -72,7 +73,8 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await method.FromResourceV2();
             var version = MAuthVersion.MWSV2;
-            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions, NullLogger<MAuthAuthenticator>.Instance);
+            var serverHandler = await MAuthServerHandler.CreateAsync();
+            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions(serverHandler), NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCoreV2();
 
             var signedRequest = await mAuthCore
@@ -101,9 +103,9 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await "GET".FromResourceV2();
-
+            var serverHandler = await MAuthServerHandler.CreateAsync();
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
-                policy, shouldSucceedWithin: true), NullLogger<MAuthAuthenticator>.Instance);
+                policy, shouldSucceedWithin: true, serverHandler), NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCoreV2();
 
             var signedRequest = await mAuthCore
@@ -132,8 +134,9 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await "GET".FromResourceV2();
             var version = MAuthVersion.MWSV2;
+            var serverHandler = await MAuthServerHandler.CreateAsync();
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
-                policy, shouldSucceedWithin: true), NullLogger<MAuthAuthenticator>.Instance);
+                policy, shouldSucceedWithin: true, serverHandler), NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCoreV2();
 
             var signedRequest = await mAuthCore
@@ -161,9 +164,9 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await "GET".FromResource();
-
+            var serverHandler = await MAuthServerHandler.CreateAsync();
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
-                policy, shouldSucceedWithin: false), NullLogger<MAuthAuthenticator>.Instance);
+                policy, shouldSucceedWithin: false, serverHandler), NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCore();
 
             var signedRequest = await mAuthCore
@@ -197,8 +200,10 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await "GET".FromResource();
             var version = MAuthVersion.MWSV2;
+            var serverHandler = await MAuthServerHandler.CreateAsync();
+
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
-                policy, shouldSucceedWithin: false), NullLogger<MAuthAuthenticator>.Instance);
+                policy, shouldSucceedWithin: false, serverHandler), NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCoreV2();
 
             var signedRequest = await mAuthCore
@@ -278,7 +283,7 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResource();
-            var testOptions = TestExtensions.ServerOptions;
+            var testOptions = TestExtensions.ServerOptions(await MAuthServerHandler.CreateAsync());
             testOptions.DisableV1 = true;
             var authenticator = new MAuthAuthenticator(testOptions, NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCore();
@@ -310,7 +315,7 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await method.FromResourceV2();
             var version = MAuthVersion.MWSV2;
-            var testOptions = TestExtensions.ServerOptions;
+            var testOptions = TestExtensions.ServerOptions(await MAuthServerHandler.CreateAsync());
             var mAuthCore = MAuthCoreFactory.Instantiate(version);
 
             // Act
@@ -332,7 +337,7 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await method.FromResource();
             var version = MAuthVersion.MWS;
-            var testOptions = TestExtensions.ServerOptions;
+            var testOptions = TestExtensions.ServerOptions(await MAuthServerHandler.CreateAsync());
             var mAuthCore = MAuthCoreFactory.Instantiate(version);
 
             // Act
@@ -350,8 +355,8 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await "GET".FromResource();
             var mockLogger = new Mock<ILogger>();
-
-            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions, mockLogger.Object);
+            var serverHandler = await MAuthServerHandler.CreateAsync();
+            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions(serverHandler), mockLogger.Object);
             var requestData = testData.ToDefaultHttpRequestMessage();
 
             // Act
@@ -373,7 +378,7 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await "GET".FromResource();
             var mockLogger = new Mock<ILogger>();
-            var testOptions = TestExtensions.ServerOptions;
+            var testOptions = TestExtensions.ServerOptions(await MAuthServerHandler.CreateAsync());
             testOptions.DisableV1 = true;
 
             var authenticator = new MAuthAuthenticator(testOptions, mockLogger.Object);

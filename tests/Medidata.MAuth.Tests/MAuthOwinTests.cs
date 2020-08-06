@@ -23,6 +23,7 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResourceV2();
+            var serverHandler = await MAuthServerHandler.CreateAsync();
 
             using (var server = TestServer.Create(app =>
             {
@@ -31,7 +32,7 @@ namespace Medidata.MAuth.Tests
                     options.ApplicationUuid = TestExtensions.ServerUuid;
                     options.MAuthServiceUrl = TestExtensions.TestUri;
                     options.PrivateKey = TestExtensions.ServerPrivateKey;
-                    options.MAuthServerHandler = new MAuthServerHandler();
+                    options.MAuthServerHandler = serverHandler;
                 });
 
                 app.Run(async context => await context.Response.WriteAsync("Done."));
@@ -54,6 +55,7 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResource();
+            var serverHandler = await MAuthServerHandler.CreateAsync();
 
             using (var server = TestServer.Create(app =>
             {
@@ -62,7 +64,7 @@ namespace Medidata.MAuth.Tests
                     options.ApplicationUuid = TestExtensions.ServerUuid;
                     options.MAuthServiceUrl = TestExtensions.TestUri;
                     options.PrivateKey = TestExtensions.ServerPrivateKey;
-                    options.MAuthServerHandler = new MAuthServerHandler();
+                    options.MAuthServerHandler = serverHandler;
                 });
 
                 app.Run(async context => await context.Response.WriteAsync("Done."));
@@ -86,6 +88,7 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResource();
+            var serverHandler = await MAuthServerHandler.CreateAsync();
 
             using (var server = TestServer.Create(app =>
             {
@@ -94,7 +97,7 @@ namespace Medidata.MAuth.Tests
                     options.ApplicationUuid = TestExtensions.ServerUuid;
                     options.MAuthServiceUrl = TestExtensions.TestUri;
                     options.PrivateKey = TestExtensions.ServerPrivateKey;
-                    options.MAuthServerHandler = new MAuthServerHandler();
+                    options.MAuthServerHandler = serverHandler;
                     options.HideExceptionsAndReturnUnauthorized = false;
                 });
 
@@ -122,6 +125,7 @@ namespace Medidata.MAuth.Tests
             var testData = await method.FromResourceV2();
             var canSeek = false;
             var body = string.Empty;
+            var serverHandler = await MAuthServerHandler.CreateAsync();
 
             using (var server = WebApp.Start("http://localhost:29999/", app =>
             {
@@ -130,7 +134,7 @@ namespace Medidata.MAuth.Tests
                     options.ApplicationUuid = TestExtensions.ServerUuid;
                     options.MAuthServiceUrl = TestExtensions.TestUri;
                     options.PrivateKey = TestExtensions.ServerPrivateKey;
-                    options.MAuthServerHandler = new MAuthServerHandler();
+                    options.MAuthServerHandler = serverHandler;
                 });
 
                 app.Run(async context =>

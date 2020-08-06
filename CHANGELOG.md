@@ -4,6 +4,8 @@
  - **[Core]** Added normalization of Uri AbsolutePath.
  - **[Core]** Added unescape step in query_string encoding to remove `double encoding`.
  - **[Core]** Replace `DisableV1`option with `SignVersions` option and change the default signing to `MAuthVersion.MWS` only.
+ - **[Core]** Added parsing code to test with mauth-protocol-test-suite.
+ - **[Core]** Fixed bug in sorting of query parameters.
 
 ## v4.0.2
 - **[AspNetCore]** Update aspnetcore version to aspnetcore2.1 LTS.

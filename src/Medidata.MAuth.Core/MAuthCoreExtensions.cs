@@ -188,33 +188,27 @@ namespace Medidata.MAuth.Core
                 return string.Empty;
 
             var queryArray = queryString.Split('&');
+            var unescapedKeysAndValues = new KeyValuePair<string, string>[queryArray.Length];
 
             // unescaping
             for (int i = 0; i < queryArray.Length; i++)
             {
                 var keyValue = queryArray[i].Split('=');
-                var unEscapedKey = Uri.UnescapeDataString(keyValue[0]);
-                var unEscapedValue = Uri.UnescapeDataString(keyValue[1]);
-                queryArray[i] = $"{unEscapedKey}={unEscapedValue}";
+                unescapedKeysAndValues[i] = new KeyValuePair<string, string>(
+                    Uri.UnescapeDataString(keyValue[0]), Uri.UnescapeDataString(keyValue[1]));
             }
 
-            // sorting
-            Array.Sort(queryArray, StringComparer.Ordinal);
-
-            // escaping
-            for (int i = 0; i < queryArray.Length; i++)
-            {
-                var keyValue = queryArray[i].Split('=');
-                var escapedKey = Uri.EscapeDataString(keyValue[0]);
-                var escapedValue = Uri.EscapeDataString(keyValue[1]);
-                queryArray[i] = $"{escapedKey}={escapedValue}";
-            }
+            // sorting and escaping
+            var escapedKeyValues = unescapedKeysAndValues
+                .OrderBy(kv => kv.Key, StringComparer.Ordinal)
+                .ThenBy(kv => kv.Value, StringComparer.Ordinal)
+                .Select(kv => $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value)}");
 
             // Above encoding converts space as `%20` and `+` as `%2B`
             // But space and `+` both needs to be converted as `%20` as per
             // reference https://github.com/mdsol/mauth-client-ruby/blob/v6.0.0/lib/mauth/request_and_response.rb#L113
             // so this convert `%2B` into `%20` to match encodedqueryparams to that of other languages.
-            return string.Join("&", queryArray).Replace("%2B", "%20");
+            return string.Join("&", escapedKeyValues).Replace("%2B", "%20");
         }
 
         /// <summary>

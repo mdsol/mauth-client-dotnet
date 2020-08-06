@@ -21,13 +21,14 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await method.FromResource();
             var actual = new AssertSigningHandler();
+            var serverHandler = await MAuthServerHandler.CreateAsync();
 
             var handler = new MAuthAuthenticatingHandler(new MAuthWebApiOptions()
             {
                 ApplicationUuid = TestExtensions.ServerUuid,
                 MAuthServiceUrl = TestExtensions.TestUri,
                 PrivateKey = TestExtensions.ServerPrivateKey,
-                MAuthServerHandler = new MAuthServerHandler()
+                MAuthServerHandler = serverHandler
             }, actual);
 
             using (var server = new HttpClient(handler))
@@ -53,12 +54,14 @@ namespace Medidata.MAuth.Tests
             var testData = await method.FromResourceV2();
             var actual = new AssertSigningHandler();
             var version = MAuthVersion.MWSV2;
+            var serverHandler = await MAuthServerHandler.CreateAsync();
+
             var handler = new MAuthAuthenticatingHandler(new MAuthWebApiOptions()
             {
                 ApplicationUuid = TestExtensions.ServerUuid,
                 MAuthServiceUrl = TestExtensions.TestUri,
                 PrivateKey = TestExtensions.ServerPrivateKey,
-                MAuthServerHandler = new MAuthServerHandler()
+                MAuthServerHandler = serverHandler
             }, actual);
 
             using (var server = new HttpClient(handler))
@@ -82,13 +85,14 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResource();
+            var serverHandler = await MAuthServerHandler.CreateAsync();
 
             var handler = new MAuthAuthenticatingHandler(new MAuthWebApiOptions()
             {
                 ApplicationUuid = TestExtensions.ServerUuid,
                 MAuthServiceUrl = TestExtensions.TestUri,
                 PrivateKey = TestExtensions.ServerPrivateKey,
-                MAuthServerHandler = new MAuthServerHandler()
+                MAuthServerHandler = serverHandler
             });
 
             using (var server = new HttpClient(handler))
@@ -111,13 +115,14 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResource();
+            var serverHandler = await MAuthServerHandler.CreateAsync();
 
             var handler = new MAuthAuthenticatingHandler(new MAuthWebApiOptions()
             {
                 ApplicationUuid = TestExtensions.ServerUuid,
                 MAuthServiceUrl = TestExtensions.TestUri,
                 PrivateKey = TestExtensions.ServerPrivateKey,
-                MAuthServerHandler = new MAuthServerHandler(),
+                MAuthServerHandler = serverHandler,
                 HideExceptionsAndReturnUnauthorized = false
             });
 
