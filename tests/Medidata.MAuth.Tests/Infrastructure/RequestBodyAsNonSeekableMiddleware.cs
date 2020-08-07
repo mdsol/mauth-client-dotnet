@@ -6,9 +6,9 @@ namespace Medidata.MAuth.Tests.Infrastructure
 {
     internal class RequestBodyAsNonSeekableMiddleware
     {
-        private readonly RequestDelegate next;
+        private readonly RequestDelegate _next;
 
-        public RequestBodyAsNonSeekableMiddleware(RequestDelegate next) => this.next = next;
+        public RequestBodyAsNonSeekableMiddleware(RequestDelegate next) => _next = next;
 
         public async Task Invoke(HttpContext context)
         {
@@ -18,7 +18,7 @@ namespace Medidata.MAuth.Tests.Infrastructure
                 context.Request.Body = body;
             }
 
-            await next.Invoke(context);
+            await _next.Invoke(context);
         }
     }
 }

@@ -114,9 +114,8 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
         // The following can be either a path to the key file or the contents of the file itself
         PrivateKey = "ClientPrivateKey.pem",
 
-        // when ready to disable authentication of V1 protocol else default is false
-        // signs with both V1 and V2.
-        DisableV1 = true
+        // Enumerations of signing protocols, if not provided defaults to `MAuthVersion.MWS`for sign-in.
+        SignVersions = MAuthVersion.MWS | MAuthVersion.MWSV2
     });
 
     using (var client = new HttpClient(signingHandler))
@@ -125,10 +124,12 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
     }
 }
 ```
-With the release of support for MAuth V2 protocol, by default MAuth request signs with both V1 and V2 protocol.
-Also by default, `DisableV1` option is set to false (if not included). When we are ready to 
-disable all the V1 request, then we need to include this disable option as : `DisableV1 = true`. 
-Signing with V2 protocol supports query string.
+The `SignVersions` parameter can be used to specify which protocol version to sign outgoing requests. Like as:  
+`SignVersions = MAuthVersion.MWS`: signs with `MWS` protocol only.  
+`SignVersions = MAuthVersion.MWS | MAuthVersion.MWSV2` : signs with both `MWS` and `MWSV2` protocol.  
+If not supplied, it sign by `MWS` protocol by default.
+
+Signing with `MWSV2` protocol supports query string.
 
 The example above is creating a new instance of a `HttpClient` with the handler responsible for signing the
 requests and sends the request to its designation. Finally it returns the response from the remote server.
@@ -139,7 +140,7 @@ The `MAuthSigningOptions` has the following properties to determine the required
 | ---- | ----------- |
 | **ApplicationUuid** | Determines the unique identifier of the client application used for the MAuth service authentication requests.  This uuid needs to be registered with the MAuth Server in order for the authenticating server application to be able to authenticate the signed request. |
 | **PrivateKey** | Determines the RSA private key of the client for signing a request. This key must be in a PEM ASN.1 format. The value of this property can be set as a valid path to a readable key file as well. |
-| **DisableV1** | Determines the boolean value which controls whether to disable the signing requests with V1 protocol or not. If not supplied, this value is `false`. |
+| **SignVersions** | (optional) Enumerations of MAuth protocol versions to sign requests. If not supplied, defaults to `MWS`.
 
 ### Authenticating Incoming Requests with the OWIN and ASP.NET Core Middlewares
 
@@ -329,6 +330,11 @@ of V1 protcol, we are still maintaining the BouncyCastle library as mentioned be
 On the .NET Framework side (WebAPI, Owin, Core) we are using the latest version (as of date 1.81) of the
 [BouncyCastle](https://github.com/bcgit/bc-csharp) library; on the .NET Standard side (Core, AspNetCore) we are using
 the portable fork of the [BouncyCastle](https://github.com/onovotny/BouncyCastle-PCL) library.
+
+##### What are the major changes in the 5.0.0 version?
+In this version we have removed the property `DisableV1` from `MAuthSigningOptions`. Instead, we have added new option as 
+`SignVersions` in `MAuthSigningOptions` which takes enumeration values of MAuth protcol versions `MWS` and/ or `MWSV2` protocol. 
+If this option is not provided, then it will sign in by `MWS` protocol as default. 
 
 ##### What are the major changes in the 4.0.0 version?
 

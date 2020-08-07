@@ -59,7 +59,7 @@ namespace Medidata.MAuth.Core
         public async Task<byte[]> GetSignature(HttpRequestMessage request, AuthenticationInfo authInfo)
         {
             var encodedHttpVerb = request.Method.Method.ToBytes();
-            var encodedResourceUriPath = request.RequestUri.AbsolutePath.ToBytes();
+            var encodedResourceUriPath = request.RequestUri.AbsolutePath.NormalizeUriPath().ToBytes();
             var encodedAppUUid = authInfo.ApplicationUuid.ToHyphenString().ToBytes();
 
             var requestBody = request.Content != null ?
@@ -67,8 +67,10 @@ namespace Medidata.MAuth.Core
             var requestBodyDigest = requestBody.AsSHA512Hash();
 
             var encodedCurrentSecondsSinceEpoch = authInfo.SignedTime.ToUnixTimeSeconds().ToString().ToBytes();
-            var encodedQueryParams = !string.IsNullOrEmpty(request.RequestUri.Query) ?
-                request.RequestUri.Query.Replace("?", "").BuildEncodedQueryParams().ToBytes() : new byte[] { };
+            var queryString = request.RequestUri.Query;
+            var encodedQueryParams = !string.IsNullOrEmpty(queryString) 
+                ? queryString.Substring(1).BuildEncodedQueryParams().ToBytes()
+                : new byte[] { };
 
             return new byte[][]
             {

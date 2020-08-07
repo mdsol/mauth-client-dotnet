@@ -184,17 +184,53 @@ namespace Medidata.MAuth.Core
         /// <returns>EncodedQueryParameter string.</returns>
         public static string BuildEncodedQueryParams(this string queryString)
         {
-            var encodedQueryStrings = new List<string>();
+            if (string.IsNullOrEmpty(queryString))
+                return string.Empty;
+
             var queryArray = queryString.Split('&');
-            Array.Sort(queryArray, StringComparer.Ordinal);
-            Array.ForEach(queryArray, x =>
+            var unescapedKeysAndValues = new KeyValuePair<string, string>[queryArray.Length];
+
+            // unescaping
+            for (int i = 0; i < queryArray.Length; i++)
             {
-                var keyValue = x.Split('=');
-                var escapedKey = Uri.EscapeDataString(keyValue[0]);
-                var escapedValue = Uri.EscapeDataString(keyValue[1]);
-                encodedQueryStrings.Add($"{escapedKey}={escapedValue}");
-            });
-            return string.Join("&", encodedQueryStrings);
+                var keyValue = queryArray[i].Split('=');
+                unescapedKeysAndValues[i] = new KeyValuePair<string, string>(
+                    Uri.UnescapeDataString(keyValue[0]), Uri.UnescapeDataString(keyValue[1]));
+            }
+
+            // sorting and escaping
+            var escapedKeyValues = unescapedKeysAndValues
+                .OrderBy(kv => kv.Key, StringComparer.Ordinal)
+                .ThenBy(kv => kv.Value, StringComparer.Ordinal)
+                .Select(kv => $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value)}");
+
+            // Above encoding converts space as `%20` and `+` as `%2B`
+            // But space and `+` both needs to be converted as `%20` as per
+            // reference https://github.com/mdsol/mauth-client-ruby/blob/v6.0.0/lib/mauth/request_and_response.rb#L113
+            // so this convert `%2B` into `%20` to match encodedqueryparams to that of other languages.
+            return string.Join("&", escapedKeyValues).Replace("%2B", "%20");
+        }
+
+        /// <summary>
+        /// Normalizes the UriPath
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns>Normalized Uri Resource Path</returns>
+        public static string NormalizeUriPath(this string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return string.Empty;
+
+            // Normalize percent encoding to uppercase i.e. %cf%80 => %CF%80
+            var matches = Constants.LowerCaseHexPattern.Matches(path);
+            var normalizedPath = new StringBuilder(path);
+            foreach(var item in matches)
+            {
+                normalizedPath.Replace(item.ToString(), item.ToString().ToUpper());
+            }
+
+            // Replaces multiple slashes into single "/"
+            return Constants.SlashPattern.Replace(normalizedPath.ToString(), "/");
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Medidata.MAuth.Tests.Infrastructure
             MAuthTimeHeaderV2 = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthTimeHeaderKeyV2);
             MAuthTimeHeader = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthTimeHeaderKey);
 
-            return Task.Run(() => new HttpResponseMessage(HttpStatusCode.OK));
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
         }
     }
 }

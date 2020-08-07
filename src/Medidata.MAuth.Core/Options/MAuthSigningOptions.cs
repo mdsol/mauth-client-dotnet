@@ -1,5 +1,6 @@
-﻿using System;
-using Medidata.MAuth.Core.Models;
+﻿using Medidata.MAuth.Core.Models;
+using System;
+using System.Collections.Generic;
 
 namespace Medidata.MAuth.Core
 {
@@ -23,8 +24,8 @@ namespace Medidata.MAuth.Core
         internal DateTimeOffset? SignedTime { get; set; }
 
         /// <summary>
-        /// Determines the boolean value if V1 option of signing should be disabled or not with default value of false.
+        /// Enumeration values of MAuth protocol versions to sign requests, if not provided defaults to `MWS`.
         /// </summary>
-        public bool DisableV1 { get; set; } = false;
+        public MAuthVersion SignVersions { get; set; } = MAuthVersion.MWS;
     }
 }
