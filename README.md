@@ -125,10 +125,11 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
     }
 }
 ```
-The `SignVersions` parameter can be used to specify which protocol version to sign outgoing requests. Like as:
-`SignVersions = MAuthVersion.MWS`: signs with `MWS` protocol only.
-`SignVersions = MAuthVersion.MWS | MAuthVersion.MWSV2` : signs with both `MWS` and `MWSV2` protocol.
-If not supplied, it sign by `MWS` protocol by default.
+
+The `SignVersions` parameter can be used to specify which protocol version to sign outgoing requests with:
+- `SignVersions = MAuthVersion.MWS`: signs with the `MWS` protocol only.
+- `SignVersions = MAuthVersion.MWS | MAuthVersion.MWSV2` : signs with both the `MWS` and the `MWSV2` protocol.
+If not supplied, it signs with the `MWS` protocol by default.
 
 Signing with `MWSV2` protocol supports query string.
 
@@ -327,9 +328,9 @@ for authenticating the incoming requests.
 
 ##### What Cryptographic provider is used for the encryption/decryption?
 
-In the latest version of 4.0.0, we are using the available dotnet security [System.Security.Cryptography] which works
-for both **.NET Framework 4.6.1** and **.NET Standard 2.0** in case of V2 protocol. However, for the continue support
-of V1 protcol, we are still maintaining the BouncyCastle library as mentioned below.
+In the latest version of 4.0.0, we are using the available dotnet security [System.Security.Cryptography](https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography?view=dotnet-plat-ext-3.1)
+which works for both **.NET Framework 4.6.1** and **.NET Standard 2.0** when using the V2 protocol.
+However, to also support the V1 protcol, we are still maintaining the BouncyCastle library as mentioned below.
 
 On the .NET Framework side (WebAPI, Owin, Core) we are using the latest version (as of date 1.81) of the
 [BouncyCastle](https://github.com/bcgit/bc-csharp) library; on the .NET Standard side (Core, AspNetCore) we are using
