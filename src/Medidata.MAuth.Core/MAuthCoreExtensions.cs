@@ -144,10 +144,13 @@ namespace Medidata.MAuth.Core
             return stream;
         }
 
-        public static string Dereference(this string keyPathOrKey) =>
+        public static string Inflate(this string keyPathOrKey) =>
+            keyPathOrKey?.Dereference().NormalizeLines();
+
+        private static string Dereference(this string keyPathOrKey) =>
             keyPathOrKey.IsValidPath() ? File.ReadAllText(keyPathOrKey) : keyPathOrKey;
 
-        public static string NormalizeLines(this string key) =>
+        private static string NormalizeLines(this string key) =>
             key.RemoveLineBreaks().InsertLineBreakAfterBegin().InsertLineBreakBeforeEnd();
 
         private static bool IsValidPath(this string value) =>
