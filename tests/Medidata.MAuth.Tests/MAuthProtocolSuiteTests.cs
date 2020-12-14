@@ -63,14 +63,14 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
 
                 // Verify payload matches digital signature
                 // Act
-                var actualPayload = await _mAuthCore.CalculatePayload(request, authInfo);
+                var actualPayload = await _mAuthCore.CalculatePayloadAsync(request, authInfo);
 
                 // Assert
                 Assert.Equal(sig, actualPayload);
 
                 // Verify string_to_sign is matched
                 // Act 
-                var result = await _mAuthCore.GetSignature(request, authInfo);
+                var result = await _mAuthCore.GetSignatureAsync(request, authInfo);
                 var sts = await _protcolTestHelper.ReadStringToSign(caseName);
 
                 // Assert
@@ -83,7 +83,7 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
                     serverOptions, NullLogger<MAuthAuthenticator>.Instance);
 
                 var signedRequest = await _mAuthCore
-                    .AddAuthenticationInfo(request, new PrivateKeyAuthenticationInfo()
+                    .AddAuthenticationInfoAsync(request, new PrivateKeyAuthenticationInfo()
                     {
                         ApplicationUuid = signConfig.AppUuid,
                         PrivateKey = signConfig.PrivateKey,

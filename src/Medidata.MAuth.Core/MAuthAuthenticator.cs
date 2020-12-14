@@ -102,7 +102,7 @@ namespace Medidata.MAuth.Core
             var authInfo = GetAuthenticationInfo(request, mAuthCore);
             var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid).ConfigureAwait(false);
 
-            var signature = await mAuthCore.GetSignature(request, authInfo).ConfigureAwait(false);
+            var signature = await mAuthCore.GetSignatureAsync(request, authInfo).ConfigureAwait(false);
             return mAuthCore.Verify(authInfo.Payload, signature, appInfo.PublicKey);
         }
 

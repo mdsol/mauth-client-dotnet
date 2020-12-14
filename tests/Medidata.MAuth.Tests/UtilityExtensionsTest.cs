@@ -60,7 +60,7 @@ namespace Medidata.MAuth.Tests
             var mAuthCore = new MAuthCore();
 
             var signedRequest = await mAuthCore
-                .AddAuthenticationInfo(testData.ToDefaultHttpRequestMessage(), new PrivateKeyAuthenticationInfo()
+                .AddAuthenticationInfoAsync(testData.ToDefaultHttpRequestMessage(), new PrivateKeyAuthenticationInfo()
                 {
                     ApplicationUuid = testData.ApplicationUuid,
                     PrivateKey = TestExtensions.ClientPrivateKey,

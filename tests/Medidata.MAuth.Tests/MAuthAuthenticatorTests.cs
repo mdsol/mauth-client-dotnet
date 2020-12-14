@@ -49,7 +49,7 @@ namespace Medidata.MAuth.Tests
             var mAuthCore = new MAuthCore();
 
             var signedRequest = await mAuthCore
-                .AddAuthenticationInfo(testData.ToHttpRequestMessage(MAuthVersion.MWS), new PrivateKeyAuthenticationInfo()
+                .AddAuthenticationInfoAsync(testData.ToHttpRequestMessage(MAuthVersion.MWS), new PrivateKeyAuthenticationInfo()
                 {
                     ApplicationUuid = testData.ApplicationUuid,
                     PrivateKey = TestExtensions.ClientPrivateKey,
@@ -78,7 +78,7 @@ namespace Medidata.MAuth.Tests
             var mAuthCore = new MAuthCoreV2();
 
             var signedRequest = await mAuthCore
-                .AddAuthenticationInfo(testData.ToHttpRequestMessage(version), new PrivateKeyAuthenticationInfo()
+                .AddAuthenticationInfoAsync(testData.ToHttpRequestMessage(version), new PrivateKeyAuthenticationInfo()
                 {
                     ApplicationUuid = testData.ApplicationUuid,
                     PrivateKey = TestExtensions.ClientPrivateKey,
@@ -109,7 +109,7 @@ namespace Medidata.MAuth.Tests
             var mAuthCore = new MAuthCoreV2();
 
             var signedRequest = await mAuthCore
-                .AddAuthenticationInfo(testData.ToDefaultHttpRequestMessage(),new PrivateKeyAuthenticationInfo()
+                .AddAuthenticationInfoAsync(testData.ToDefaultHttpRequestMessage(),new PrivateKeyAuthenticationInfo()
                 {
                     ApplicationUuid = testData.ApplicationUuid,
                     PrivateKey = TestExtensions.ClientPrivateKey,
@@ -140,7 +140,7 @@ namespace Medidata.MAuth.Tests
             var mAuthCore = new MAuthCoreV2();
 
             var signedRequest = await mAuthCore
-                .AddAuthenticationInfo(testData.ToHttpRequestMessage(version), new PrivateKeyAuthenticationInfo()
+                .AddAuthenticationInfoAsync(testData.ToHttpRequestMessage(version), new PrivateKeyAuthenticationInfo()
                 {
                     ApplicationUuid = testData.ApplicationUuid,
                     PrivateKey = TestExtensions.ClientPrivateKey,
@@ -170,7 +170,7 @@ namespace Medidata.MAuth.Tests
             var mAuthCore = new MAuthCore();
 
             var signedRequest = await mAuthCore
-                .AddAuthenticationInfo(testData.ToHttpRequestMessage(),new PrivateKeyAuthenticationInfo()
+                .AddAuthenticationInfoAsync(testData.ToHttpRequestMessage(),new PrivateKeyAuthenticationInfo()
                 {
                     ApplicationUuid = testData.ApplicationUuid,
                     PrivateKey = TestExtensions.ClientPrivateKey,
@@ -207,7 +207,7 @@ namespace Medidata.MAuth.Tests
             var mAuthCore = new MAuthCoreV2();
 
             var signedRequest = await mAuthCore
-                .AddAuthenticationInfo(testData.ToHttpRequestMessage(version), new PrivateKeyAuthenticationInfo()
+                .AddAuthenticationInfoAsync(testData.ToHttpRequestMessage(version), new PrivateKeyAuthenticationInfo()
                 {
                     ApplicationUuid = testData.ApplicationUuid,
                     PrivateKey = TestExtensions.ClientPrivateKey,
@@ -239,7 +239,7 @@ namespace Medidata.MAuth.Tests
             var mAuthCore = new MAuthCore();
 
             // Act
-            var actual = await mAuthCore.Sign(testData.ToHttpRequestMessage(),TestExtensions.ClientOptions(testData.SignedTime));
+            var actual = await mAuthCore.SignAsync(testData.ToHttpRequestMessage(),TestExtensions.ClientOptions(testData.SignedTime));
 
             // Assert
             Assert.Equal(expectedMAuthHeader, actual.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey));
@@ -263,7 +263,7 @@ namespace Medidata.MAuth.Tests
             var mAuthCore = new MAuthCoreV2();
 
             // Act
-            var actual = await mAuthCore.Sign(testData.ToHttpRequestMessage(version), TestExtensions.ClientOptions(testData.SignedTime));
+            var actual = await mAuthCore.SignAsync(testData.ToHttpRequestMessage(version), TestExtensions.ClientOptions(testData.SignedTime));
 
             // Assert
             Assert.Equal(expectedMAuthHeader, actual.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKeyV2));
@@ -289,7 +289,7 @@ namespace Medidata.MAuth.Tests
             var mAuthCore = new MAuthCore();
 
             var signedRequest = await mAuthCore
-                .AddAuthenticationInfo(testData.ToHttpRequestMessage(), new PrivateKeyAuthenticationInfo()
+                .AddAuthenticationInfoAsync(testData.ToHttpRequestMessage(), new PrivateKeyAuthenticationInfo()
                 {
                     ApplicationUuid = testData.ApplicationUuid,
                     PrivateKey = TestExtensions.ClientPrivateKey,

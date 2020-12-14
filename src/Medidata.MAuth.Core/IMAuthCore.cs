@@ -5,12 +5,17 @@ namespace Medidata.MAuth.Core
 {
     internal interface IMAuthCore
     {
-        Task<HttpRequestMessage> Sign(HttpRequestMessage request, MAuthSigningOptions options);
+        Task<HttpRequestMessage> SignAsync(HttpRequestMessage request, MAuthSigningOptions options);
 
         bool Verify(byte[] signedData, byte[] signature, string publicKey);
 
-        Task<byte[]> GetSignature(HttpRequestMessage request, AuthenticationInfo authInfo);
+        Task<byte[]> GetSignatureAsync(HttpRequestMessage request, AuthenticationInfo authInfo);
 
         (string mAuthHeaderKey, string mAuthTimeHeaderKey) GetHeaderKeys();
+
+#if NET5_0
+
+        HttpRequestMessage Sign(HttpRequestMessage request, MAuthSigningOptions options);
+#endif
     }
 }

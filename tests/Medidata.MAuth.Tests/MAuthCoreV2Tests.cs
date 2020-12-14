@@ -32,7 +32,7 @@ namespace Medidata.MAuth.Tests
             };
 
             // Act
-            var result = await mAuthCore.CalculatePayload(testData.ToHttpRequestMessage(version), authInfo);
+            var result = await mAuthCore.CalculatePayloadAsync(testData.ToHttpRequestMessage(version), authInfo);
 
             // Assert
             Assert.Equal(testData.Payload, result);
@@ -46,7 +46,7 @@ namespace Medidata.MAuth.Tests
             var mAuthCore = new MAuthCoreV2();
             var version = MAuthVersion.MWSV2;
             // Act
-            var result = await mAuthCore.CalculatePayload(testData.ToHttpRequestMessage(version), new PrivateKeyAuthenticationInfo()
+            var result = await mAuthCore.CalculatePayloadAsync(testData.ToHttpRequestMessage(version), new PrivateKeyAuthenticationInfo()
             {
                 ApplicationUuid = testData.ApplicationUuid,
                 SignedTime = testData.SignedTime,
@@ -111,7 +111,7 @@ namespace Medidata.MAuth.Tests
             };
 
             // Act
-            var result = await mAuthCore.GetSignature(testData.ToHttpRequestMessage(version), authInfo);
+            var result = await mAuthCore.GetSignatureAsync(testData.ToHttpRequestMessage(version), authInfo);
 
             // Assert
             Assert.Equal(expectedSignature, result);
@@ -138,7 +138,7 @@ namespace Medidata.MAuth.Tests
             };
 
             // Act
-            var actual = await mAuthCore.AddAuthenticationInfo(testData.ToHttpRequestMessage(version), authInfo);
+            var actual = await mAuthCore.AddAuthenticationInfoAsync(testData.ToHttpRequestMessage(version), authInfo);
 
             // Assert
             Assert.Equal(expectedMAuthHeader, actual.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKeyV2));

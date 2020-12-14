@@ -40,6 +40,7 @@ namespace Medidata.MAuth.Core
             _options = options;
         }
 
+
         /// <summary>
         /// Signs an HTTP request with the MAuth-specific authentication information and sends the request to the
         /// inner handler to send to the server as an asynchronous operation.
@@ -59,7 +60,7 @@ namespace Medidata.MAuth.Core
                 if (_options.SignVersions.HasFlag(version))
                 {
                     var mAuthCore = MAuthCoreFactory.Instantiate(version);
-                    request = await mAuthCore.Sign(request, _options).ConfigureAwait(false);
+                    request = await mAuthCore.SignAsync(request, _options).ConfigureAwait(false);
                 }
             }
 
@@ -67,5 +68,35 @@ namespace Medidata.MAuth.Core
                 .SendAsync(request, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
+
+
+#if NET5_0
+        /// <summary>
+        /// Signs an HTTP request with the MAuth-specific authentication information and sends the request to the
+        /// inner handler to send to the server as an asynchronous operation.
+        /// </summary>
+        /// <param name="request">The HTTP request message to sign and send to the server.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel operation.</param>
+        /// <returns>Returns <see cref="Task{HttpResponseMessage}"/>. The task object representing the asynchronous
+        /// operation.</returns>
+        protected override HttpResponseMessage Send(
+            HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            if (InnerHandler == null)
+                InnerHandler = new HttpClientHandler();
+
+            foreach (MAuthVersion version in Enum.GetValues(typeof(MAuthVersion)))
+            {
+                if (_options.SignVersions.HasFlag(version))
+                {
+                    var mAuthCore = MAuthCoreFactory.Instantiate(version);
+                    request = mAuthCore.Sign(request, _options);
+                }
+            }
+
+            return base
+                .Send(request, cancellationToken); ;
+        }
+#endif
     }
 }
