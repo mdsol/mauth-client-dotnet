@@ -69,7 +69,6 @@ namespace Medidata.MAuth.Core
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
 
-
 #if NET5_0
         /// <summary>
         /// Signs an HTTP request with the MAuth-specific authentication information and sends the request to the

@@ -98,8 +98,6 @@ namespace Medidata.MAuth.Core
             return request;
         }
 
-      
-
         /// <summary>
         /// Calculates the payload information based on the request and the authentication information.
         /// </summary>
@@ -120,9 +118,6 @@ namespace Medidata.MAuth.Core
             return Convert.ToBase64String(signer.ProcessBlock(unsignedData, 0, unsignedData.Length));
         }
 
-
-       
-
         /// <summary>
         /// Gets the MAuthHeader and MAuthTimeHeader keys
         /// </summary>
@@ -131,7 +126,6 @@ namespace Medidata.MAuth.Core
         {
             return (Constants.MAuthHeaderKey, Constants.MAuthTimeHeaderKey);
         }
-
 
  #if NET5_0
         public HttpRequestMessage SignSync(HttpRequestMessage request, MAuthSigningOptions options)
