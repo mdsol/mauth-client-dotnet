@@ -60,7 +60,7 @@ namespace Medidata.MAuth.Core
                 if (_options.SignVersions.HasFlag(version))
                 {
                     var mAuthCore = MAuthCoreFactory.Instantiate(version);
-                    request = await mAuthCore.SignAsync(request, _options).ConfigureAwait(false);
+                    request = await mAuthCore.Sign(request, _options).ConfigureAwait(false);
                 }
             }
 
@@ -73,7 +73,7 @@ namespace Medidata.MAuth.Core
 #if NET5_0
         /// <summary>
         /// Signs an HTTP request with the MAuth-specific authentication information and sends the request to the
-        /// inner handler to send to the server as an asynchronous operation.
+        /// inner handler to send to the server a synchronous operation.
         /// </summary>
         /// <param name="request">The HTTP request message to sign and send to the server.</param>
         /// <param name="cancellationToken">A cancellation token to cancel operation.</param>
@@ -90,7 +90,7 @@ namespace Medidata.MAuth.Core
                 if (_options.SignVersions.HasFlag(version))
                 {
                     var mAuthCore = MAuthCoreFactory.Instantiate(version);
-                    request = mAuthCore.Sign(request, _options);
+                    request = mAuthCore.SignSync(request, _options);
                 }
             }
 

@@ -31,7 +31,7 @@ namespace Medidata.MAuth.Tests
             };
 
             // Act
-            var result = await mAuthCore.CalculatePayloadAsync(testData.ToHttpRequestMessage(), authInfo);
+            var result = await mAuthCore.CalculatePayload(testData.ToHttpRequestMessage(), authInfo);
 
             // Assert
             Assert.Equal(testData.Payload, result);
@@ -84,7 +84,7 @@ namespace Medidata.MAuth.Tests
             };
 
             // Act
-            var result = await mAuthCore.GetSignatureAsync(testData.ToHttpRequestMessage(), authInfo);
+            var result = await mAuthCore.GetSignature(testData.ToHttpRequestMessage(), authInfo);
 
             // Assert
             Assert.Equal(expectedSignature, result);
@@ -98,7 +98,7 @@ namespace Medidata.MAuth.Tests
             var mAuthCore = new MAuthCore();
 
             // Act
-            var result = await mAuthCore.CalculatePayloadAsync(testData.ToHttpRequestMessage(), new PrivateKeyAuthenticationInfo()
+            var result = await mAuthCore.CalculatePayload(testData.ToHttpRequestMessage(), new PrivateKeyAuthenticationInfo()
             {
                 ApplicationUuid = testData.ApplicationUuid,
                 SignedTime = testData.SignedTime,
@@ -129,7 +129,7 @@ namespace Medidata.MAuth.Tests
             };
 
             // Act
-            var actual = await mAuthCore.AddAuthenticationInfoAsync(testData.ToHttpRequestMessage(), authInfo);
+            var actual = await mAuthCore.AddAuthenticationInfo(testData.ToHttpRequestMessage(), authInfo);
 
             // Assert
             Assert.Equal(expectedMAuthHeader, actual.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey));

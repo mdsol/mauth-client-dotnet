@@ -47,7 +47,7 @@ namespace Medidata.MAuth.Tests.Infrastructure
             var authInfo = MAuthAuthenticator.GetAuthenticationInfo(request, mAuthCore);
 
             if (!mAuthCore.Verify(authInfo.Payload, 
-                await mAuthCore.GetSignatureAsync(request, authInfo),
+                await mAuthCore.GetSignature(request, authInfo),
                 TestExtensions.ServerPublicKey
             ))
                 return new HttpResponseMessage(HttpStatusCode.Unauthorized) { RequestMessage = request };

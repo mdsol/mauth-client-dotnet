@@ -20,15 +20,16 @@ namespace Medidata.MAuth.Core
         /// <returns>
         /// A Task object which will result the request signed with the authentication information when it completes.
         /// </returns>
-        public Task<HttpRequestMessage> SignAsync(HttpRequestMessage request, MAuthSigningOptions options)
+        public Task<HttpRequestMessage> Sign(HttpRequestMessage request, MAuthSigningOptions options)
         {
-            return AddAuthenticationInfoAsync(request, new PrivateKeyAuthenticationInfo()
+            return AddAuthenticationInfo(request, new PrivateKeyAuthenticationInfo()
             {
                 ApplicationUuid = options.ApplicationUuid,
                 SignedTime = options.SignedTime ?? DateTimeOffset.UtcNow,
                 PrivateKey = options.PrivateKey.Dereference().NormalizeLines()
             });
         }
+
 
         /// <summary>
         /// Verifies that the signed data is equal to the signature by using the public key of the keypair which
@@ -60,7 +61,7 @@ namespace Medidata.MAuth.Core
         /// The <see cref="AuthenticationInfo"/> which holds the application uuid and the time of the signature.
         /// </param>
         /// <returns>A Task object which will result the SHA512 hash of the signature when it completes.</returns>
-        public async Task<byte[]> GetSignatureAsync(HttpRequestMessage request, AuthenticationInfo authInfo)
+        public async Task<byte[]> GetSignature(HttpRequestMessage request, AuthenticationInfo authInfo)
         {
            return new byte[][]
                 {
@@ -85,11 +86,11 @@ namespace Medidata.MAuth.Core
         /// <returns>
         /// A Task object which will result the request with the authentication information added when it completes.
         /// </returns>
-        internal async Task<HttpRequestMessage> AddAuthenticationInfoAsync(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
+        internal async Task<HttpRequestMessage> AddAuthenticationInfo(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
         {
             var authHeader =
                 $"{MAuthVersion.MWS} {authInfo.ApplicationUuid.ToHyphenString()}:" +
-                $"{await CalculatePayloadAsync(request, authInfo).ConfigureAwait(false)}";
+                $"{await CalculatePayload(request, authInfo).ConfigureAwait(false)}";
 
             request.Headers.Add(Constants.MAuthHeaderKey, authHeader);
             request.Headers.Add(Constants.MAuthTimeHeaderKey, authInfo.SignedTime.ToUnixTimeSeconds().ToString());
@@ -97,8 +98,7 @@ namespace Medidata.MAuth.Core
             return request;
         }
 
-
-
+      
 
         /// <summary>
         /// Calculates the payload information based on the request and the authentication information.
@@ -111,14 +111,15 @@ namespace Medidata.MAuth.Core
         /// signature and the private key.
         /// </param>
         /// <returns>A task object which will result the payload as a Base64 encoded string when completed.</returns>
-        internal async Task<string> CalculatePayloadAsync(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
+        internal async Task<string> CalculatePayload(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
         {
-            var unsignedData = await GetSignatureAsync(request, authInfo).ConfigureAwait(false);
+            var unsignedData = await GetSignature(request, authInfo).ConfigureAwait(false);
             var signer = new Pkcs1Encoding(new RsaEngine());
             signer.Init(true, authInfo.PrivateKey.AsCipherParameters());
 
             return Convert.ToBase64String(signer.ProcessBlock(unsignedData, 0, unsignedData.Length));
         }
+
 
        
 
@@ -131,71 +132,16 @@ namespace Medidata.MAuth.Core
             return (Constants.MAuthHeaderKey, Constants.MAuthTimeHeaderKey);
         }
 
-#if NET5_0
-        /// <summary>
-        /// Composes a signature as a SHA512 hash to be signed based on the request and authentication information.
-        /// </summary>
-        /// <param name="request">
-        /// The request which has the information (method, url and content) for the signature.
-        /// </param>
-        /// <param name="authInfo">
-        /// The <see cref="AuthenticationInfo"/> which holds the application uuid and the time of the signature.
-        /// </param>
-        /// <returns>A Task object which will result the SHA512 hash of the signature when it completes.</returns>
-        public byte[] GetSignature(HttpRequestMessage request, AuthenticationInfo authInfo)
+
+ #if NET5_0
+        public HttpRequestMessage SignSync(HttpRequestMessage request, MAuthSigningOptions options)
         {
-            using var memoryStream = new MemoryStream();
-
-            if (request.Content is null)
-            {
-                request.Content.ReadAsStream().CopyTo(memoryStream);
-            }
-
-            return new byte[][]
-                 {
-                    request.Method.Method.ToBytes(), Constants.NewLine,
-                    request.RequestUri.AbsolutePath.ToBytes(), Constants.NewLine,
-                    memoryStream.ToArray(),
-                    Constants.NewLine,
-                    authInfo.ApplicationUuid.ToHyphenString().ToBytes(), Constants.NewLine,
-                    authInfo.SignedTime.ToUnixTimeSeconds().ToString().ToBytes()
-                 }
-                 .Concat()
-                 .AsSHA512Hash();
-        }
-
-
-        public HttpRequestMessage Sign(HttpRequestMessage request, MAuthSigningOptions options)
-        {
-            return AddAuthenticationInfo(request, new PrivateKeyAuthenticationInfo()
+            return AddAuthenticationInfoSync(request, new PrivateKeyAuthenticationInfo()
             {
                 ApplicationUuid = options.ApplicationUuid,
                 SignedTime = options.SignedTime ?? DateTimeOffset.UtcNow,
                 PrivateKey = options.PrivateKey.Dereference().NormalizeLines()
             });
-        }
-
-
-        /// <summary>
-        /// Adds authentication information to a <see cref="HttpRequestMessage"/>. 
-        /// </summary>
-        /// <param name="request">The request to add the information to.</param>
-        /// <param name="authInfo">
-        /// The authentication information with a private key to calculate the payload with.
-        /// </param>
-        /// <returns>
-        /// A Task object which will result the request with the authentication information added when it completes.
-        /// </returns>
-        internal HttpRequestMessage AddAuthenticationInfo(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
-        {
-            var authHeader =
-                $"{MAuthVersion.MWS} {authInfo.ApplicationUuid.ToHyphenString()}:" +
-                $"{CalculatePayload(request, authInfo)}";
-
-            request.Headers.Add(Constants.MAuthHeaderKey, authHeader);
-            request.Headers.Add(Constants.MAuthTimeHeaderKey, authInfo.SignedTime.ToUnixTimeSeconds().ToString());
-
-            return request;
         }
 
         /// <summary>
@@ -209,9 +155,9 @@ namespace Medidata.MAuth.Core
         /// signature and the private key.
         /// </param>
         /// <returns>A task object which will result the payload as a Base64 encoded string when completed.</returns>
-        internal string CalculatePayload(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
+        internal string CalculatePayloadSync(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
         {
-            var unsignedData = GetSignature(request, authInfo);
+            var unsignedData = GetSignatureSync(request, authInfo);
             var signer = new Pkcs1Encoding(new RsaEngine());
             signer.Init(true, authInfo.PrivateKey.AsCipherParameters());
 
@@ -219,7 +165,61 @@ namespace Medidata.MAuth.Core
         }
 
 
+        /// <summary>
+        /// Composes a signature as a SHA512 hash to be signed based on the request and authentication information.
+        /// </summary>
+        /// <param name="request">
+        /// The request which has the information (method, url and content) for the signature.
+        /// </param>
+        /// <param name="authInfo">
+        /// The <see cref="AuthenticationInfo"/> which holds the application uuid and the time of the signature.
+        /// </param>
+        /// <returns>A Task object which will result the SHA512 hash of the signature when it completes.</returns>
+        public byte[] GetSignatureSync(HttpRequestMessage request, AuthenticationInfo authInfo)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                if (request.Content is null)
+                {
+                    request.Content.ReadAsStream().CopyTo(memoryStream);
+                }
 
+                return new byte[][]
+                     {
+                        request.Method.Method.ToBytes(), Constants.NewLine,
+                        request.RequestUri.AbsolutePath.ToBytes(), Constants.NewLine,
+                        memoryStream.ToArray(),
+                        Constants.NewLine,
+                        authInfo.ApplicationUuid.ToHyphenString().ToBytes(), Constants.NewLine,
+                        authInfo.SignedTime.ToUnixTimeSeconds().ToString().ToBytes()
+                     }
+                     .Concat()
+                     .AsSHA512Hash();
+            }
+        }
+
+        /// <summary>
+        /// Adds authentication information to a <see cref="HttpRequestMessage"/>. 
+        /// </summary>
+        /// <param name="request">The request to add the information to.</param>
+        /// <param name="authInfo">
+        /// The authentication information with a private key to calculate the payload with.
+        /// </param>
+        /// <returns>
+        /// A Task object which will result the request with the authentication information added when it completes.
+        /// </returns>
+        internal HttpRequestMessage AddAuthenticationInfoSync(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo)
+        {
+            var authHeader =
+                $"{MAuthVersion.MWS} {authInfo.ApplicationUuid.ToHyphenString()}:" +
+                $"{CalculatePayloadSync(request, authInfo)}";
+
+            request.Headers.Add(Constants.MAuthHeaderKey, authHeader);
+            request.Headers.Add(Constants.MAuthTimeHeaderKey, authInfo.SignedTime.ToUnixTimeSeconds().ToString());
+
+            return request;
+        }
 #endif
+
     }
 }
