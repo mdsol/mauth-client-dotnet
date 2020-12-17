@@ -19,7 +19,7 @@ namespace Medidata.MAuth.Core
         {
             using (var memoryStream = new MemoryStream())
             {
-                if (request.Content is null)
+                if (request.Content != null)
                 {
                     request.Content.ReadAsStream().CopyTo(memoryStream);
                 }
