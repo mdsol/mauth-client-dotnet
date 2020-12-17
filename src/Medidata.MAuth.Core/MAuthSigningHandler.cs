@@ -40,7 +40,6 @@ namespace Medidata.MAuth.Core
             _options = options;
         }
 
-
         /// <summary>
         /// Signs an HTTP request with the MAuth-specific authentication information and sends the request to the
         /// inner handler to send to the server as an asynchronous operation.
