@@ -66,7 +66,7 @@ namespace Medidata.MAuth.Core
         public async Task<byte[]> GetSignature(HttpRequestMessage request, AuthenticationInfo authInfo)
         {
             var contents = await request.GetRequestContentAsBytesAsync().ConfigureAwait(false);
-            return GetSignatureInternal(request, authInfo, contents);
+            return GenerateSignature(request, authInfo, contents);
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace Medidata.MAuth.Core
         /// The request body as a byte array.
         /// </param>
         /// <returns>A Task object which will result the SHA512 hash of the signature when it completes.</returns>
-        internal byte[] GetSignatureInternal(HttpRequestMessage request, AuthenticationInfo authInfo, byte[] requestContents)
+        internal byte[] GenerateSignature(HttpRequestMessage request, AuthenticationInfo authInfo, byte[] requestContents)
         {
             return new byte[][]
                  {
@@ -138,7 +138,7 @@ namespace Medidata.MAuth.Core
         /// <returns>A task object which will result the payload as a Base64 encoded string when completed.</returns>
         internal string CalculatePayload(HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo, byte[] requestContent)
         {
-            var unsignedData =  GetSignatureInternal(request, authInfo, requestContent);
+            var unsignedData =  GenerateSignature(request, authInfo, requestContent);
             var signer = new Pkcs1Encoding(new RsaEngine());
             signer.Init(true, authInfo.PrivateKey.AsCipherParameters());
 

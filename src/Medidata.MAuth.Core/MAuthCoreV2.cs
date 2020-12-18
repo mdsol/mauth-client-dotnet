@@ -62,7 +62,7 @@ namespace Medidata.MAuth.Core
         public async Task<byte[]> GetSignature(HttpRequestMessage request, AuthenticationInfo authInfo)
         {
             var requestContents = await request.GetRequestContentAsBytesAsync().ConfigureAwait(false);
-            return GetSignatureInternal(request, authInfo, requestContents);
+            return GenerateSignature(request, authInfo, requestContents);
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Medidata.MAuth.Core
         /// The request body as a byte array.
         /// </param>
         /// <returns>A Task object which will result the byte value of signature when it completes.</returns>
-        internal byte[] GetSignatureInternal(HttpRequestMessage request, AuthenticationInfo authInfo, byte[] requestContents)
+        internal byte[] GenerateSignature(HttpRequestMessage request, AuthenticationInfo authInfo, byte[] requestContents)
         {
             var encodedHttpVerb = request.Method.Method.ToBytes();
             var encodedResourceUriPath = request.RequestUri.AbsolutePath.NormalizeUriPath().ToBytes();
@@ -149,7 +149,7 @@ namespace Medidata.MAuth.Core
             HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo, byte[] requestContents)
         {
             
-            var unsignedData = GetSignatureInternal(request, authInfo, requestContents);
+            var unsignedData = GenerateSignature(request, authInfo, requestContents);
             var signer = new RSACryptoServiceProvider();
             signer.PersistKeyInCsp = false;
             signer.ImportParameters(authInfo.PrivateKey.AsRsaParameters());
@@ -187,6 +187,6 @@ namespace Medidata.MAuth.Core
             var requestContents = request.GetRequestContentAsBytes();
             return AddAuthenticationInfo(request, authInfo, requestContents);
         }
-        #endif
+#endif
     }
 }

@@ -5,7 +5,7 @@
     <Copyright>Copyright © Medidata Solutions, Inc. 2017</Copyright>
     <AssemblyTitle>Medidata.MAuth.Tests</AssemblyTitle>
     <Authors>Medidata Solutions, Inc.</Authors>
-    <TargetFrameworks>net461;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>net461;netcoreapp2.1;net5.0</TargetFrameworks>
     <AssemblyName>Medidata.MAuth.Tests</AssemblyName>
     <PackageId>Medidata.MAuth.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
@@ -61,6 +61,14 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
+    <ProjectReference Include="..\..\src\Medidata.MAuth.AspNetCore\Medidata.MAuth.AspNetCore.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.1.1" />
+    <Compile Remove="MAuthOwinTests.cs" />
+    <Compile Remove="MAuthWebApiTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
     <ProjectReference Include="..\..\src\Medidata.MAuth.AspNetCore\Medidata.MAuth.AspNetCore.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.1.1" />

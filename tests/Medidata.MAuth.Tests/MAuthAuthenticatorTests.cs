@@ -254,6 +254,55 @@ namespace Medidata.MAuth.Tests
             Assert.Equal(HttpStatusCode.ServiceUnavailable, innerException.Responses.First().StatusCode);
         }
 
+ #if NET5_0
+        [Theory]
+        [InlineData("GET")]
+        [InlineData("DELETE")]
+        [InlineData("POST")]
+        [InlineData("PUT")]
+        public static void SignRequestSync_WithMWSValidRequest_WillSignProperly(string method)
+        {
+            // Arrange
+            var testData = method.FromResourceSync();
+            var expectedMAuthHeader = testData.MAuthHeader;
+            var mAuthCore = new MAuthCore();
+
+            // Act
+            var actual = mAuthCore.SignSync(testData.ToHttpRequestMessage(), TestExtensions.ClientOptions(testData.SignedTime));
+
+            // Assert
+            Assert.Equal(expectedMAuthHeader, actual.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey));
+            Assert.Equal(
+                testData.SignedTime.ToUnixTimeSeconds(),
+                actual.Headers.GetFirstValueOrDefault<long>(Constants.MAuthTimeHeaderKey)
+            );
+        }
+
+        [Theory]
+        [InlineData("GET")]
+        [InlineData("DELETE")]
+        [InlineData("POST")]
+        [InlineData("PUT")]
+        public static void SignRequestSync_WithMWSV2ValidRequest_WillSignProperly(string method)
+        {
+            // Arrange
+            var testData = method.FromResourceV2Sync();
+            var version = MAuthVersion.MWSV2;
+            var expectedMAuthHeader = testData.MAuthHeaderV2;
+            var mAuthCore = new MAuthCoreV2();
+
+            // Act
+            var actual = mAuthCore.SignSync(testData.ToHttpRequestMessage(version), TestExtensions.ClientOptions(testData.SignedTime));
+
+            // Assert
+            Assert.Equal(expectedMAuthHeader, actual.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKeyV2));
+            Assert.Equal(
+                testData.SignedTime.ToUnixTimeSeconds(),
+                actual.Headers.GetFirstValueOrDefault<long>(Constants.MAuthTimeHeaderKeyV2)
+            );
+        }
+#endif
+
         [Theory]
         [InlineData("GET")]
         [InlineData("DELETE")]
