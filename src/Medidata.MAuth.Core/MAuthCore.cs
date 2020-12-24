@@ -25,7 +25,7 @@ namespace Medidata.MAuth.Core
             {
                 ApplicationUuid = options.ApplicationUuid,
                 SignedTime = options.SignedTime ?? DateTimeOffset.UtcNow,
-                PrivateKey = options.PrivateKey.Dereference().NormalizeLines()
+                PrivateKey = options.PrivateKey
             });
         }
 

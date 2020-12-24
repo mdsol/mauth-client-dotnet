@@ -112,7 +112,6 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
         ApplicationUuid = new Guid("7c872d75-986b-4c61-bb17-f2569d42bfb0"),
 
         // The following can be either a path to the key file or the contents of the file itself
-        // NOTE: if given a path, the file is read every time, no caching of the contents takes place
         PrivateKey = "ClientPrivateKey.pem",
 
         // Enumerations of signing protocols, if not provided defaults to `MAuthVersion.MWS`for sign-in.
@@ -168,7 +167,6 @@ public class Startup
             options.AuthenticateRequestTimeoutSeconds = 3;
             options.MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.RetryOnce;
             options.HideExceptionsAndReturnUnauthorized = true;
-            // NOTE: if given a path, the file is read every time, no caching of the contents takes place
             options.PrivateKey = "ServerPrivateKey.pem";
             options.Bypass = (request) => request.Uri.AbsolutePath.StartsWith("/allowed");
 
@@ -205,7 +203,6 @@ public class Startup
             options.AuthenticateRequestTimeoutSeconds = 3;
             options.MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.RetryOnce;
             options.HideExceptionsAndReturnUnauthorized = true;
-            // NOTE: if given a path, the file is read every time, no caching of the contents takes place
             options.PrivateKey = "ServerPrivateKey.pem";
             options.Bypass = (request) => request.Uri.AbsolutePath.StartsWith("/allowed");
 
@@ -269,7 +266,6 @@ public static class WebApiConfig
             AuthenticateRequestTimeoutSeconds = 3,
             MAuthServiceRetryPolicy = MAuthServiceRetryPolicy.RetryOnce,
             HideExceptionsAndReturnUnauthorized = true,
-            // NOTE: if given a path, the file is read every time, no caching of the contents takes place
             PrivateKey = "ServerPrivateKey.pem",
 
             // when ready to disable authentication of V1 protococl
