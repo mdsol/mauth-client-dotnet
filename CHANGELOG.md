@@ -1,4 +1,7 @@
 # Changes in Medidata.MAuth
+## v5.1.0
+- **[Core]** Added multi-target for .NET 5 to support synchronus HttpClient requests.  
+- **[Core]** Updated MAuthSigningHandler to sign synchronus requests.  
 
 ## v5.0.1
 - **[Core]** Inflate private key upon set in options classes.
