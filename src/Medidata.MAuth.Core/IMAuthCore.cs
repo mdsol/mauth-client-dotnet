@@ -12,5 +12,9 @@ namespace Medidata.MAuth.Core
         Task<byte[]> GetSignature(HttpRequestMessage request, AuthenticationInfo authInfo);
 
         (string mAuthHeaderKey, string mAuthTimeHeaderKey) GetHeaderKeys();
+
+#if NET5_0
+        HttpRequestMessage SignSync(HttpRequestMessage request, MAuthSigningOptions options);
+#endif
     }
 }

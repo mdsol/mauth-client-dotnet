@@ -63,7 +63,9 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
 
                 // Verify payload matches digital signature
                 // Act
-                var actualPayload = await _mAuthCore.CalculatePayload(request, authInfo);
+                var requestContents = await request.GetRequestContentAsBytesAsync();
+
+                var actualPayload = _mAuthCore.CalculatePayload(request, authInfo, requestContents);
 
                 // Assert
                 Assert.Equal(sig, actualPayload);
@@ -82,13 +84,16 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
                 var authenticator = new MAuthAuthenticator(
                     serverOptions, NullLogger<MAuthAuthenticator>.Instance);
 
-                var signedRequest = await _mAuthCore
-                    .AddAuthenticationInfo(request, new PrivateKeyAuthenticationInfo()
-                    {
-                        ApplicationUuid = signConfig.AppUuid,
-                        PrivateKey = signConfig.PrivateKey,
-                        SignedTime = signConfig.RequestTime.FromUnixTimeSeconds()
-                    });
+                var privateKeyAuthenticationInfo = new PrivateKeyAuthenticationInfo()
+                {
+                    ApplicationUuid = signConfig.AppUuid,
+                    PrivateKey = signConfig.PrivateKey,
+                    SignedTime = signConfig.RequestTime.FromUnixTimeSeconds()
+                };
+
+                var requestContents = await request.GetRequestContentAsBytesAsync();
+                var signedRequest = _mAuthCore
+                    .AddAuthenticationInfo(request, privateKeyAuthenticationInfo, requestContents);
 
                 // Act
                 var isAuthenticated = await authenticator.AuthenticateRequest(signedRequest);

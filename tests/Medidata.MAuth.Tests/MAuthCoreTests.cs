@@ -30,8 +30,11 @@ namespace Medidata.MAuth.Tests
                 PrivateKey = TestExtensions.ClientPrivateKey
             };
 
+            var request = testData.ToHttpRequestMessage();
+            var requestContents = await request.GetRequestContentAsBytesAsync();
+
             // Act
-            var result = await mAuthCore.CalculatePayload(testData.ToHttpRequestMessage(), authInfo);
+            var result = mAuthCore.CalculatePayload(request, authInfo, requestContents);
 
             // Assert
             Assert.Equal(testData.Payload, result);
@@ -97,13 +100,19 @@ namespace Medidata.MAuth.Tests
             var testData = await "POSTWithBinaryData".FromResource();
             var mAuthCore = new MAuthCore();
 
-            // Act
-            var result = await mAuthCore.CalculatePayload(testData.ToHttpRequestMessage(), new PrivateKeyAuthenticationInfo()
+            var authInfo = new PrivateKeyAuthenticationInfo()
             {
                 ApplicationUuid = testData.ApplicationUuid,
                 SignedTime = testData.SignedTime,
                 PrivateKey = TestExtensions.ClientPrivateKey
-            });
+            };
+
+            var request = testData.ToHttpRequestMessage();
+            var requestContents = await request.GetRequestContentAsBytesAsync();
+
+            // Act
+
+            var result = mAuthCore.CalculatePayload(request, authInfo, requestContents);
 
             // Assert
             Assert.Equal(testData.Payload, result);
@@ -128,8 +137,11 @@ namespace Medidata.MAuth.Tests
                 PrivateKey = TestExtensions.ClientPrivateKey
             };
 
+            var request = testData.ToHttpRequestMessage();
+            var requestContents = await request.GetRequestContentAsBytesAsync();
+
             // Act
-            var actual = await mAuthCore.AddAuthenticationInfo(testData.ToHttpRequestMessage(), authInfo);
+            var actual = mAuthCore.AddAuthenticationInfo(request, authInfo, requestContents);
 
             // Assert
             Assert.Equal(expectedMAuthHeader, actual.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey));

@@ -31,8 +31,11 @@ namespace Medidata.MAuth.Tests
                 PrivateKey = TestExtensions.ClientPrivateKey
             };
 
+            var request = testData.ToHttpRequestMessage(version);
+            var requestContents = await request.GetRequestContentAsBytesAsync();
+
             // Act
-            var result = await mAuthCore.CalculatePayload(testData.ToHttpRequestMessage(version), authInfo);
+            var result = mAuthCore.CalculatePayload(testData.ToHttpRequestMessage(version), authInfo, requestContents);
 
             // Assert
             Assert.Equal(testData.Payload, result);
@@ -45,13 +48,19 @@ namespace Medidata.MAuth.Tests
             var testData = await "POSTWithBinaryData".FromResourceV2();
             var mAuthCore = new MAuthCoreV2();
             var version = MAuthVersion.MWSV2;
-            // Act
-            var result = await mAuthCore.CalculatePayload(testData.ToHttpRequestMessage(version), new PrivateKeyAuthenticationInfo()
+
+            var authInfo = new PrivateKeyAuthenticationInfo()
             {
                 ApplicationUuid = testData.ApplicationUuid,
                 SignedTime = testData.SignedTime,
                 PrivateKey = TestExtensions.ClientPrivateKey
-            });
+            };
+
+            var request = testData.ToHttpRequestMessage(version);
+            var requestContents = await request.GetRequestContentAsBytesAsync();
+
+            // Act
+            var result = mAuthCore.CalculatePayload(request, authInfo, requestContents);
 
             // Assert
             Assert.Equal(testData.Payload, result);
@@ -89,8 +98,8 @@ namespace Medidata.MAuth.Tests
             var version = MAuthVersion.MWSV2;
             var mAuthCore = new MAuthCoreV2();
             var queryParams = !string.IsNullOrEmpty(testData.Url.Query) ?
-                testData.Url.Query.Replace("?","").BuildEncodedQueryParams().ToBytes() :new byte[] { };
-            var content = !string.IsNullOrEmpty(testData.Base64Content) ? 
+                testData.Url.Query.Replace("?", "").BuildEncodedQueryParams().ToBytes() : new byte[] { };
+            var content = !string.IsNullOrEmpty(testData.Base64Content) ?
                 Convert.FromBase64String(testData.Base64Content)
                 : new byte[] { };
 
@@ -137,8 +146,12 @@ namespace Medidata.MAuth.Tests
                 PrivateKey = TestExtensions.ClientPrivateKey
             };
 
+
+            var request = testData.ToHttpRequestMessage(version);
+            var requestContents = await request.GetRequestContentAsBytesAsync();
+
             // Act
-            var actual = await mAuthCore.AddAuthenticationInfo(testData.ToHttpRequestMessage(version), authInfo);
+            var actual = mAuthCore.AddAuthenticationInfo(request, authInfo, requestContents);
 
             // Assert
             Assert.Equal(expectedMAuthHeader, actual.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKeyV2));

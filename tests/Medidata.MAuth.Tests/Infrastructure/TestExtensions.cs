@@ -50,6 +50,17 @@ namespace Medidata.MAuth.Tests.Infrastructure
             };
         }
 
+        public static string GetStringFromResourceSync(string resourceName)
+        {
+            var assembly = typeof(TestExtensions).GetTypeInfo().Assembly;
+
+            using (var stream = assembly.GetManifestResourceStream(resourceName))
+            using (var reader = new StreamReader(stream))
+            {
+                return reader.ReadToEnd();
+            }
+        }
+
         public static Task<string> GetStringFromResource(string resourceName)
         {
             var assembly = typeof(TestExtensions).GetTypeInfo().Assembly;
@@ -60,6 +71,17 @@ namespace Medidata.MAuth.Tests.Infrastructure
                 return reader.ReadToEndAsync();
             }
         }
+
+        public static RequestData FromResourceSync(this string requestDataName) =>
+           JsonConvert.DeserializeObject<RequestData>(
+               GetStringFromResourceSync($"Medidata.MAuth.Tests.Mocks.RequestData.{requestDataName}.json")
+           );
+
+        public static RequestData FromResourceV2Sync(this string requestDataName) =>
+            JsonConvert.DeserializeObject<RequestData>(
+                GetStringFromResourceSync($"Medidata.MAuth.Tests.Mocks.RequestDataV2.{requestDataName}.json")
+            );
+
 
         public static async Task<RequestData> FromResource(this string requestDataName) =>
             JsonConvert.DeserializeObject<RequestData>(
