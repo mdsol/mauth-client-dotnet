@@ -1,5 +1,8 @@
 # Changes in Medidata.MAuth
 
+## v5.0.1
+- **[Core]** Inflate private key upon set in options classes.
+
 ## v5.0.0
  - **[Core]** Added normalization of Uri AbsolutePath.
  - **[Core]** Added unescape step in query_string encoding to remove `double encoding`.

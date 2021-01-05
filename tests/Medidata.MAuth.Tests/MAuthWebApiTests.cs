@@ -12,6 +12,22 @@ namespace Medidata.MAuth.Tests
     public static class MAuthWebApiTests
     {
         [Theory]
+        [InlineData("LinuxLineEnding.pem")]
+        [InlineData("WindowsLineEnding.pem")]
+        [InlineData("NoLineEnding.pem")]
+        public static void MAuthWebApiOptions_InflatesPrivateKey_OnSet(string keyFilename)
+        {
+            // Arrange
+            var expectedPrivateKeyContents = keyFilename.Inflate();
+
+            // Act
+            var signingOptions = new MAuthWebApiOptions { PrivateKey = keyFilename };
+
+            // Assert
+            Assert.Equal(expectedPrivateKeyContents, signingOptions.PrivateKey);
+        }
+
+        [Theory]
         [InlineData("GET")]
         [InlineData("DELETE")]
         [InlineData("POST")]

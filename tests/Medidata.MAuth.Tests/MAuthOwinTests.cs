@@ -15,6 +15,22 @@ namespace Medidata.MAuth.Tests
     public static class MAuthOwinTests
     {
         [Theory]
+        [InlineData("LinuxLineEnding.pem")]
+        [InlineData("WindowsLineEnding.pem")]
+        [InlineData("NoLineEnding.pem")]
+        public static void MAuthMiddlewareOptions_InflatesPrivateKey_OnSet(string keyFilename)
+        {
+            // Arrange
+            var expectedPrivateKeyContents = keyFilename.Inflate();
+
+            // Act
+            var signingOptions = new MAuthMiddlewareOptions { PrivateKey = keyFilename };
+
+            // Assert
+            Assert.Equal(expectedPrivateKeyContents, signingOptions.PrivateKey);
+        }
+
+        [Theory]
         [InlineData("GET")]
         [InlineData("DELETE")]
         [InlineData("POST")]

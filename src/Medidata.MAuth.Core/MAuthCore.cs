@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Security;
 using Medidata.MAuth.Core.Models;
-using System.IO;
 
 namespace Medidata.MAuth.Core
 {
@@ -26,7 +25,7 @@ namespace Medidata.MAuth.Core
             {
                 ApplicationUuid = options.ApplicationUuid,
                 SignedTime = options.SignedTime ?? DateTimeOffset.UtcNow,
-                PrivateKey = options.PrivateKey.Dereference().NormalizeLines()
+                PrivateKey = options.PrivateKey
             };
 
             var contents = await request.GetRequestContentAsBytesAsync().ConfigureAwait(false);
@@ -161,7 +160,7 @@ namespace Medidata.MAuth.Core
             {
                 ApplicationUuid = options.ApplicationUuid,
                 SignedTime = options.SignedTime ?? DateTimeOffset.UtcNow,
-                PrivateKey = options.PrivateKey.Dereference().NormalizeLines()
+                PrivateKey = options.PrivateKey
             };
 
             var contents = request.GetRequestContentAsBytes();

@@ -161,10 +161,26 @@ namespace Medidata.MAuth.Tests
             var keyPath = $"Mocks\\Keys\\{keyFilename}";
 
             // Act
-            var exception = Record.Exception(() => keyPath.Dereference().NormalizeLines().AsCipherParameters());
+            var exception = Record.Exception(() => keyPath.Inflate().AsCipherParameters());
 
             // Assert
             Assert.Null(exception);
+        }
+
+        [Theory]
+        [InlineData("LinuxLineEnding.pem")]
+        [InlineData("WindowsLineEnding.pem")]
+        [InlineData("NoLineEnding.pem")]
+        public static void MAuthSigningOptions_InflatesPrivateKey_OnSet(string keyFilename)
+        {
+            // Arrange
+            var expectedPrivateKeyContents = keyFilename.Inflate();
+
+            // Act
+            var signingOptions = new MAuthSigningOptions { PrivateKey = keyFilename };
+
+            // Assert
+            Assert.Equal(expectedPrivateKeyContents, signingOptions.PrivateKey);
         }
     }
 }
