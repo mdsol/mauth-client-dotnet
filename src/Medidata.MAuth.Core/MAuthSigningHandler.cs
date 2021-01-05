@@ -93,7 +93,7 @@ namespace Medidata.MAuth.Core
             }
 
             return base
-                .Send(request, cancellationToken); ;
+                .Send(request, cancellationToken);
         }
 #endif
     }
