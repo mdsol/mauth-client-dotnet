@@ -15,6 +15,7 @@ namespace Medidata.MAuth.Core
         private readonly MAuthOptionsBase _options;
         private readonly IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
         private readonly ILogger _logger;
+        private readonly Lazy<HttpClient> _lazyHttpClient;
 
         public Guid ApplicationUuid => _options.ApplicationUuid;
 
@@ -31,6 +32,7 @@ namespace Medidata.MAuth.Core
 
             _options = options;
             _logger = logger;
+            _lazyHttpClient = new Lazy<HttpClient>(() => CreateHttpClient(options));
         }
 
         /// <summary>
@@ -113,7 +115,7 @@ namespace Medidata.MAuth.Core
             
         private async Task<ApplicationInfo> SendApplicationInfoRequest(ICacheEntry entry, Guid applicationUuid)
         {
-            var retrier = new MAuthRequestRetrier(_options);
+            var retrier = new MAuthRequestRetrier(_lazyHttpClient.Value);
             var response = await retrier.GetSuccessfulResponse(
                 applicationUuid,
                 CreateRequest,
@@ -166,5 +168,22 @@ namespace Medidata.MAuth.Core
         private HttpRequestMessage CreateRequest(Guid applicationUuid) =>
             new HttpRequestMessage(HttpMethod.Get, new Uri(_options.MAuthServiceUrl,
                 $"{Constants.MAuthTokenRequestPath}{applicationUuid.ToHyphenString()}.json"));
+
+        private HttpClient CreateHttpClient(MAuthOptionsBase options)
+        {
+            var signingHandler = new MAuthSigningHandler(options: new MAuthSigningOptions()
+                {
+                    ApplicationUuid = options.ApplicationUuid,
+                    PrivateKey = options.PrivateKey,
+                },
+                innerHandler: options.MAuthServerHandler ?? new HttpClientHandler()
+            );
+
+            return new HttpClient(signingHandler)
+            {
+                Timeout = TimeSpan.FromSeconds(options.AuthenticateRequestTimeoutSeconds)
+            };
+
+        }
     }
 }
