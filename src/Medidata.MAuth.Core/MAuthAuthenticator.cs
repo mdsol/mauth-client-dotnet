@@ -106,25 +106,29 @@ namespace Medidata.MAuth.Core
             return mAuthCore.Verify(authInfo.Payload, signature, appInfo.PublicKey);
         }
 
-        private Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid) =>
-            _cache.GetOrCreateAsync(applicationUuid, async entry =>
-            {
-                var retrier = new MAuthRequestRetrier(_options);
-                var response = await retrier.GetSuccessfulResponse(
-                    applicationUuid,
-                    CreateRequest,
-                    requestAttempts: (int)_options.MAuthServiceRetryPolicy + 1
-                ).ConfigureAwait(false);
+        private AsyncLazy<ApplicationInfo> GetApplicationInfo(Guid applicationUuid) =>
+            _cache.GetOrCreateWithLock(
+                applicationUuid,
+                entry => new AsyncLazy<ApplicationInfo>(() => SendApplicationInfoRequest(entry, applicationUuid)));
+            
+        private async Task<ApplicationInfo> SendApplicationInfoRequest(ICacheEntry entry, Guid applicationUuid)
+        {
+            var retrier = new MAuthRequestRetrier(_options);
+            var response = await retrier.GetSuccessfulResponse(
+                applicationUuid,
+                CreateRequest,
+                requestAttempts: (int)_options.MAuthServiceRetryPolicy + 1
+            ).ConfigureAwait(false);
 
-                var result = await response.Content.FromResponse().ConfigureAwait(false);
+            var result = await response.Content.FromResponse().ConfigureAwait(false);
 
-                entry.SetOptions(
-                    new MemoryCacheEntryOptions()
-                        .SetAbsoluteExpiration(response.Headers.CacheControl?.MaxAge ?? TimeSpan.FromHours(1))
-                );
+            entry.SetOptions(
+                new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(response.Headers.CacheControl?.MaxAge ?? TimeSpan.FromHours(1))
+            );
 
-                return result;
-            });
+            return result;
+        }
 
         /// <summary>
         /// Extracts the authentication information from a <see cref="HttpRequestMessage"/>.
