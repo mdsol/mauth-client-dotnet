@@ -115,6 +115,10 @@ namespace Medidata.MAuth.Core
             
         private async Task<ApplicationInfo> SendApplicationInfoRequest(ICacheEntry entry, Guid applicationUuid)
         {
+            var logMessage = "Mauth-client requesting from mAuth service application info not available " +
+                             $"in the local cache for app uuid {applicationUuid}.";
+            _logger.LogInformation(logMessage);
+
             var retrier = new MAuthRequestRetrier(_lazyHttpClient.Value);
             var response = await retrier.GetSuccessfulResponse(
                 applicationUuid,
@@ -128,6 +132,9 @@ namespace Medidata.MAuth.Core
                 new MemoryCacheEntryOptions()
                     .SetAbsoluteExpiration(response.Headers.CacheControl?.MaxAge ?? TimeSpan.FromHours(1))
             );
+
+            logMessage = $"Mauth-client application info for app uuid {applicationUuid} cached in memory.";
+            _logger.LogInformation(logMessage);
 
             return result;
         }
