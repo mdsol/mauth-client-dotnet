@@ -102,10 +102,21 @@ namespace Medidata.MAuth.Core
 
             var mAuthCore = MAuthCoreFactory.Instantiate(version);
             var authInfo = GetAuthenticationInfo(request, mAuthCore);
-            var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid).ConfigureAwait(false);
 
-            var signature = await mAuthCore.GetSignature(request, authInfo).ConfigureAwait(false);
-            return mAuthCore.Verify(authInfo.Payload, signature, appInfo.PublicKey);
+            try
+            {
+                var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid).ConfigureAwait(false);
+
+                var signature = await mAuthCore.GetSignature(request, authInfo).ConfigureAwait(false);
+                return mAuthCore.Verify(authInfo.Payload, signature, appInfo.PublicKey);
+            }
+            catch (RetriedRequestException)
+            {
+                // If the appliation info could not be fetched, remove the lazy
+                // object from the cache to allow for another attempt.
+                _cache.Remove(authInfo.ApplicationUuid);
+                throw;
+            }
         }
 
         private AsyncLazy<ApplicationInfo> GetApplicationInfo(Guid applicationUuid) =>
