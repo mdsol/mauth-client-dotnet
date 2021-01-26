@@ -15,6 +15,7 @@ namespace Medidata.MAuth.Core
         private readonly MAuthOptionsBase _options;
         private readonly IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
         private readonly ILogger _logger;
+        private readonly Lazy<HttpClient> _lazyHttpClient;
 
         public Guid ApplicationUuid => _options.ApplicationUuid;
 
@@ -31,6 +32,7 @@ namespace Medidata.MAuth.Core
 
             _options = options;
             _logger = logger;
+            _lazyHttpClient = new Lazy<HttpClient>(() => CreateHttpClient(options));
         }
 
         /// <summary>
@@ -100,31 +102,53 @@ namespace Medidata.MAuth.Core
 
             var mAuthCore = MAuthCoreFactory.Instantiate(version);
             var authInfo = GetAuthenticationInfo(request, mAuthCore);
-            var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid).ConfigureAwait(false);
 
-            var signature = await mAuthCore.GetSignature(request, authInfo).ConfigureAwait(false);
-            return mAuthCore.Verify(authInfo.Payload, signature, appInfo.PublicKey);
+            try
+            {
+                var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid).ConfigureAwait(false);
+
+                var signature = await mAuthCore.GetSignature(request, authInfo).ConfigureAwait(false);
+                return mAuthCore.Verify(authInfo.Payload, signature, appInfo.PublicKey);
+            }
+            catch (RetriedRequestException)
+            {
+                // If the appliation info could not be fetched, remove the lazy
+                // object from the cache to allow for another attempt.
+                _cache.Remove(authInfo.ApplicationUuid);
+                throw;
+            }
         }
 
-        private Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid) =>
-            _cache.GetOrCreateAsync(applicationUuid, async entry =>
-            {
-                var retrier = new MAuthRequestRetrier(_options);
-                var response = await retrier.GetSuccessfulResponse(
-                    applicationUuid,
-                    CreateRequest,
-                    requestAttempts: (int)_options.MAuthServiceRetryPolicy + 1
-                ).ConfigureAwait(false);
+        private AsyncLazy<ApplicationInfo> GetApplicationInfo(Guid applicationUuid) =>
+            _cache.GetOrCreateWithLock(
+                applicationUuid,
+                entry => new AsyncLazy<ApplicationInfo>(() => SendApplicationInfoRequest(entry, applicationUuid)));
+            
+        private async Task<ApplicationInfo> SendApplicationInfoRequest(ICacheEntry entry, Guid applicationUuid)
+        {
+            var logMessage = "Mauth-client requesting from mAuth service application info not available " +
+                             $"in the local cache for app uuid {applicationUuid}.";
+            _logger.LogInformation(logMessage);
 
-                var result = await response.Content.FromResponse().ConfigureAwait(false);
+            var retrier = new MAuthRequestRetrier(_lazyHttpClient.Value);
+            var response = await retrier.GetSuccessfulResponse(
+                applicationUuid,
+                CreateRequest,
+                requestAttempts: (int)_options.MAuthServiceRetryPolicy + 1
+            ).ConfigureAwait(false);
 
-                entry.SetOptions(
-                    new MemoryCacheEntryOptions()
-                        .SetAbsoluteExpiration(response.Headers.CacheControl?.MaxAge ?? TimeSpan.FromHours(1))
-                );
+            var result = await response.Content.FromResponse().ConfigureAwait(false);
 
-                return result;
-            });
+            entry.SetOptions(
+                new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(response.Headers.CacheControl?.MaxAge ?? TimeSpan.FromHours(1))
+            );
+
+            logMessage = $"Mauth-client application info for app uuid {applicationUuid} cached in memory.";
+            _logger.LogInformation(logMessage);
+
+            return result;
+        }
 
         /// <summary>
         /// Extracts the authentication information from a <see cref="HttpRequestMessage"/>.
@@ -162,5 +186,22 @@ namespace Medidata.MAuth.Core
         private HttpRequestMessage CreateRequest(Guid applicationUuid) =>
             new HttpRequestMessage(HttpMethod.Get, new Uri(_options.MAuthServiceUrl,
                 $"{Constants.MAuthTokenRequestPath}{applicationUuid.ToHyphenString()}.json"));
+
+        private HttpClient CreateHttpClient(MAuthOptionsBase options)
+        {
+            var signingHandler = new MAuthSigningHandler(options: new MAuthSigningOptions()
+                {
+                    ApplicationUuid = options.ApplicationUuid,
+                    PrivateKey = options.PrivateKey,
+                },
+                innerHandler: options.MAuthServerHandler ?? new HttpClientHandler()
+            );
+
+            return new HttpClient(signingHandler)
+            {
+                Timeout = TimeSpan.FromSeconds(options.AuthenticateRequestTimeoutSeconds)
+            };
+
+        }
     }
 }

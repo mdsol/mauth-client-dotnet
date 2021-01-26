@@ -2,6 +2,8 @@
 ## v5.1.0
 - **[Core]** Added multi-target for .NET 5 to support synchronus HttpClient requests.  
 - **[Core]** Updated MAuthSigningHandler to sign synchronus requests.  
+- **[Core]** Updated MAuthAuthenticator to create and reuse a single HttpClient instead of creating a new one for each MAuthRequestRetrier.
+- **[Core]** Updated MAuthAuthenticator to limit the calls to the cache item factory method to a single thread per key not already in the cache.
 
 ## v5.0.1
 - **[Core]** Inflate private key upon set in options classes.
