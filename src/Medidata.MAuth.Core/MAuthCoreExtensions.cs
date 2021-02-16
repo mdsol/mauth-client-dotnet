@@ -20,7 +20,7 @@ namespace Medidata.MAuth.Core
     internal static class MAuthCoreExtensions
     {
         /// <summary>
-        /// Deserializes an <see cref="ApplicationInfo"/> object from a content of a Http message. 
+        /// Deserializes an <see cref="ApplicationInfo"/> object from a content of a Http message.
         /// </summary>
         /// <param name="content">The content to deserialize the information from.</param>
         /// <returns>A Task object which will result the application information when it completes.</returns>
@@ -32,7 +32,7 @@ namespace Medidata.MAuth.Core
         }
 
         /// <summary>
-        /// Converts a <see cref="DateTimeOffset"/> value to a Unix equivalent time value. 
+        /// Converts a <see cref="DateTimeOffset"/> value to a Unix equivalent time value.
         /// </summary>
         /// <param name="value">The date and time to be converted.</param>
         /// <returns>The total seconds elapsed from the Unix epoch (1970-01-01 00:00:00).</returns>
@@ -40,7 +40,7 @@ namespace Medidata.MAuth.Core
             (long)(value - Constants.UnixEpoch).TotalSeconds;
 
         /// <summary>
-        /// Converts a <see cref="long"/> value that is a Unix time in seconds to a UTC <see cref="DateTimeOffset"/>. 
+        /// Converts a <see cref="long"/> value that is a Unix time in seconds to a UTC <see cref="DateTimeOffset"/>.
         /// </summary>
         /// <param name="value">The Unix time seconds to be converted.</param>
         /// <returns>The <see cref="DateTimeOffset"/> equivalent of the Unix time.</returns>
@@ -48,7 +48,7 @@ namespace Medidata.MAuth.Core
             Constants.UnixEpoch.AddSeconds(value);
 
         /// <summary>
-        /// Returns the hyphenated representation of a <see cref="Guid"/> as a <see cref="string"/>. 
+        /// Returns the hyphenated representation of a <see cref="Guid"/> as a <see cref="string"/>.
         /// </summary>
         /// <param name="uuid">The <see cref="Guid"/> to convert to the hyphenated string.</param>
         /// <returns>The uuid in a format with hyphens.</returns>
@@ -66,7 +66,7 @@ namespace Medidata.MAuth.Core
         public static TValue GetFirstValueOrDefault<TValue>(this HttpHeaders headers, string key) =>
             headers.TryGetValues(key, out IEnumerable<string> values) ?
                 (TValue)Convert.ChangeType(values.First(), typeof(TValue)) :
-                default(TValue);
+                default;
 
         /// <summary>
         /// Provides an SHA512 hash value of a string.
