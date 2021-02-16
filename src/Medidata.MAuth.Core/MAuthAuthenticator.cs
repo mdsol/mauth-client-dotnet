@@ -19,9 +19,9 @@ namespace Medidata.MAuth.Core
 
         public Guid ApplicationUuid => _options.ApplicationUuid;
 
-        public MAuthAuthenticator(MAuthOptionsBase options, ILogger logger)
+        public MAuthAuthenticator(MAuthOptionsBase options, ILogger logger, IMemoryCache cache = null)
         {
-            if (options.ApplicationUuid == default(Guid))
+            if (options.ApplicationUuid == default)
                 throw new ArgumentException(nameof(options.ApplicationUuid));
 
             if (options.MAuthServiceUrl == null)
@@ -30,6 +30,7 @@ namespace Medidata.MAuth.Core
             if (string.IsNullOrWhiteSpace(options.PrivateKey))
                 throw new ArgumentNullException(nameof(options.PrivateKey));
 
+            _cache ??= cache;
             _options = options;
             _logger = logger;
             _lazyHttpClient = new Lazy<HttpClient>(() => CreateHttpClient(options));
@@ -48,16 +49,16 @@ namespace Medidata.MAuth.Core
 
                 var authHeader = request.GetAuthHeaderValue();
                 var version = authHeader.GetVersionFromAuthenticationHeader();
-                var parsedHeader = authHeader.ParseAuthenticationHeader();
+                var (Uuid, Base64Payload) = authHeader.ParseAuthenticationHeader();
 
                 if (_options.DisableV1 && version == MAuthVersion.MWS)
                     throw new InvalidVersionException($"Authentication with {version} version is disabled.");
 
-                var authenticated = await Authenticate(request, version, parsedHeader.Uuid).ConfigureAwait(false);
+                var authenticated = await Authenticate(request, version, Uuid).ConfigureAwait(false);
                 if (!authenticated && version == MAuthVersion.MWSV2 && !_options.DisableV1)
                 {
                     // fall back to V1 authentication
-                    authenticated = await Authenticate(request, MAuthVersion.MWS, parsedHeader.Uuid).ConfigureAwait(false);
+                    authenticated = await Authenticate(request, MAuthVersion.MWS, Uuid).ConfigureAwait(false);
                     _logger.LogWarning("Completed successful authentication attempt after fallback to V1");
                 }
                 return authenticated;
@@ -123,7 +124,7 @@ namespace Medidata.MAuth.Core
             _cache.GetOrCreateWithLock(
                 applicationUuid,
                 entry => new AsyncLazy<ApplicationInfo>(() => SendApplicationInfoRequest(entry, applicationUuid)));
-            
+
         private async Task<ApplicationInfo> SendApplicationInfoRequest(ICacheEntry entry, Guid applicationUuid)
         {
             var logMessage = "Mauth-client requesting from mAuth service application info not available " +
@@ -158,17 +159,17 @@ namespace Medidata.MAuth.Core
         /// <returns>The authentication information with the payload from the request.</returns>
         internal static PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request, IMAuthCore mAuthCore)
         {
-            var headerKeys = mAuthCore.GetHeaderKeys();
-            var authHeader = request.Headers.GetFirstValueOrDefault<string>(headerKeys.mAuthHeaderKey);
+            var (mAuthHeaderKey, mAuthTimeHeaderKey) = mAuthCore.GetHeaderKeys();
+            var authHeader = request.Headers.GetFirstValueOrDefault<string>(mAuthHeaderKey);
 
             if (authHeader == null)
             {
                 throw new ArgumentNullException(nameof(authHeader), "The MAuth header is missing from the request.");
             }
 
-            var signedTime = request.Headers.GetFirstValueOrDefault<long>(headerKeys.mAuthTimeHeaderKey);
+            var signedTime = request.Headers.GetFirstValueOrDefault<long>(mAuthTimeHeaderKey);
 
-            if (signedTime == default(long))
+            if (signedTime == default)
             {
                 throw new ArgumentException("Invalid MAuth signed time header value.", nameof(signedTime));
             }
