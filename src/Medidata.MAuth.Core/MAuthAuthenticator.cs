@@ -30,7 +30,7 @@ namespace Medidata.MAuth.Core
             if (string.IsNullOrWhiteSpace(options.PrivateKey))
                 throw new ArgumentNullException(nameof(options.PrivateKey));
 
-            _cache ??= cache;
+            _cache = cache ?? _cache;
             _options = options;
             _logger = logger;
             _lazyHttpClient = new Lazy<HttpClient>(() => CreateHttpClient(options));
