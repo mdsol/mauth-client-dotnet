@@ -13,7 +13,7 @@ namespace Medidata.MAuth.Core
     internal class MAuthAuthenticator
     {
         private readonly MAuthOptionsBase _options;
-        private readonly IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
+        private readonly IMemoryCache _cache;
         private readonly ILogger _logger;
         private readonly Lazy<HttpClient> _lazyHttpClient;
 
@@ -30,7 +30,7 @@ namespace Medidata.MAuth.Core
             if (string.IsNullOrWhiteSpace(options.PrivateKey))
                 throw new ArgumentNullException(nameof(options.PrivateKey));
 
-            _cache = cache ?? _cache;
+            _cache = cache ?? new MemoryCache(new MemoryCacheOptions());
             _options = options;
             _logger = logger;
             _lazyHttpClient = new Lazy<HttpClient>(() => CreateHttpClient(options));
