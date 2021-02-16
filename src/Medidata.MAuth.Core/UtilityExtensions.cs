@@ -13,8 +13,6 @@ namespace Medidata.MAuth.Core
     /// </summary>
     public static class UtilityExtensions
     {
-        private static readonly IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
-
         /// <summary>
         /// Parses an MAuth authentication HTTP header value for the application uuid and the MAuth signature payload.
         /// If the parsing is not successful, an <see cref="ArgumentException"/> is thrown.
@@ -74,7 +72,7 @@ namespace Medidata.MAuth.Core
         /// <returns>The task for the operation that is when completes will result in <see langword="true"/> if
         /// the authentication is successful; otherwise <see langword="false"/>.</returns>
         public static Task<bool> Authenticate(this HttpRequestMessage request, MAuthOptionsBase options, ILogger logger) =>
-                new MAuthAuthenticator(options, logger, _cache).AuthenticateRequest(request);
+                new MAuthAuthenticator(options, logger).AuthenticateRequest(request);
 
         /// <summary>
         /// Determines the MAuth version enumerator reading authHeader.
