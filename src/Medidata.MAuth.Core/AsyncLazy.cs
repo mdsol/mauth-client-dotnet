@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Medidata.MAuth.Core
 {
-    public class AsyncLazy<T> : Lazy<Task<T>>
+    internal class AsyncLazy<T> : Lazy<Task<T>>
     {
         public AsyncLazy(Func<T> valueFactory)
             : base(() => Task.Factory.StartNew(valueFactory))
@@ -18,7 +18,7 @@ namespace Medidata.MAuth.Core
 
         public TaskAwaiter<T> GetAwaiter() => Value.GetAwaiter();
 
-        public ConfiguredTaskAwaitable<T> ConfigureAwait(bool continueOnCapturedContext) 
+        public ConfiguredTaskAwaitable<T> ConfigureAwait(bool continueOnCapturedContext)
             => Value.ConfigureAwait(continueOnCapturedContext);
     }
 }

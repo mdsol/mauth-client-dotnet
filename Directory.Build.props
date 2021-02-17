@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Project>
+  <Import Project="version.props"/>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <Copyright>Copyright © Medidata Solutions, Inc. $([System.DateTime]::Now.Year)</Copyright>
+    <Authors>Medidata Solutions</Authors>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/mdsol/mauth-client-dotnet</RepositoryUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Company>Medidata Solutions, Inc.</Company>
+    <PackageProjectUrl>https://github.com/mdsol/mauth-client-dotnet</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/mdsol/mauth-client-dotnet/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Product>Medidata Platform</Product>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+</Project>
