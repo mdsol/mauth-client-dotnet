@@ -43,6 +43,7 @@ namespace Medidata.MAuth.Tests
         public static async Task AuthenticateRequest_WithValidMWSRequest_WillAuthenticate(string method)
         {
             // Arrange
+            MAuthAuthenticator.FlushCache();
             var testData = await method.FromResource();
             var serverHandler = await MAuthServerHandler.CreateAsync();
             var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions(serverHandler), NullLogger<MAuthAuthenticator>.Instance);
@@ -75,6 +76,7 @@ namespace Medidata.MAuth.Tests
         public static async Task AuthenticateRequest_WithValidMWSV2Request_WillAuthenticate(string method)
         {
             // Arrange
+            MAuthAuthenticator.FlushCache();
             var testData = await method.FromResourceV2();
             var version = MAuthVersion.MWSV2;
             var serverHandler = await MAuthServerHandler.CreateAsync();
@@ -111,6 +113,7 @@ namespace Medidata.MAuth.Tests
             MAuthServiceRetryPolicy policy)
         {
             // Arrange
+            MAuthAuthenticator.FlushCache();
             var testData = await "GET".FromResourceV2();
             var serverHandler = await MAuthServerHandler.CreateAsync();
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
@@ -147,6 +150,7 @@ namespace Medidata.MAuth.Tests
             MAuthServiceRetryPolicy policy)
         {
             // Arrange
+            MAuthAuthenticator.FlushCache();
             var testData = await "GET".FromResourceV2();
             var version = MAuthVersion.MWSV2;
             var serverHandler = await MAuthServerHandler.CreateAsync();
@@ -183,10 +187,12 @@ namespace Medidata.MAuth.Tests
             MAuthServiceRetryPolicy policy)
         {
             // Arrange
+            MAuthAuthenticator.FlushCache();
             var testData = await "GET".FromResource();
             var serverHandler = await MAuthServerHandler.CreateAsync();
             var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
                 policy, shouldSucceedWithin: false, serverHandler), NullLogger<MAuthAuthenticator>.Instance);
+
             var mAuthCore = new MAuthCore();
 
             var authInfo = new PrivateKeyAuthenticationInfo()
@@ -222,6 +228,7 @@ namespace Medidata.MAuth.Tests
             MAuthServiceRetryPolicy policy)
         {
             // Arrange
+            MAuthAuthenticator.FlushCache();
             var testData = await "GET".FromResource();
             var version = MAuthVersion.MWSV2;
             var serverHandler = await MAuthServerHandler.CreateAsync();
@@ -263,6 +270,7 @@ namespace Medidata.MAuth.Tests
         public static void SignRequestSync_WithMWSValidRequest_WillSignProperly(string method)
         {
             // Arrange
+            MAuthAuthenticator.FlushCache();
             var testData = method.FromResourceSync();
             var expectedMAuthHeader = testData.MAuthHeader;
             var mAuthCore = new MAuthCore();
@@ -286,6 +294,7 @@ namespace Medidata.MAuth.Tests
         public static void SignRequestSync_WithMWSV2ValidRequest_WillSignProperly(string method)
         {
             // Arrange
+            MAuthAuthenticator.FlushCache();
             var testData = method.FromResourceV2Sync();
             var version = MAuthVersion.MWSV2;
             var expectedMAuthHeader = testData.MAuthHeaderV2;
@@ -311,6 +320,7 @@ namespace Medidata.MAuth.Tests
         public static async Task SignRequest_WithMWSValidRequest_WillSignProperly(string method)
         {
             // Arrange
+            MAuthAuthenticator.FlushCache();
             var testData = await method.FromResource();
             var expectedMAuthHeader = testData.MAuthHeader;
             var mAuthCore = new MAuthCore();
@@ -334,6 +344,7 @@ namespace Medidata.MAuth.Tests
         public static async Task SignRequest_WithMWSV2ValidRequest_WillSignProperly(string method)
         {
             // Arrange
+            MAuthAuthenticator.FlushCache();
             var testData = await method.FromResourceV2();
             var version = MAuthVersion.MWSV2;
             var expectedMAuthHeader = testData.MAuthHeaderV2;
@@ -359,6 +370,7 @@ namespace Medidata.MAuth.Tests
             string method)
         {
             // Arrange
+            MAuthAuthenticator.FlushCache();
             var testData = await method.FromResource();
             var testOptions = TestExtensions.ServerOptions(await MAuthServerHandler.CreateAsync());
             testOptions.DisableV1 = true;
@@ -395,6 +407,7 @@ namespace Medidata.MAuth.Tests
         public static async Task GetAuthenticationInfo_WithSignedRequest_ForMWSV2Version_WillReturnCorrectAuthInfo(string method)
         {
             // Arrange
+            MAuthAuthenticator.FlushCache();
             var testData = await method.FromResourceV2();
             var version = MAuthVersion.MWSV2;
             var testOptions = TestExtensions.ServerOptions(await MAuthServerHandler.CreateAsync());
@@ -417,6 +430,7 @@ namespace Medidata.MAuth.Tests
         public static async Task GetAuthenticationInfo_WithSignedRequest_ForMWSVersion_WillReturnCorrectAuthInfo(string method)
         {
             // Arrange
+            MAuthAuthenticator.FlushCache();
             var testData = await method.FromResource();
             var version = MAuthVersion.MWS;
             var testOptions = TestExtensions.ServerOptions(await MAuthServerHandler.CreateAsync());
@@ -435,6 +449,7 @@ namespace Medidata.MAuth.Tests
         public static async Task AuthenticateRequest_WithDefaultRequest_WhenV2Fails_FallBackToV1AndAuthenticate()
         {
             // Arrange
+            MAuthAuthenticator.FlushCache();
             var testData = await "GET".FromResource();
             var mockLogger = new Mock<ILogger>();
             var serverHandler = await MAuthServerHandler.CreateAsync();
@@ -458,6 +473,7 @@ namespace Medidata.MAuth.Tests
         public static async Task AuthenticateRequest_WithDefaultRequest_AndDisableV1_WhenV2Fails_NotFallBackToV1()
         {
             // Arrange
+            MAuthAuthenticator.FlushCache();
             var testData = await "GET".FromResource();
             var mockLogger = new Mock<ILogger>();
             var testOptions = TestExtensions.ServerOptions(await MAuthServerHandler.CreateAsync());
