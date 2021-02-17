@@ -12,14 +12,14 @@ namespace Medidata.MAuth.Core
 {
     internal class MAuthAuthenticator
     {
-        private static IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
+        private readonly IMemoryCache _cache;
         private readonly MAuthOptionsBase _options;
         private readonly ILogger _logger;
         private readonly Lazy<HttpClient> _lazyHttpClient;
 
         public Guid ApplicationUuid => _options.ApplicationUuid;
 
-        public MAuthAuthenticator(MAuthOptionsBase options, ILogger logger)
+        public MAuthAuthenticator(MAuthOptionsBase options, ILogger logger, IMemoryCache cache = null)
         {
             if (options.ApplicationUuid == default)
                 throw new ArgumentException(nameof(options.ApplicationUuid));
@@ -30,6 +30,7 @@ namespace Medidata.MAuth.Core
             if (string.IsNullOrWhiteSpace(options.PrivateKey))
                 throw new ArgumentNullException(nameof(options.PrivateKey));
 
+            _cache = cache ?? new MemoryCache(new MemoryCacheOptions());
             _options = options;
             _logger = logger;
             _lazyHttpClient = new Lazy<HttpClient>(() => CreateHttpClient(options));
@@ -201,16 +202,6 @@ namespace Medidata.MAuth.Core
             {
                 Timeout = TimeSpan.FromSeconds(options.AuthenticateRequestTimeoutSeconds)
             };
-        }
-
-        /// <summary>Reinitializes the cache by disposing it and recreating. This method is for test support,
-        /// please do not use in production scenarios.
-        /// </summary>
-        internal static void FlushCache()
-        {
-            if (_cache != null)
-                _cache.Dispose();
-            _cache = new MemoryCache(new MemoryCacheOptions());
         }
     }
 }
