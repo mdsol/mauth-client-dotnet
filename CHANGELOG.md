@@ -1,7 +1,11 @@
 # Changes in Medidata.MAuth
+
+## v5.1.1
+- **[Core]** Fixed an issue with internal caching for the utility extension `Authenticate()` method.
+
 ## v5.1.0
-- **[Core]** Added multi-target for .NET 5 to support synchronus HttpClient requests.  
-- **[Core]** Updated MAuthSigningHandler to sign synchronus requests.  
+- **[Core]** Added multi-target for .NET 5 to support synchronus HttpClient requests.
+- **[Core]** Updated MAuthSigningHandler to sign synchronus requests.
 - **[Core]** Updated MAuthAuthenticator to create and reuse a single HttpClient instead of creating a new one for each MAuthRequestRetrier.
 - **[Core]** Updated MAuthAuthenticator to limit the calls to the cache item factory method to a single thread per key not already in the cache.
 
@@ -53,7 +57,7 @@ provided options.
 - **[Core]** Removed constraint for the application uuids to be only version 4. Now the MAuth header validation won't throw error if the provided uuid is not version 4.
 
 ## v3.0.0
-- **[All]** **Breaking** - Changed the HTTP status code response in case of any errors (including authentication and validation errors) from Forbidden (403) to Unauthorized (401).  
+- **[All]** **Breaking** - Changed the HTTP status code response in case of any errors (including authentication and validation errors) from Forbidden (403) to Unauthorized (401).
 `HideExceptionsAndReturnForbidden` property of MAuth option class has also been renamed to `HideExceptionsAndReturnUnauthorized`.
 
 ## v2.4.1
@@ -94,7 +98,7 @@ downloads and referencing from NuGet
 ## v2.0.0
 - **[Core]** The `MAuthSigningHandler` is accepting an `MAuthSigningOptions` instance instead of
 an `MAuthOptions` instance (which in turn set to be an abstract class)
-- [**Owin]** The OWIN middleware infrastructure provided request body stream gets replaced 
+- [**Owin]** The OWIN middleware infrastructure provided request body stream gets replaced
 with a `MemoryStream` in cases when the original body stream is not seekable.
 
 ## v1.0.0
