@@ -124,10 +124,11 @@ public async Task<HttpResponseMessage> SignAndSendRequest(HttpRequestMessage req
     }
 }
 ```
-The `SignVersions` parameter can be used to specify which protocol version to sign outgoing requests. Like as:  
-`SignVersions = MAuthVersion.MWS`: signs with `MWS` protocol only.  
-`SignVersions = MAuthVersion.MWS | MAuthVersion.MWSV2` : signs with both `MWS` and `MWSV2` protocol.  
-If not supplied, it sign by `MWS` protocol by default.
+
+The `SignVersions` parameter can be used to specify which protocol version to sign outgoing requests with:
+- `SignVersions = MAuthVersion.MWS`: signs with the `MWS` protocol only.
+- `SignVersions = MAuthVersion.MWS | MAuthVersion.MWSV2` : signs with both the `MWS` and the `MWSV2` protocol.
+If not supplied, it signs with the `MWS` protocol by default.
 
 Signing with `MWSV2` protocol supports query string.
 
@@ -323,18 +324,18 @@ for authenticating the incoming requests.
 
 ##### What Cryptographic provider is used for the encryption/decryption?
 
-In the latest version of 4.0.0, we are using the available dotnet security [System.Security.Cryptography] which works 
-for both **.NET Framework 4.6.1** and **.NET Standard 2.0** in case of V2 protocol. However, for the continue support 
-of V1 protcol, we are still maintaining the BouncyCastle library as mentioned below.
+In the latest version of 4.0.0, we are using the available dotnet security [System.Security.Cryptography](https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography?view=dotnet-plat-ext-3.1)
+which works for both **.NET Framework 4.6.1** and **.NET Standard 2.0** when using the V2 protocol.
+However, to also support the V1 protcol, we are still maintaining the BouncyCastle library as mentioned below.
 
 On the .NET Framework side (WebAPI, Owin, Core) we are using the latest version (as of date 1.81) of the
 [BouncyCastle](https://github.com/bcgit/bc-csharp) library; on the .NET Standard side (Core, AspNetCore) we are using
 the portable fork of the [BouncyCastle](https://github.com/onovotny/BouncyCastle-PCL) library.
 
 ##### What are the major changes in the 5.0.0 version?
-In this version we have removed the property `DisableV1` from `MAuthSigningOptions`. Instead, we have added new option as 
-`SignVersions` in `MAuthSigningOptions` which takes enumeration values of MAuth protcol versions `MWS` and/ or `MWSV2` protocol. 
-If this option is not provided, then it will sign in by `MWS` protocol as default. 
+In this version we have removed the property `DisableV1` from `MAuthSigningOptions`. Instead, we have added new option as
+`SignVersions` in `MAuthSigningOptions` which takes enumeration values of MAuth protcol versions `MWS` and/ or `MWSV2` protocol.
+If this option is not provided, then it will sign in by `MWS` protocol as default.
 
 ##### What are the major changes in the 4.0.0 version?
 
@@ -342,11 +343,11 @@ In this version we have added support for V2 protocol which uses `MCC-Authentica
 MAuthTimeHeader. And, this V2 protocol supports for signing and authenticating url with query string parameters.
 For Signing, we added two new options in `MAuthSigningOptions`: `MAuthVersion` which is mandatory and takes enumeration
  value of `MAuthVersion.MWSV2` for V2 protocol or `MAuthVersion.MWS` for continue of using V1 protocol.
-Another option `DisableV1` is `false` by default if not provided. But, it is needed to provide as `true` when the client 
+Another option `DisableV1` is `false` by default if not provided. But, it is needed to provide as `true` when the client
 need to sign on by no more supporting V1 protocol.
 
-Also while authentication, the logic defaults to check for V2 protcol header `MWSV2` and if fails then only fallback to 
-check for V1 protocol header for `MWS`. Also, `MAuthOptionsBase` includes new option as `DisableV1` which is `false` by 
+Also while authentication, the logic defaults to check for V2 protcol header `MWSV2` and if fails then only fallback to
+check for V1 protocol header for `MWS`. Also, `MAuthOptionsBase` includes new option as `DisableV1` which is `false` by
 default and need to be passed as `true` if the authenticating client no longer wants to support V1 protocol.
 
 ##### What are the major changes in the 2.0.0 version?

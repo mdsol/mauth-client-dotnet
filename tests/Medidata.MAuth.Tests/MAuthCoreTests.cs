@@ -30,8 +30,11 @@ namespace Medidata.MAuth.Tests
                 PrivateKey = TestExtensions.ClientPrivateKey
             };
 
+            var request = testData.ToHttpRequestMessage();
+            var requestContents = await request.GetRequestContentAsBytesAsync();
+
             // Act
-            var result = await mAuthCore.CalculatePayload(testData.ToHttpRequestMessage(), authInfo);
+            var result = mAuthCore.CalculatePayload(request, authInfo, requestContents);
 
             // Assert
             Assert.Equal(testData.Payload, result);
@@ -97,13 +100,19 @@ namespace Medidata.MAuth.Tests
             var testData = await "POSTWithBinaryData".FromResource();
             var mAuthCore = new MAuthCore();
 
-            // Act
-            var result = await mAuthCore.CalculatePayload(testData.ToHttpRequestMessage(), new PrivateKeyAuthenticationInfo()
+            var authInfo = new PrivateKeyAuthenticationInfo()
             {
                 ApplicationUuid = testData.ApplicationUuid,
                 SignedTime = testData.SignedTime,
                 PrivateKey = TestExtensions.ClientPrivateKey
-            });
+            };
+
+            var request = testData.ToHttpRequestMessage();
+            var requestContents = await request.GetRequestContentAsBytesAsync();
+
+            // Act
+
+            var result = mAuthCore.CalculatePayload(request, authInfo, requestContents);
 
             // Assert
             Assert.Equal(testData.Payload, result);
@@ -128,8 +137,11 @@ namespace Medidata.MAuth.Tests
                 PrivateKey = TestExtensions.ClientPrivateKey
             };
 
+            var request = testData.ToHttpRequestMessage();
+            var requestContents = await request.GetRequestContentAsBytesAsync();
+
             // Act
-            var actual = await mAuthCore.AddAuthenticationInfo(testData.ToHttpRequestMessage(), authInfo);
+            var actual = mAuthCore.AddAuthenticationInfo(request, authInfo, requestContents);
 
             // Assert
             Assert.Equal(expectedMAuthHeader, actual.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey));
@@ -149,10 +161,26 @@ namespace Medidata.MAuth.Tests
             var keyPath = $"Mocks\\Keys\\{keyFilename}";
 
             // Act
-            var exception = Record.Exception(() => keyPath.Dereference().NormalizeLines().AsCipherParameters());
+            var exception = Record.Exception(() => keyPath.Inflate().AsCipherParameters());
 
             // Assert
             Assert.Null(exception);
+        }
+
+        [Theory]
+        [InlineData("LinuxLineEnding.pem")]
+        [InlineData("WindowsLineEnding.pem")]
+        [InlineData("NoLineEnding.pem")]
+        public static void MAuthSigningOptions_InflatesPrivateKey_OnSet(string keyFilename)
+        {
+            // Arrange
+            var expectedPrivateKeyContents = keyFilename.Inflate();
+
+            // Act
+            var signingOptions = new MAuthSigningOptions { PrivateKey = keyFilename };
+
+            // Assert
+            Assert.Equal(expectedPrivateKeyContents, signingOptions.PrivateKey);
         }
     }
 }

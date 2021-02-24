@@ -8,11 +8,18 @@ namespace Medidata.MAuth.Core
     /// </summary>
     public abstract class MAuthOptionsBase
     {
+        private string _privateKey;
+
         /// <summary>
         /// Determines the RSA private key for the authentication requests. The value of this property can be set as a
-        /// valid path to a readable key file as well.
+        /// valid path to a readable key file as well. After set, this property will either contain an inflated
+        /// private key or `null`.
         /// </summary>
-        public string PrivateKey { get; set; }
+        public string PrivateKey
+        {
+            get => _privateKey;
+            set => _privateKey = value.Inflate();
+        }
 
         /// <summary>Determines the endpoint of the MAuth authentication service.</summary>
         public Uri MAuthServiceUrl { get; set; }

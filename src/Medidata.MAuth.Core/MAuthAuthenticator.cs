@@ -12,15 +12,16 @@ namespace Medidata.MAuth.Core
 {
     internal class MAuthAuthenticator
     {
+        private readonly IMemoryCache _cache;
         private readonly MAuthOptionsBase _options;
-        private readonly IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
         private readonly ILogger _logger;
+        private readonly Lazy<HttpClient> _lazyHttpClient;
 
         public Guid ApplicationUuid => _options.ApplicationUuid;
 
-        public MAuthAuthenticator(MAuthOptionsBase options, ILogger logger)
+        public MAuthAuthenticator(MAuthOptionsBase options, ILogger logger, IMemoryCache cache = null)
         {
-            if (options.ApplicationUuid == default(Guid))
+            if (options.ApplicationUuid == default)
                 throw new ArgumentException(nameof(options.ApplicationUuid));
 
             if (options.MAuthServiceUrl == null)
@@ -29,8 +30,10 @@ namespace Medidata.MAuth.Core
             if (string.IsNullOrWhiteSpace(options.PrivateKey))
                 throw new ArgumentNullException(nameof(options.PrivateKey));
 
+            _cache = cache ?? new MemoryCache(new MemoryCacheOptions());
             _options = options;
             _logger = logger;
+            _lazyHttpClient = new Lazy<HttpClient>(() => CreateHttpClient(options));
         }
 
         /// <summary>
@@ -46,16 +49,16 @@ namespace Medidata.MAuth.Core
 
                 var authHeader = request.GetAuthHeaderValue();
                 var version = authHeader.GetVersionFromAuthenticationHeader();
-                var parsedHeader = authHeader.ParseAuthenticationHeader();
+                var (Uuid, Base64Payload) = authHeader.ParseAuthenticationHeader();
 
                 if (_options.DisableV1 && version == MAuthVersion.MWS)
                     throw new InvalidVersionException($"Authentication with {version} version is disabled.");
 
-                var authenticated = await Authenticate(request, version, parsedHeader.Uuid).ConfigureAwait(false);
+                var authenticated = await Authenticate(request, version, Uuid).ConfigureAwait(false);
                 if (!authenticated && version == MAuthVersion.MWSV2 && !_options.DisableV1)
                 {
                     // fall back to V1 authentication
-                    authenticated = await Authenticate(request, MAuthVersion.MWS, parsedHeader.Uuid).ConfigureAwait(false);
+                    authenticated = await Authenticate(request, MAuthVersion.MWS, Uuid).ConfigureAwait(false);
                     _logger.LogWarning("Completed successful authentication attempt after fallback to V1");
                 }
                 return authenticated;
@@ -100,31 +103,53 @@ namespace Medidata.MAuth.Core
 
             var mAuthCore = MAuthCoreFactory.Instantiate(version);
             var authInfo = GetAuthenticationInfo(request, mAuthCore);
-            var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid).ConfigureAwait(false);
 
-            var signature = await mAuthCore.GetSignature(request, authInfo).ConfigureAwait(false);
-            return mAuthCore.Verify(authInfo.Payload, signature, appInfo.PublicKey);
+            try
+            {
+                var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid).ConfigureAwait(false);
+
+                var signature = await mAuthCore.GetSignature(request, authInfo).ConfigureAwait(false);
+                return mAuthCore.Verify(authInfo.Payload, signature, appInfo.PublicKey);
+            }
+            catch (RetriedRequestException)
+            {
+                // If the appliation info could not be fetched, remove the lazy
+                // object from the cache to allow for another attempt.
+                _cache.Remove(authInfo.ApplicationUuid);
+                throw;
+            }
         }
 
-        private Task<ApplicationInfo> GetApplicationInfo(Guid applicationUuid) =>
-            _cache.GetOrCreateAsync(applicationUuid, async entry =>
-            {
-                var retrier = new MAuthRequestRetrier(_options);
-                var response = await retrier.GetSuccessfulResponse(
-                    applicationUuid,
-                    CreateRequest,
-                    requestAttempts: (int)_options.MAuthServiceRetryPolicy + 1
-                ).ConfigureAwait(false);
+        private AsyncLazy<ApplicationInfo> GetApplicationInfo(Guid applicationUuid) =>
+            _cache.GetOrCreateWithLock(
+                applicationUuid,
+                entry => new AsyncLazy<ApplicationInfo>(() => SendApplicationInfoRequest(entry, applicationUuid)));
 
-                var result = await response.Content.FromResponse().ConfigureAwait(false);
+        private async Task<ApplicationInfo> SendApplicationInfoRequest(ICacheEntry entry, Guid applicationUuid)
+        {
+            var logMessage = "Mauth-client requesting from mAuth service application info not available " +
+                             $"in the local cache for app uuid {applicationUuid}.";
+            _logger.LogInformation(logMessage);
 
-                entry.SetOptions(
-                    new MemoryCacheEntryOptions()
-                        .SetAbsoluteExpiration(response.Headers.CacheControl?.MaxAge ?? TimeSpan.FromHours(1))
-                );
+            var retrier = new MAuthRequestRetrier(_lazyHttpClient.Value);
+            var response = await retrier.GetSuccessfulResponse(
+                applicationUuid,
+                CreateRequest,
+                requestAttempts: (int)_options.MAuthServiceRetryPolicy + 1
+            ).ConfigureAwait(false);
 
-                return result;
-            });
+            var result = await response.Content.FromResponse().ConfigureAwait(false);
+
+            entry.SetOptions(
+                new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(response.Headers.CacheControl?.MaxAge ?? TimeSpan.FromHours(1))
+            );
+
+            logMessage = $"Mauth-client application info for app uuid {applicationUuid} cached in memory.";
+            _logger.LogInformation(logMessage);
+
+            return result;
+        }
 
         /// <summary>
         /// Extracts the authentication information from a <see cref="HttpRequestMessage"/>.
@@ -134,17 +159,17 @@ namespace Medidata.MAuth.Core
         /// <returns>The authentication information with the payload from the request.</returns>
         internal static PayloadAuthenticationInfo GetAuthenticationInfo(HttpRequestMessage request, IMAuthCore mAuthCore)
         {
-            var headerKeys = mAuthCore.GetHeaderKeys();
-            var authHeader = request.Headers.GetFirstValueOrDefault<string>(headerKeys.mAuthHeaderKey);
+            var (mAuthHeaderKey, mAuthTimeHeaderKey) = mAuthCore.GetHeaderKeys();
+            var authHeader = request.Headers.GetFirstValueOrDefault<string>(mAuthHeaderKey);
 
             if (authHeader == null)
             {
                 throw new ArgumentNullException(nameof(authHeader), "The MAuth header is missing from the request.");
             }
 
-            var signedTime = request.Headers.GetFirstValueOrDefault<long>(headerKeys.mAuthTimeHeaderKey);
+            var signedTime = request.Headers.GetFirstValueOrDefault<long>(mAuthTimeHeaderKey);
 
-            if (signedTime == default(long))
+            if (signedTime == default)
             {
                 throw new ArgumentException("Invalid MAuth signed time header value.", nameof(signedTime));
             }
@@ -162,5 +187,21 @@ namespace Medidata.MAuth.Core
         private HttpRequestMessage CreateRequest(Guid applicationUuid) =>
             new HttpRequestMessage(HttpMethod.Get, new Uri(_options.MAuthServiceUrl,
                 $"{Constants.MAuthTokenRequestPath}{applicationUuid.ToHyphenString()}.json"));
+
+        private HttpClient CreateHttpClient(MAuthOptionsBase options)
+        {
+            var signingHandler = new MAuthSigningHandler(options: new MAuthSigningOptions()
+                {
+                    ApplicationUuid = options.ApplicationUuid,
+                    PrivateKey = options.PrivateKey,
+                },
+                innerHandler: options.MAuthServerHandler ?? new HttpClientHandler()
+            );
+
+            return new HttpClient(signingHandler)
+            {
+                Timeout = TimeSpan.FromSeconds(options.AuthenticateRequestTimeoutSeconds)
+            };
+        }
     }
 }

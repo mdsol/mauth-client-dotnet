@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core.Models;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -12,6 +13,8 @@ namespace Medidata.MAuth.Core
     /// </summary>
     public static class UtilityExtensions
     {
+        private static readonly IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
+
         /// <summary>
         /// Parses an MAuth authentication HTTP header value for the application uuid and the MAuth signature payload.
         /// If the parsing is not successful, an <see cref="ArgumentException"/> is thrown.
@@ -48,7 +51,7 @@ namespace Medidata.MAuth.Core
         public static bool TryParseAuthenticationHeader(this string headerValue,
             out (Guid Uuid, string Base64Payload) result)
         {
-            var match = headerValue.Contains("MWSV2") ? Constants.AuthenticationHeaderRegexV2.Match(headerValue) : 
+            var match = headerValue.Contains("MWSV2") ? Constants.AuthenticationHeaderRegexV2.Match(headerValue) :
                 Constants.AuthenticationHeaderRegex.Match(headerValue);
 
             result = default((Guid, string));
@@ -71,7 +74,7 @@ namespace Medidata.MAuth.Core
         /// <returns>The task for the operation that is when completes will result in <see langword="true"/> if
         /// the authentication is successful; otherwise <see langword="false"/>.</returns>
         public static Task<bool> Authenticate(this HttpRequestMessage request, MAuthOptionsBase options, ILogger logger) =>
-                new MAuthAuthenticator(options, logger).AuthenticateRequest(request);
+                new MAuthAuthenticator(options, logger, _cache).AuthenticateRequest(request);
 
         /// <summary>
         /// Determines the MAuth version enumerator reading authHeader.

@@ -6,23 +6,10 @@ namespace Medidata.MAuth.Core
 {
     internal class MAuthRequestRetrier
     {
-        private readonly HttpClient client;
+        private readonly HttpClient _client;
 
-        public MAuthRequestRetrier(MAuthOptionsBase options)
-        {
-            var signingHandler = new MAuthSigningHandler(options: new MAuthSigningOptions()
-            {
-                ApplicationUuid = options.ApplicationUuid,
-                PrivateKey = options.PrivateKey,
-            },
-            innerHandler: options.MAuthServerHandler ?? new HttpClientHandler()
-            );
-
-            client = new HttpClient(signingHandler)
-            {
-                Timeout = TimeSpan.FromSeconds(options.AuthenticateRequestTimeoutSeconds)
-            };
-        }
+        public MAuthRequestRetrier(HttpClient client) 
+            => _client = client;
 
         public async Task<HttpResponseMessage> GetSuccessfulResponse(Guid applicationUuid,
             Func<Guid, HttpRequestMessage> requestFactory, int requestAttempts)
@@ -50,7 +37,7 @@ namespace Medidata.MAuth.Core
                         nameof(requestFactory)
                     );
 
-                var result = await client.SendAsync(request).ConfigureAwait(continueOnCapturedContext: false);
+                var result = await _client.SendAsync(request).ConfigureAwait(continueOnCapturedContext: false);
 
                 if (result.IsSuccessStatusCode)
                     return result;
