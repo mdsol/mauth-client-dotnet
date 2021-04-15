@@ -10,21 +10,20 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
 {
     public class ProtocolTestSuiteHelper
     {
-        private string _testSuitePath;
         private string _testCasePath;
+        private string _testSuiteModulePath;
 
         public ProtocolTestSuiteHelper()
         {
             var currentDirectory = Environment.CurrentDirectory;
-            _testSuitePath = Environment.GetEnvironmentVariable("TEST_SUITE_PATH") != null
-                ? Environment.GetEnvironmentVariable("TEST_SUITE_PATH")
-                : Path.GetFullPath(Path.Combine(currentDirectory, "../../../../../../mauth-protocol-test-suite"));
-            _testCasePath = Path.Combine(_testSuitePath, "protocols/MWSV2");
+            _testSuiteModulePath = Path.GetFullPath(
+                Path.Combine(currentDirectory, "../../../../../mauth-protocol-test-suite"));
+            _testCasePath = Path.Combine(_testSuiteModulePath, "protocols/MWSV2");
         }
 
         public async Task<SigningConfig> LoadSigningConfig()
         {
-            var configFile = Path.Combine(_testSuitePath, "signing-config.json");
+            var configFile = Path.Combine(_testSuiteModulePath, "signing-config.json");
 
             var signingConfig = await ReadSigningConfigParameters(configFile);
             if (signingConfig is null )return null;
@@ -41,23 +40,14 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
 
         public async Task<string> GetPrivateKey()
         {
-            var filePath = Path.Combine(_testSuitePath, "signing-params/rsa-key");
+            var filePath = Path.Combine(_testSuiteModulePath, "signing-params/rsa-key");
             return Encoding.UTF8.GetString(await ReadAsBytes(filePath));
         }
 
         public async Task<string> GetPublicKey()
         {
-            var publicKeyFilePath = Path.Combine(_testSuitePath, "signing-params/rsa-key-pub");
-
-            // TODO: remove this try catch when "mauth-protocol-test-suite" is added as submodule
-            try
-            {
-                return Encoding.UTF8.GetString(await ReadAsBytes(publicKeyFilePath));
-            }
-            catch (DirectoryNotFoundException)
-            {
-                return null;
-            }
+            var publicKeyFilePath = Path.Combine(_testSuiteModulePath, "signing-params/rsa-key-pub");
+            return Encoding.UTF8.GetString(await ReadAsBytes(publicKeyFilePath));
         }
 
         public async Task<UnSignedRequest> LoadUnsignedRequest(string testCaseName)
@@ -114,16 +104,8 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
 
         private async Task<SigningConfig> ReadSigningConfigParameters(string signingConfigJson)
         {
-            // TODO: remove this try catch when "mauth-protocol-test-suite" is added as submodule
-            try
-            {
-                var signingConfigBytes = await ReadAsBytes(signingConfigJson);
-                return JsonConvert.DeserializeObject<SigningConfig>(Encoding.UTF8.GetString(signingConfigBytes));
-            }
-            catch (DirectoryNotFoundException)
-            {
-                return null;
-            }
+            var signingConfigBytes = await ReadAsBytes(signingConfigJson);
+            return JsonConvert.DeserializeObject<SigningConfig>(Encoding.UTF8.GetString(signingConfigBytes));
         }
 
         private async Task<byte[]> ReadAsBytes(string filePath)
