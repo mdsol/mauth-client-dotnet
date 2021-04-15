@@ -67,7 +67,7 @@ Write-Host "Running unit tests..." -ForegroundColor Cyan
 
 Push-Location -Path .\tests\Medidata.MAuth.Tests
 
-dotnet test --filter "Category!=ProtocolTestSuite"
+dotnet test
 
 Pop-Location
 
