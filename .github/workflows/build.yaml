@@ -1,0 +1,11 @@
+name: Build and Test
+on: [push]
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+      - run: dotnet test $GITHUB_WORKSPACE/Medidata.MAuth.sln --framework net5.0

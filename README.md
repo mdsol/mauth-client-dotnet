@@ -3,13 +3,6 @@
 Medidata.MAuth is a framework that provides support for authenticating web services and applications
 with the Medidata HMAC protocol, MAuth.
 
-## Build Status
-
-| Build | Status |
-| --- | --- |
-| AppVeyor Release | ![Release](https://ci.appveyor.com/api/projects/status/94450nsec4kwhjpo?branch=master&svg=true) |
-| AppVeyor Prerelease | ![Prerelease](https://ci.appveyor.com/api/projects/status/94450nsec4kwhjpo?branch=develop&svg=true) |
-
 ## What is MAuth?
 
 The MAuth protocol provides a fault-tolerant, service-to-service authentication scheme for Medidata and third-party
