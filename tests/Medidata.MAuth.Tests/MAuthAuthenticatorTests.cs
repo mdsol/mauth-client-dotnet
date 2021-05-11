@@ -8,7 +8,6 @@ using Medidata.MAuth.Core.Models;
 using Medidata.MAuth.Tests.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Logging.Internal;
 using Moq;
 using Xunit;
 
@@ -448,7 +447,7 @@ namespace Medidata.MAuth.Tests
             Assert.True(isAuthenticated);
             mockLogger.Verify(x => x.Log(
                     LogLevel.Warning, It.IsAny<EventId>(),
-                    It.Is<FormattedLogValues>(v => v.ToString()
+                    It.Is<It.IsAnyType>(v => v.ToString()
                         .Contains("Completed successful authentication attempt after fallback to V1")),
                     It.IsAny<Exception>(), It.IsAny<Func<object, Exception, string>>()
                 ));
@@ -473,7 +472,7 @@ namespace Medidata.MAuth.Tests
             Assert.False(isAuthenticated);
             mockLogger.Verify(x => x.Log(
                 LogLevel.Warning, It.IsAny<EventId>(),
-                It.Is<FormattedLogValues>(v => v.ToString()
+                It.Is<It.IsAnyType>(v => v.ToString()
                     .Contains("Completed successful authentication attempt after fallback to V1")),
                 It.IsAny<Exception>(), It.IsAny<Func<object, Exception, string>>()
             ), Times.Never);
