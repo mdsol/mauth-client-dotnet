@@ -1,5 +1,7 @@
 # Changes in Medidata.MAuth
 
+## v5.1.2
+- **[Core]** Removed unnecessary dependency on `System.Net.Http` package.
 ## v5.1.1
 - **[Core]** Fixed an issue with internal caching for the utility extension `Authenticate()` method.
 
