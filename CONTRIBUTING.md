@@ -1,7 +1,24 @@
 # Contributing
 
+## Cloning the Repo
+
+This repo contains the submodule `mauth-protocol-test-suite` so requires a flag when initially cloning in order to clone and init submodules.
+
+```
+git clone --recurse-submodules git@github.com:mdsol/mauth-client-dotnet.git
+```
+
+If you have already cloned a version of this repo before the submodule was introduced then run
+
+```
+cd mauth-protocol-test-suite
+git submodule update --init
+```
+
+to init the submodule.
+
 ## General Information
-* Clone this repo in your workspace. Checkout latest `develop` branch.
+* Checkout latest `develop` branch.
 * Make new changes or updates into `feature/bugfix` branch.
 * Make sure to add unit tests for it so that there is no breaking changes.
 * Commit and push your branch to compare and create PR against latest `develop` branch.
@@ -11,15 +28,5 @@ To run tests, go the folder `mauth-client-dotnet\tests\Medidata.MAuth.Tests`
 Next, run the tests as:
 
 ```
-dotnet test --filter "Category!=ProtocolTestSuite"
-```
-
-## Running mauth-protocol-test-suite
-To run the mauth-protocol-test-suite clone the latest suite onto your machine and place it in the same parent directory as this repo (or supply the ENV var 
-`TEST_SUITE_PATH` with the path to the test suite relative to this repo).  
-Then navigate to :`mauth-client-dotnet\tests\Medidata.MAuth.Tests`  
-And, run the tests as:
-
-```
-dotnet test --filter "Category=ProtocolTestSuite"
+dotnet test
 ```
