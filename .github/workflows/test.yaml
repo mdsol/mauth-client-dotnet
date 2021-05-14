@@ -8,4 +8,5 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
-      - run: dotnet test $GITHUB_WORKSPACE/Medidata.MAuth.sln --framework net5.0
+      - name: Run the tests
+        run: dotnet test $GITHUB_WORKSPACE/Medidata.MAuth.sln --framework net5.0
