@@ -14,7 +14,7 @@ jobs:
       - name: Build the packages
         run: dotnet build --configuration Release /p:PackageOutputPath=$GITHUB_WORKSPACE/artifacts
       - name: Run the tests
-        run: dotnet test $GITHUB_WORKSPACE/Medidata.MAuth.sln --framework net5.0 --no-build
+        run: dotnet test $GITHUB_WORKSPACE/Medidata.MAuth.sln --framework net5.0
       - name: Publish the packages
         run: dotnet nuget push "$GITHUB_WORKSPACE/artifacts/*.nupkg" --source $ARTIFACTORY_PUSH_TARGET --api-key $API_KEY
         env:
