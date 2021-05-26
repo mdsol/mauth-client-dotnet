@@ -166,7 +166,6 @@ namespace Medidata.MAuth.Core
             return (Constants.MAuthHeaderKeyV2, Constants.MAuthTimeHeaderKeyV2);
         }
 
-#if NET5_0
         /// <summary>
         /// Signs an HTTP request with the MAuth-specific authentication information.
         /// </summary>
@@ -187,6 +186,5 @@ namespace Medidata.MAuth.Core
             var requestContents = request.GetRequestContentAsBytes();
             return AddAuthenticationInfo(request, authInfo, requestContents);
         }
-#endif
     }
 }

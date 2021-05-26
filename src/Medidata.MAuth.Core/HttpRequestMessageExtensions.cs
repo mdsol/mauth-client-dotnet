@@ -14,18 +14,15 @@ namespace Medidata.MAuth.Core
                     : await request.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
         }
 
-#if NET5_0
         public static byte[] GetRequestContentAsBytes(this HttpRequestMessage request)
         {
-            using (var memoryStream = new MemoryStream())
+            using var memoryStream = new MemoryStream();
+
+            if (request.Content != null)
             {
-                if (request.Content != null)
-                {
-                    request.Content.ReadAsStream().CopyTo(memoryStream);
-                }
-                return memoryStream.ToArray();
+                request.Content.ReadAsStreamAsync().GetAwaiter().GetResult().CopyTo(memoryStream);
             }
+            return memoryStream.ToArray();
         }
-#endif
     }
 }
