@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net5.0</TargetFrameworks>
+    <Description>Unit tests for the Medidata.MAuth.AspNetCore package.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="5.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Medidata.MAuth.AspNetCore\Medidata.MAuth.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\src\Medidata.MAuth.Core\Medidata.MAuth.Core.csproj" />
+    <ProjectReference Include="..\Medidata.MAuth.Tests.Common\Medidata.MAuth.Tests.Common.csproj" />
+  </ItemGroup>
+</Project>

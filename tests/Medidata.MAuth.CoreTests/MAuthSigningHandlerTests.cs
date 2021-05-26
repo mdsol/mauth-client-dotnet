@@ -100,7 +100,7 @@ namespace Medidata.MAuth.Tests
         [InlineData("DELETE")]
         [InlineData("POST")]
         [InlineData("PUT")]
-        public static void Send_WithNoSignVersions_WillSignWithOnlyMWS(string method)
+        public static async Task Send_WithNoSignVersions_WillSignWithOnlyMWS(string method)
         {
             // Arrange
             var testData = method.FromResourceSync();
@@ -111,7 +111,7 @@ namespace Medidata.MAuth.Tests
             // Act
             using (var client = new HttpClient(signingHandler))
             {
-                client.Send(testData.ToHttpRequestMessage(version));
+                await client.SendAsync(testData.ToHttpRequestMessage(version));
             }
 
             // Assert
@@ -127,7 +127,7 @@ namespace Medidata.MAuth.Tests
         [InlineData("DELETE")]
         [InlineData("POST")]
         [InlineData("PUT")]
-        public static void Send_WithSignVersionMWS_WillSignWithOnlyMWS(string method)
+        public static async Task Send_WithSignVersionMWS_WillSignWithOnlyMWS(string method)
         {
             // Arrange
             var testData = method.FromResourceV2Sync();
@@ -140,7 +140,7 @@ namespace Medidata.MAuth.Tests
             // Act
             using (var client = new HttpClient(signingHandler))
             {
-                client.Send(testData.ToHttpRequestMessage(version));
+                await client.SendAsync(testData.ToHttpRequestMessage(version));
             }
 
             // Assert
@@ -156,7 +156,7 @@ namespace Medidata.MAuth.Tests
         [InlineData("DELETE")]
         [InlineData("POST")]
         [InlineData("PUT")]
-        public static void Send_WithSignVersionsMWSAndMWSV2_WillSignWithBothMWSAndMWSV2(string method)
+        public static async Task Send_WithSignVersionsMWSAndMWSV2_WillSignWithBothMWSAndMWSV2(string method)
         {
             // Arrange
             var testData = method.FromResourceV2Sync();
@@ -169,7 +169,7 @@ namespace Medidata.MAuth.Tests
             // Act
             using (var client = new HttpClient(signingHandler))
             {
-                client.Send(testData.ToDefaultHttpRequestMessage());
+                await client.SendAsync(testData.ToDefaultHttpRequestMessage());
             }
 
             // Assert

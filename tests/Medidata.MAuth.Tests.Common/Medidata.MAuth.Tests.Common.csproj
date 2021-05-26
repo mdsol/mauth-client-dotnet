@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <Description>Common data and classes for the Medidata.MAuth package unit tests.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Mocks\Keys\ClientPrivateKey.pem" />
+    <EmbeddedResource Include="Mocks\Keys\ClientPublicKey.pem" />
+    <EmbeddedResource Include="Mocks\Keys\LinuxLineEnding.pem" />
+    <EmbeddedResource Include="Mocks\Keys\NoLineEnding.pem" />
+    <EmbeddedResource Include="Mocks\Keys\ServerPrivateKey.pem" />
+    <EmbeddedResource Include="Mocks\Keys\ServerPublicKey.pem" />
+    <EmbeddedResource Include="Mocks\RequestDataV2\DELETE.json" />
+    <EmbeddedResource Include="Mocks\RequestDataV2\GET.json" />
+    <EmbeddedResource Include="Mocks\RequestDataV2\POST.json" />
+    <EmbeddedResource Include="Mocks\RequestDataV2\POSTWithBinaryData.json" />
+    <EmbeddedResource Include="Mocks\RequestDataV2\PUT.json" />
+    <EmbeddedResource Include="Mocks\RequestData\DELETE.json" />
+    <EmbeddedResource Include="Mocks\RequestData\GET.json" />
+    <EmbeddedResource Include="Mocks\RequestData\PUT.json" />
+    <EmbeddedResource Include="Mocks\RequestData\POST.json" />
+    <EmbeddedResource Include="Mocks\RequestData\POSTWithBinaryData.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Medidata.MAuth.Core\Medidata.MAuth.Core.csproj" />
+  </ItemGroup>
+
+ <ItemGroup>
+  <PackageReference Remove="xunit.runner.visualstudio" />
+ </ItemGroup>
+</Project>

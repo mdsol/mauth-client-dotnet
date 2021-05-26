@@ -5,7 +5,7 @@ using Medidata.MAuth.Core;
 namespace Medidata.MAuth.Tests.Infrastructure
 {
     [DataContract]
-    internal class RequestData
+    public class RequestData
     {
         [DataMember]
         public Uri Url { get; set; }

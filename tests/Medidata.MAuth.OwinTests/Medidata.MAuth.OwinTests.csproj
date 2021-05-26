@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461</TargetFrameworks>
+    <Description>Unit tests for the Medidata.MAuth.Owin package.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Medidata.MAuth.Core\Medidata.MAuth.Core.csproj" />
+    <ProjectReference Include="..\..\src\Medidata.MAuth.Owin\Medidata.MAuth.Owin.csproj" />
+    <ProjectReference Include="..\Medidata.MAuth.Tests.Common\Medidata.MAuth.Tests.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Owin.Hosting" Version="4.2.0" />
+    <PackageReference Include="Microsoft.Owin.Testing" Version="4.2.0" />
+    <PackageReference Include="Microsoft.Owin.Host.HttpListener" Version="4.2.0" />
+  </ItemGroup>
+</Project>

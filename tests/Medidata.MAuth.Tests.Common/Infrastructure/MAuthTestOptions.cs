@@ -2,7 +2,7 @@
 
 namespace Medidata.MAuth.Tests.Infrastructure
 {
-    internal class MAuthTestOptions: MAuthOptionsBase
+    public class MAuthTestOptions: MAuthOptionsBase
     {
     }
 }
