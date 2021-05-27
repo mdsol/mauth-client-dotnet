@@ -6,12 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Mocks\Keys\ClientPrivateKey.pem" />
-    <EmbeddedResource Include="Mocks\Keys\ClientPublicKey.pem" />
-    <EmbeddedResource Include="Mocks\Keys\LinuxLineEnding.pem" />
-    <EmbeddedResource Include="Mocks\Keys\NoLineEnding.pem" />
-    <EmbeddedResource Include="Mocks\Keys\ServerPrivateKey.pem" />
-    <EmbeddedResource Include="Mocks\Keys\ServerPublicKey.pem" />
+    <EmbeddedResource Include="Mocks\Keys\Fake_ClientPrivateKey.pem" />
+    <EmbeddedResource Include="Mocks\Keys\Fake_ClientPublicKey.pem" />
+    <EmbeddedResource Include="Mocks\Keys\Fake_LinuxLineEnding.pem" />
+    <EmbeddedResource Include="Mocks\Keys\Fake_NoLineEnding.pem" />
+    <EmbeddedResource Include="Mocks\Keys\Fake_ServerPrivateKey.pem" />
+    <EmbeddedResource Include="Mocks\Keys\Fake_ServerPublicKey.pem" />
     <EmbeddedResource Include="Mocks\RequestDataV2\DELETE.json" />
     <EmbeddedResource Include="Mocks\RequestDataV2\GET.json" />
     <EmbeddedResource Include="Mocks\RequestDataV2\POST.json" />

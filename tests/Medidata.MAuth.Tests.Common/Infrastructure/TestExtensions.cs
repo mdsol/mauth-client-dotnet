@@ -95,7 +95,7 @@ namespace Medidata.MAuth.Tests.Infrastructure
 
         private static Task<string> GetKeyFromResource(string keyName)
         {
-            return GetStringFromResource($"Medidata.MAuth.Tests.Common.Mocks.Keys.{keyName}.pem");
+            return GetStringFromResource($"Medidata.MAuth.Tests.Common.Mocks.Keys.Fake_{keyName}.pem");
         }
 
         public static HttpRequestMessage ToHttpRequestMessage(this RequestData data, MAuthVersion version = MAuthVersion.MWS)
