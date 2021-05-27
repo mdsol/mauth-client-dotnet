@@ -1,5 +1,12 @@
 # Changes in Medidata.MAuth
 
+## v5.1.3
+- **[All]** Removed target framework multitargeting and specified single target framework for all packages
+- **[Core]** Specified target framework as .NET Standard 2.0
+- **[AspNetCore]** Specified target framework as .NET Standard 2.0
+- **[Owin]** Specified target framework as .NET Framework 4.6.1
+- **[WebApi]** Specified target framework as .NET Framework 4.6.1
+
 ## v5.1.2
 - **[Core]** Removed unnecessary dependency on `System.Net.Http` package.
 
