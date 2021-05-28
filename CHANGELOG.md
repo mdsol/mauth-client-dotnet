@@ -1,8 +1,9 @@
 # Changes in Medidata.MAuth
 
 ## v5.1.3
-- **[All]** Removed target framework multitargeting and specified single target framework for all packages
-- **[Core]** Specified target framework as .NET Standard 2.0
+- **[All]** Partially removed target framework multitargeting and specified single target framework for most of the
+  packages
+- **[Core]** Specified target framework as .NET Standard 2.0 and .NET 5.0
 - **[AspNetCore]** Specified target framework as .NET Standard 2.0
 - **[Owin]** Specified target framework as .NET Framework 4.6.1
 - **[WebApi]** Specified target framework as .NET Framework 4.6.1
