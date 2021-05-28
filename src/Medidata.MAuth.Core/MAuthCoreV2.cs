@@ -106,7 +106,7 @@ namespace Medidata.MAuth.Core
         }
 
         /// <summary>
-        /// Adds authentication information to a <see cref="HttpRequestMessage"/>. 
+        /// Adds authentication information to a <see cref="HttpRequestMessage"/>.
         /// </summary>
         /// <param name="request">The request to add the information to.</param>
         /// <param name="authInfo">
@@ -148,7 +148,7 @@ namespace Medidata.MAuth.Core
         internal string CalculatePayload(
             HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo, byte[] requestContents)
         {
-            
+
             var unsignedData = GenerateSignature(request, authInfo, requestContents);
             var signer = new RSACryptoServiceProvider();
             signer.PersistKeyInCsp = false;
@@ -166,6 +166,7 @@ namespace Medidata.MAuth.Core
             return (Constants.MAuthHeaderKeyV2, Constants.MAuthTimeHeaderKeyV2);
         }
 
+#if NET5_0
         /// <summary>
         /// Signs an HTTP request with the MAuth-specific authentication information.
         /// </summary>
@@ -186,5 +187,6 @@ namespace Medidata.MAuth.Core
             var requestContents = request.GetRequestContentAsBytes();
             return AddAuthenticationInfo(request, authInfo, requestContents);
         }
+#endif
     }
 }

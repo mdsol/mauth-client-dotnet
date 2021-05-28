@@ -97,7 +97,7 @@ namespace Medidata.MAuth.Core
         }
 
         /// <summary>
-        /// Adds authentication information to a <see cref="HttpRequestMessage"/>. 
+        /// Adds authentication information to a <see cref="HttpRequestMessage"/>.
         /// </summary>
         /// <param name="request">The request to add the information to.</param>
         /// <param name="authInfo">
@@ -152,6 +152,8 @@ namespace Medidata.MAuth.Core
         {
             return (Constants.MAuthHeaderKey, Constants.MAuthTimeHeaderKey);
         }
+
+#if NET5_0
         public HttpRequestMessage SignSync(HttpRequestMessage request, MAuthSigningOptions options)
         {
             var authInfo = new PrivateKeyAuthenticationInfo()
@@ -164,5 +166,6 @@ namespace Medidata.MAuth.Core
             var contents = request.GetRequestContentAsBytes();
             return AddAuthenticationInfo(request, authInfo, contents);
         }
+#endif
     }
 }

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Description>A core package for Medidata HMAC protocol implementation. This package contains the core functionality which used by the MAuth authentication protocol-specific components. This package also can be used standalone if you want to sign HTTP/HTTPS requests with Medidata MAuth keys using the .NET HttpClient message handler mechanism.</Description>
     <AssemblyTitle>Medidata.MAuth.Core</AssemblyTitle>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net5.0</TargetFrameworks>
     <AssemblyName>Medidata.MAuth.Core</AssemblyName>
     <PackageTags>medidata;mauth;hmac;authentication;core;httpclient;messagehandler</PackageTags>
   </PropertyGroup>
