@@ -13,10 +13,8 @@ jobs:
           submodules: 'recursive'
       - name: Build the packages
         run: dotnet build --configuration Release /p:PackageOutputPath=$GITHUB_WORKSPACE/artifacts
-      - name: Run the tests
-        run: dotnet test $GITHUB_WORKSPACE/Medidata.MAuth.sln --framework net5.0
       - name: Publish the packages
         run: dotnet nuget push "$GITHUB_WORKSPACE/artifacts/*.nupkg" --source $ARTIFACTORY_PUSH_TARGET --api-key $API_KEY
         env:
-          API_KEY: ${{ format('{0}:{1}', secrets.ARTIFACTORY_USERNAME, secrets.ARTIFACTORY_PASSWORD) }}
+          API_KEY: ${{ format('{0}:{1}', secrets.ARTIFACTORY_USERNAME, secrets.ARTIFACTORY_API_KEY) }}
           ARTIFACTORY_PUSH_TARGET: https://mdsol.jfrog.io/artifactory/api/nuget/nuget-local/mauth-client-dotnet
