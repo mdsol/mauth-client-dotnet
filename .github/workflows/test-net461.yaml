@@ -9,9 +9,9 @@ jobs:
         with:
           submodules: 'recursive'
       - name: Run the Core tests
-        run: dotnet test %GITHUB_WORKSPACE%\tests\Medidata.MAuth.CoreTests\Medidata.MAuth.CoreTests.csproj --framework net461
+        run: dotnet test $env:GITHUB_WORKSPACE\tests\Medidata.MAuth.CoreTests --framework net461
       - name: Run the OWIN tests
-        run: dotnet test %GITHUB_WORKSPACE%\tests\Medidata.MAuth.OwinTests\Medidata.MAuth.OwinTests.csproj --framework net461
+        run: dotnet test $env:GITHUB_WORKSPACE\tests\Medidata.MAuth.OwinTests --framework net461
       - name: Run the WebAPI tests
-        run: dotnet test %GITHUB_WORKSPACE%\tests\Medidata.MAuth.WebApiTests\Medidata.MAuth.WebApiTests.csproj --framework net461
+        run: dotnet test $env:GITHUB_WORKSPACE\tests\Medidata.MAuth.WebApiTests --framework net461
 
