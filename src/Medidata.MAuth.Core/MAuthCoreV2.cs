@@ -148,7 +148,6 @@ namespace Medidata.MAuth.Core
         internal string CalculatePayload(
             HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo, byte[] requestContents)
         {
-
             var unsignedData = GenerateSignature(request, authInfo, requestContents);
             var signer = new RSACryptoServiceProvider();
             signer.PersistKeyInCsp = false;
