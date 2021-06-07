@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace Medidata.MAuth.Tests.Infrastructure
 {
-    internal class MAuthServerHandler : HttpMessageHandler
+    public class MAuthServerHandler : HttpMessageHandler
     {
         private MAuthServerHandler() { }
 

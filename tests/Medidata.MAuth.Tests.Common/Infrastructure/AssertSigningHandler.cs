@@ -10,7 +10,7 @@ using Medidata.MAuth.Core;
 
 namespace Medidata.MAuth.Tests.Infrastructure
 {
-    internal class AssertSigningHandler : HttpMessageHandler
+    public class AssertSigningHandler : HttpMessageHandler
     {
         public string MAuthHeader { get; private set; }
 
@@ -31,19 +31,5 @@ namespace Medidata.MAuth.Tests.Infrastructure
 
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
         }
-
-#if NET5_0
-        protected override HttpResponseMessage Send(
-           HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            MAuthHeaderV2 = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKeyV2);
-            MAuthHeader = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthHeaderKey);
-
-            MAuthTimeHeaderV2 = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthTimeHeaderKeyV2);
-            MAuthTimeHeader = request.Headers.GetFirstValueOrDefault<string>(Constants.MAuthTimeHeaderKey);
-
-            return new HttpResponseMessage(HttpStatusCode.OK);
-        }
-#endif
     }
 }

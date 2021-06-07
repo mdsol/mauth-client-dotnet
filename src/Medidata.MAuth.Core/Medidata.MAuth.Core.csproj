@@ -3,37 +3,20 @@
   <PropertyGroup>
     <Description>A core package for Medidata HMAC protocol implementation. This package contains the core functionality which used by the MAuth authentication protocol-specific components. This package also can be used standalone if you want to sign HTTP/HTTPS requests with Medidata MAuth keys using the .NET HttpClient message handler mechanism.</Description>
     <AssemblyTitle>Medidata.MAuth.Core</AssemblyTitle>
-    <TargetFrameworks>netstandard2.0;net461;net5.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net5.0</TargetFrameworks>
     <AssemblyName>Medidata.MAuth.Core</AssemblyName>
     <PackageTags>medidata;mauth;hmac;authentication;core;httpclient;messagehandler</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ConfigureAwaitChecker.Analyzer" Version="4.0.0">
+    <PackageReference Include="ConfigureAwaitChecker.Analyzer" Version="5.0.0">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-    <PackageReference Include="System.ValueTuple" Version="4.3.1" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="1.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.10" />
   </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.1.2" />
-  </ItemGroup>
-
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
-        <PackageReference Include="Portable.BouncyCastle" Version="1.8.1.2" />
-    </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
-    <PackageReference Include="BouncyCastle" Version="1.8.1" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Net.Http.WebRequest" />
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
 </Project>

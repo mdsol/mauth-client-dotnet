@@ -17,14 +17,13 @@ namespace Medidata.MAuth.Core
 #if NET5_0
         public static byte[] GetRequestContentAsBytes(this HttpRequestMessage request)
         {
-            using (var memoryStream = new MemoryStream())
+            using var memoryStream = new MemoryStream();
+
+            if (request.Content != null)
             {
-                if (request.Content != null)
-                {
-                    request.Content.ReadAsStream().CopyTo(memoryStream);
-                }
-                return memoryStream.ToArray();
+                request.Content.ReadAsStream().CopyTo(memoryStream);
             }
+            return memoryStream.ToArray();
         }
 #endif
     }

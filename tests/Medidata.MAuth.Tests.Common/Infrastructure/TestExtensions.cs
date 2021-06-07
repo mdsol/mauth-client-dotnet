@@ -10,7 +10,7 @@ using Medidata.MAuth.Core.Models;
 
 namespace Medidata.MAuth.Tests.Infrastructure
 {
-    internal static class TestExtensions
+    public static class TestExtensions
     {
         public static readonly Uri TestUri = new Uri("http://localhost");
         public static readonly Guid ClientUuid = new Guid("192cce84-8466-490e-b03e-074f82da3ee2");
@@ -74,28 +74,28 @@ namespace Medidata.MAuth.Tests.Infrastructure
 
         public static RequestData FromResourceSync(this string requestDataName) =>
            JsonConvert.DeserializeObject<RequestData>(
-               GetStringFromResourceSync($"Medidata.MAuth.Tests.Mocks.RequestData.{requestDataName}.json")
+               GetStringFromResourceSync($"Medidata.MAuth.Tests.Common.Mocks.RequestData.{requestDataName}.json")
            );
 
         public static RequestData FromResourceV2Sync(this string requestDataName) =>
             JsonConvert.DeserializeObject<RequestData>(
-                GetStringFromResourceSync($"Medidata.MAuth.Tests.Mocks.RequestDataV2.{requestDataName}.json")
+                GetStringFromResourceSync($"Medidata.MAuth.Tests.Common.Mocks.RequestDataV2.{requestDataName}.json")
             );
 
 
         public static async Task<RequestData> FromResource(this string requestDataName) =>
             JsonConvert.DeserializeObject<RequestData>(
-                await GetStringFromResource($"Medidata.MAuth.Tests.Mocks.RequestData.{requestDataName}.json")
+                await GetStringFromResource($"Medidata.MAuth.Tests.Common.Mocks.RequestData.{requestDataName}.json")
             );
 
         public static async Task<RequestData> FromResourceV2(this string requestDataName) =>
             JsonConvert.DeserializeObject<RequestData>(
-                await GetStringFromResource($"Medidata.MAuth.Tests.Mocks.RequestDataV2.{requestDataName}.json")
+                await GetStringFromResource($"Medidata.MAuth.Tests.Common.Mocks.RequestDataV2.{requestDataName}.json")
             );
 
         private static Task<string> GetKeyFromResource(string keyName)
         {
-            return GetStringFromResource($"Medidata.MAuth.Tests.Mocks.Keys.{keyName}.pem");
+            return GetStringFromResource($"Medidata.MAuth.Tests.Common.Mocks.Keys.Fake_{keyName}.pem");
         }
 
         public static HttpRequestMessage ToHttpRequestMessage(this RequestData data, MAuthVersion version = MAuthVersion.MWS)

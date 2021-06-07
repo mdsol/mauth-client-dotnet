@@ -1,0 +1,17 @@
+name: Build and Test (.NET Framework 4.6.1)
+on: [push]
+jobs:
+  Test:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+      - name: Run the Core tests
+        run: dotnet test $env:GITHUB_WORKSPACE\tests\Medidata.MAuth.CoreTests --framework net461
+      - name: Run the OWIN tests
+        run: dotnet test $env:GITHUB_WORKSPACE\tests\Medidata.MAuth.OwinTests --framework net461
+      - name: Run the WebAPI tests
+        run: dotnet test $env:GITHUB_WORKSPACE\tests\Medidata.MAuth.WebApiTests --framework net461
+

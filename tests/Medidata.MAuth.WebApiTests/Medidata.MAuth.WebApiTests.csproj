@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461</TargetFrameworks>
+    <Description>Unit tests for the Medidata.MAuth.WebApi package.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Medidata.MAuth.Core\Medidata.MAuth.Core.csproj" />
+    <ProjectReference Include="..\..\src\Medidata.MAuth.WebApi\Medidata.MAuth.WebApi.csproj" />
+    <ProjectReference Include="..\Medidata.MAuth.Tests.Common\Medidata.MAuth.Tests.Common.csproj" />
+  </ItemGroup>
+</Project>
