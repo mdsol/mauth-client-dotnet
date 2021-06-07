@@ -106,7 +106,7 @@ namespace Medidata.MAuth.Core
         }
 
         /// <summary>
-        /// Adds authentication information to a <see cref="HttpRequestMessage"/>. 
+        /// Adds authentication information to a <see cref="HttpRequestMessage"/>.
         /// </summary>
         /// <param name="request">The request to add the information to.</param>
         /// <param name="authInfo">
@@ -148,7 +148,6 @@ namespace Medidata.MAuth.Core
         internal string CalculatePayload(
             HttpRequestMessage request, PrivateKeyAuthenticationInfo authInfo, byte[] requestContents)
         {
-            
             var unsignedData = GenerateSignature(request, authInfo, requestContents);
             var signer = new RSACryptoServiceProvider();
             signer.PersistKeyInCsp = false;

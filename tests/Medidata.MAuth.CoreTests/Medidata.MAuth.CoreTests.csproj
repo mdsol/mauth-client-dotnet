@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net5.0</TargetFrameworks>
+    <Description>Unit tests for the Medidata.MAuth.Core package.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Medidata.MAuth.Core\Medidata.MAuth.Core.csproj" />
+    <ProjectReference Include="..\Medidata.MAuth.Tests.Common\Medidata.MAuth.Tests.Common.csproj" />
+  </ItemGroup>
+</Project>

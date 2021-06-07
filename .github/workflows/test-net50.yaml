@@ -1,0 +1,14 @@
+name: Build and Test (.NET 5.0)
+on: [push]
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+      - name: Run the Core tests
+        run: dotnet test $GITHUB_WORKSPACE/tests/Medidata.MAuth.CoreTests --framework net5.0
+      - name: Run the ASP.NET Core tests
+        run: dotnet test $GITHUB_WORKSPACE/tests/Medidata.MAuth.AspNetCoreTests --framework net5.0
