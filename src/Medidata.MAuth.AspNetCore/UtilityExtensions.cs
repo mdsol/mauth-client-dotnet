@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Medidata.MAuth.Core;
+using System.Linq;
+using Microsoft.Extensions.Primitives;
 
 namespace Medidata.MAuth.AspNetCore
 {
@@ -16,9 +18,13 @@ namespace Medidata.MAuth.AspNetCore
         /// <returns>The MAuthHeader value.</returns>
         public static string GetAuthHeaderValue(this HttpRequest request)
         {
-            var requestMessage = request.ToHttpRequestMessage();
+            if (request.Headers.TryGetValue(Constants.MAuthHeaderKeyV2, out var authHeaderV2))
+            {
+                return authHeaderV2;
+            }
 
-            return requestMessage.GetAuthHeaderValue();
+            request.Headers.TryGetValue(Constants.MAuthHeaderKey, out var authHeaderV1);
+            return authHeaderV1;
         }
     }
 }
