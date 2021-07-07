@@ -1,5 +1,8 @@
 # Changes in Medidata.MAuth
 
+## v5.1.4
+- **[AspNetCore]** Added extension methods to retrieve header value and app uuid on HttpRequest
+
 ## v5.1.3
 - **[All]** Partially removed target framework multitargeting and specified single target framework for most of the
   packages
