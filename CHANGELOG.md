@@ -1,5 +1,9 @@
 # Changes in Medidata.MAuth
 
+## v5.1.4
+- **[Core]** Change the fallback behavior of caching from 1 hour to 5 minutes in case when there is no valid caching
+  instruction provided by the MAuth server
+
 ## v5.1.3
 - **[All]** Partially removed target framework multitargeting and specified single target framework for most of the
   packages
