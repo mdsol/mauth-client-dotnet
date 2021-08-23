@@ -142,7 +142,7 @@ namespace Medidata.MAuth.Core
 
             entry.SetOptions(
                 new MemoryCacheEntryOptions()
-                    .SetAbsoluteExpiration(response.Headers.CacheControl?.MaxAge ?? TimeSpan.FromHours(1))
+                    .SetAbsoluteExpiration(response.Headers.CacheControl?.MaxAge ?? TimeSpan.FromMinutes(5))
             );
 
             logMessage = $"Mauth-client application info for app uuid {applicationUuid} cached in memory.";
