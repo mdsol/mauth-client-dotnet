@@ -17,4 +17,4 @@ jobs:
         run: dotnet nuget push "$GITHUB_WORKSPACE/artifacts/*.nupkg" --source $ARTIFACTORY_PUSH_TARGET --api-key $API_KEY
         env:
           API_KEY: ${{ format('{0}:{1}', secrets.ARTIFACTORY_ACCOUNT_NAME, secrets.ARTIFACTORY_PROD_ACCESS_TOKEN) }}
-          ARTIFACTORY_PUSH_TARGET: https://mdsol.jfrog.io/artifactory/api/nuget/nuget-local/mauth-client-dotnet
+          ARTIFACTORY_PUSH_TARGET: https://mdsol.jfrog.io/artifactory/api/nuget/PlatformLibraries-nuget-prod-local/mauth-client-dotnet
