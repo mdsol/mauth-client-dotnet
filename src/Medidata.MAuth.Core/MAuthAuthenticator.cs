@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Medidata.MAuth.Core.Caching;
 using Medidata.MAuth.Core.Exceptions;
 using Microsoft.Extensions.Caching.Memory;
 using Org.BouncyCastle.Crypto;
@@ -12,14 +13,14 @@ namespace Medidata.MAuth.Core
 {
     internal class MAuthAuthenticator
     {
-        private readonly IMemoryCache _cache;
+        private readonly ICacheService _cache;
         private readonly MAuthOptionsBase _options;
         private readonly ILogger _logger;
         private readonly Lazy<HttpClient> _lazyHttpClient;
 
         public Guid ApplicationUuid => _options.ApplicationUuid;
 
-        public MAuthAuthenticator(MAuthOptionsBase options, ILogger logger, IMemoryCache cache = null)
+        public MAuthAuthenticator(MAuthOptionsBase options, ILogger logger, ICacheService cacheService = null)
         {
             if (options.ApplicationUuid == default)
                 throw new ArgumentException(nameof(options.ApplicationUuid));
@@ -30,7 +31,7 @@ namespace Medidata.MAuth.Core
             if (string.IsNullOrWhiteSpace(options.PrivateKey))
                 throw new ArgumentNullException(nameof(options.PrivateKey));
 
-            _cache = cache ?? new MemoryCache(new MemoryCacheOptions());
+            _cache = cacheService ?? new MemoryCacheService(new MemoryCache(new MemoryCacheOptions()));
             _options = options;
             _logger = logger;
             _lazyHttpClient = new Lazy<HttpClient>(() => CreateHttpClient(options));
@@ -103,29 +104,17 @@ namespace Medidata.MAuth.Core
 
             var mAuthCore = MAuthCoreFactory.Instantiate(version);
             var authInfo = GetAuthenticationInfo(request, mAuthCore);
+            
+            var appInfo = await _cache.GetOrCreateWithLock(
+                    authInfo.ApplicationUuid.ToString(),
+                    () => SendApplicationInfoRequest(authInfo.ApplicationUuid)).ConfigureAwait(false);
 
-            try
-            {
-                var appInfo = await GetApplicationInfo(authInfo.ApplicationUuid).ConfigureAwait(false);
+            var signature = await mAuthCore.GetSignature(request, authInfo).ConfigureAwait(false);
+            return mAuthCore.Verify(authInfo.Payload, signature, appInfo.PublicKey);
 
-                var signature = await mAuthCore.GetSignature(request, authInfo).ConfigureAwait(false);
-                return mAuthCore.Verify(authInfo.Payload, signature, appInfo.PublicKey);
             }
-            catch (RetriedRequestException)
-            {
-                // If the appliation info could not be fetched, remove the lazy
-                // object from the cache to allow for another attempt.
-                _cache.Remove(authInfo.ApplicationUuid);
-                throw;
-            }
-        }
-
-        private AsyncLazy<ApplicationInfo> GetApplicationInfo(Guid applicationUuid) =>
-            _cache.GetOrCreateWithLock(
-                applicationUuid,
-                entry => new AsyncLazy<ApplicationInfo>(() => SendApplicationInfoRequest(entry, applicationUuid)));
-
-        private async Task<ApplicationInfo> SendApplicationInfoRequest(ICacheEntry entry, Guid applicationUuid)
+        
+        private async Task<CacheResult<ApplicationInfo>> SendApplicationInfoRequest(Guid applicationUuid)
         {
             var logMessage = "Mauth-client requesting from mAuth service application info not available " +
                              $"in the local cache for app uuid {applicationUuid}.";
@@ -139,16 +128,19 @@ namespace Medidata.MAuth.Core
             ).ConfigureAwait(false);
 
             var result = await response.Content.FromResponse().ConfigureAwait(false);
-
-            entry.SetOptions(
-                new MemoryCacheEntryOptions()
-                    .SetAbsoluteExpiration(response.Headers.CacheControl?.MaxAge ?? TimeSpan.FromMinutes(5))
-            );
-
+            
             logMessage = $"Mauth-client application info for app uuid {applicationUuid} cached in memory.";
             _logger.LogInformation(logMessage);
 
-            return result;
+            var cacheResult = new CacheResult<ApplicationInfo>
+            {
+                ShouldCache = true,
+                Result = result,
+                AbsoluteCacheDuration = response.Headers.CacheControl?.MaxAge ?? TimeSpan.FromMinutes(5),
+            };
+            
+            return cacheResult;
+                
         }
 
         /// <summary>

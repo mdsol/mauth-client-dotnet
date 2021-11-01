@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Medidata.MAuth.Core.Caching;
 using Medidata.MAuth.Core.Models;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -13,7 +14,8 @@ namespace Medidata.MAuth.Core
     /// </summary>
     public static class UtilityExtensions
     {
-        private static readonly IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
+        private static readonly ICacheService _cache 
+            = new MemoryCacheService(new MemoryCache(new MemoryCacheOptions()));
 
         /// <summary>
         /// Parses an MAuth authentication HTTP header value for the application uuid and the MAuth signature payload.
