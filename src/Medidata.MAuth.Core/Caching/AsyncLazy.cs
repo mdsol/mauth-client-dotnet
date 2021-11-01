@@ -1,9 +1,11 @@
-﻿using System;
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace Medidata.MAuth.Core
+namespace Medidata.MAuth.Core.Caching
 {
+    [ExcludeFromCodeCoverage]
     internal class AsyncLazy<T> : Lazy<Task<T>>
     {
         public AsyncLazy(Func<T> valueFactory)
@@ -17,8 +19,5 @@ namespace Medidata.MAuth.Core
         }
 
         public TaskAwaiter<T> GetAwaiter() => Value.GetAwaiter();
-
-        public ConfiguredTaskAwaitable<T> ConfigureAwait(bool continueOnCapturedContext)
-            => Value.ConfigureAwait(continueOnCapturedContext);
     }
 }
