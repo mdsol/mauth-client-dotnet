@@ -13,9 +13,13 @@ namespace Medidata.MAuth.Core
 {
     internal class MAuthAuthenticator
     {
+        private const int AllowedDriftSeconds = 300;
+        private static readonly TimeSpan AllowedDriftTimeSpan = TimeSpan.FromSeconds(AllowedDriftSeconds);
+
         private readonly ICacheService _cache;
         private readonly MAuthOptionsBase _options;
         private readonly ILogger _logger;
+        private readonly IDateTimeOffsetWrapper _dateTimeOffsetWrapper;
         private readonly Lazy<HttpClient> _lazyHttpClient;
 
         public Guid ApplicationUuid => _options.ApplicationUuid;
@@ -35,6 +39,7 @@ namespace Medidata.MAuth.Core
             _options = options;
             _logger = logger;
             _lazyHttpClient = new Lazy<HttpClient>(() => CreateHttpClient(options));
+            _dateTimeOffsetWrapper = options.DateTimeOffsetWrapper;
         }
 
         /// <summary>
@@ -109,10 +114,22 @@ namespace Medidata.MAuth.Core
                     authInfo.ApplicationUuid.ToString(),
                     () => SendApplicationInfoRequest(authInfo.ApplicationUuid)).ConfigureAwait(false);
 
+            if (!IsSignatureTimeValid(authInfo.SignedTime))
+            {
+                return false;
+            }
+
             var signature = await mAuthCore.GetSignature(request, authInfo).ConfigureAwait(false);
             return mAuthCore.Verify(authInfo.Payload, signature, appInfo.PublicKey);
+        }
 
-            }
+        private bool IsSignatureTimeValid(DateTimeOffset signedTime)
+        {
+            var now = _dateTimeOffsetWrapper.GetUtcNow();
+            var lowerBound = now - AllowedDriftTimeSpan;
+            var upperBound = now + AllowedDriftTimeSpan;
+            return signedTime >= lowerBound && signedTime <= upperBound;
+        }
         
         private async Task<CacheResult<ApplicationInfo>> SendApplicationInfoRequest(Guid applicationUuid)
         {

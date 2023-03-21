@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
+using Medidata.MAuth.Tests.Common.Infrastructure;
 using Medidata.MAuth.Tests.Infrastructure;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
@@ -70,10 +71,12 @@ namespace Medidata.MAuth.Tests
             var requestContents = await request.GetRequestContentAsBytesAsync();
             var signedRequest = mAuthCore
                 .AddAuthenticationInfo(testData.ToDefaultHttpRequestMessage(), authInfo, requestContents);
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper{ MockedValue = testData.SignedTime };
+            var options = TestExtensions.ServerOptions(await MAuthServerHandler.CreateAsync());
+            options.DateTimeOffsetWrapper = mockDateTimeOffsetWrapper;
 
             // Act
-            var isAuthenticated = await signedRequest.Authenticate(
-                TestExtensions.ServerOptions(await MAuthServerHandler.CreateAsync()), NullLogger.Instance);
+            var isAuthenticated = await signedRequest.Authenticate(options, NullLogger.Instance);
 
             // Assert
             Assert.True(isAuthenticated);

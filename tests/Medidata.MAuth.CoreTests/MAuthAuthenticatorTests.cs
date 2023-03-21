@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Medidata.MAuth.Core.Exceptions;
 using Medidata.MAuth.Core.Models;
+using Medidata.MAuth.Tests.Common.Infrastructure;
 using Medidata.MAuth.Tests.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -43,8 +44,11 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResource();
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = testData.SignedTime };
             var serverHandler = await MAuthServerHandler.CreateAsync();
-            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions(serverHandler), NullLogger<MAuthAuthenticator>.Instance);
+            var options = TestExtensions.ServerOptions(serverHandler);
+            options.DateTimeOffsetWrapper = mockDateTimeOffsetWrapper;
+            var authenticator = new MAuthAuthenticator(options, NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCore();
 
             var request = testData.ToHttpRequestMessage(MAuthVersion.MWS);
@@ -75,9 +79,12 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResourceV2();
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = testData.SignedTime };
             var version = MAuthVersion.MWSV2;
             var serverHandler = await MAuthServerHandler.CreateAsync();
-            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions(serverHandler), NullLogger<MAuthAuthenticator>.Instance);
+            var options = TestExtensions.ServerOptions(serverHandler);
+            options.DateTimeOffsetWrapper = mockDateTimeOffsetWrapper;
+            var authenticator = new MAuthAuthenticator(options, NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCoreV2();
 
             var authInfo = new PrivateKeyAuthenticationInfo()
@@ -100,6 +107,152 @@ namespace Medidata.MAuth.Tests
             Assert.True(isAuthenticated);
         }
 
+        [Theory]
+        [InlineData("GET")]
+        [InlineData("DELETE")]
+        [InlineData("POST")]
+        [InlineData("PUT")]
+        public static async Task AuthenticateRequest_WithMWSRequestSignedTooEarly_WillFailToAuthenticate(string method)
+        {
+            // Arrange
+            var testData = await method.FromResource();
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = testData.SignedTime.AddDays(1) };
+            var serverHandler = await MAuthServerHandler.CreateAsync();
+            var options = TestExtensions.ServerOptions(serverHandler);
+            options.DateTimeOffsetWrapper = mockDateTimeOffsetWrapper;
+            var authenticator = new MAuthAuthenticator(options, NullLogger<MAuthAuthenticator>.Instance);
+            var mAuthCore = new MAuthCore();
+
+            var request = testData.ToHttpRequestMessage(MAuthVersion.MWS);
+            var requestContents = await request.GetRequestContentAsBytesAsync();
+            var authInfo = new PrivateKeyAuthenticationInfo()
+            {
+                ApplicationUuid = testData.ApplicationUuid,
+                PrivateKey = TestExtensions.ClientPrivateKey,
+                SignedTime = testData.SignedTime
+            };
+
+            var signedRequest = mAuthCore
+                .AddAuthenticationInfo(request, authInfo, requestContents);
+
+            // Act
+            var isAuthenticated = await authenticator.AuthenticateRequest(signedRequest);
+
+            // Assert
+            Assert.False(isAuthenticated);
+        }
+
+        [Theory]
+        [InlineData("GET")]
+        [InlineData("DELETE")]
+        [InlineData("POST")]
+        [InlineData("PUT")]
+        public static async Task AuthenticateRequest_WithMWSRequestSignedTooLate_WillFailToAuthenticate(string method)
+        {
+            // Arrange
+            var testData = await method.FromResource();
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = testData.SignedTime.AddDays(-1) };
+            var serverHandler = await MAuthServerHandler.CreateAsync();
+            var options = TestExtensions.ServerOptions(serverHandler);
+            options.DateTimeOffsetWrapper = mockDateTimeOffsetWrapper;
+            var authenticator = new MAuthAuthenticator(options, NullLogger<MAuthAuthenticator>.Instance);
+            var mAuthCore = new MAuthCore();
+
+            var request = testData.ToHttpRequestMessage(MAuthVersion.MWS);
+            var requestContents = await request.GetRequestContentAsBytesAsync();
+            var authInfo = new PrivateKeyAuthenticationInfo()
+            {
+                ApplicationUuid = testData.ApplicationUuid,
+                PrivateKey = TestExtensions.ClientPrivateKey,
+                SignedTime = testData.SignedTime
+            };
+
+            var signedRequest = mAuthCore
+                .AddAuthenticationInfo(request, authInfo, requestContents);
+
+            // Act
+            var isAuthenticated = await authenticator.AuthenticateRequest(signedRequest);
+
+            // Assert
+            Assert.False(isAuthenticated);
+        }
+
+        [Theory]
+        [InlineData("GET")]
+        [InlineData("DELETE")]
+        [InlineData("POST")]
+        [InlineData("PUT")]
+        public static async Task AuthenticateRequest_WithMWS2RequestSignedTooEarly_AndFallbackDisabled_WillFailToAuthenticate(string method)
+        {
+            // Arrange
+            var testData = await method.FromResourceV2();
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = testData.SignedTime.AddDays(1) };
+            var version = MAuthVersion.MWSV2;
+            var serverHandler = await MAuthServerHandler.CreateAsync();
+            var options = TestExtensions.ServerOptions(serverHandler);
+            options.DateTimeOffsetWrapper = mockDateTimeOffsetWrapper;
+            options.DisableV1 = true;
+            var authenticator = new MAuthAuthenticator(options, NullLogger<MAuthAuthenticator>.Instance);
+            var mAuthCore = new MAuthCoreV2();
+
+            var authInfo = new PrivateKeyAuthenticationInfo()
+            {
+                ApplicationUuid = testData.ApplicationUuid,
+                PrivateKey = TestExtensions.ClientPrivateKey,
+                SignedTime = testData.SignedTime
+            };
+
+            var httpRequestMessage = testData.ToHttpRequestMessage(version);
+
+            var requestContents = await httpRequestMessage.GetRequestContentAsBytesAsync();
+            var signedRequest = mAuthCore
+                .AddAuthenticationInfo(httpRequestMessage, authInfo, requestContents);
+
+            // Act
+            var isAuthenticated = await authenticator.AuthenticateRequest(signedRequest);
+
+            // Assert
+            Assert.False(isAuthenticated);
+        }
+
+        [Theory]
+        [InlineData("GET")]
+        [InlineData("DELETE")]
+        [InlineData("POST")]
+        [InlineData("PUT")]
+        public static async Task AuthenticateRequest_WithMWS2RequestSignedTooLate_AndFallbackDisabled_WillFailToAuthenticate(string method)
+        {
+            // Arrange
+            var testData = await method.FromResourceV2();
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = testData.SignedTime.AddDays(-1) };
+            var version = MAuthVersion.MWSV2;
+            var serverHandler = await MAuthServerHandler.CreateAsync();
+            var options = TestExtensions.ServerOptions(serverHandler);
+            options.DateTimeOffsetWrapper = mockDateTimeOffsetWrapper;
+            options.DisableV1 = true;
+            var authenticator = new MAuthAuthenticator(options, NullLogger<MAuthAuthenticator>.Instance);
+            var mAuthCore = new MAuthCoreV2();
+
+            var authInfo = new PrivateKeyAuthenticationInfo()
+            {
+                ApplicationUuid = testData.ApplicationUuid,
+                PrivateKey = TestExtensions.ClientPrivateKey,
+                SignedTime = testData.SignedTime
+            };
+
+            var httpRequestMessage = testData.ToHttpRequestMessage(version);
+
+            var requestContents = await httpRequestMessage.GetRequestContentAsBytesAsync();
+            var signedRequest = mAuthCore
+                .AddAuthenticationInfo(httpRequestMessage, authInfo, requestContents);
+
+            // Act
+            var isAuthenticated = await authenticator.AuthenticateRequest(signedRequest);
+
+            // Assert
+            Assert.False(isAuthenticated);
+        }
+
 
         [Theory]
         [InlineData(MAuthServiceRetryPolicy.NoRetry)]
@@ -111,9 +264,11 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await "GET".FromResourceV2();
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = testData.SignedTime };
             var serverHandler = await MAuthServerHandler.CreateAsync();
-            var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
-                policy, shouldSucceedWithin: true, serverHandler), NullLogger<MAuthAuthenticator>.Instance);
+            var options = TestExtensions.GetServerOptionsWithAttempts(policy, shouldSucceedWithin: true, serverHandler);
+            options.DateTimeOffsetWrapper = mockDateTimeOffsetWrapper;
+            var authenticator = new MAuthAuthenticator(options, NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCoreV2();
 
             var authInfo = new PrivateKeyAuthenticationInfo()
@@ -147,10 +302,12 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await "GET".FromResourceV2();
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = testData.SignedTime };
             var version = MAuthVersion.MWSV2;
             var serverHandler = await MAuthServerHandler.CreateAsync();
-            var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
-                policy, shouldSucceedWithin: true, serverHandler), NullLogger<MAuthAuthenticator>.Instance);
+            var options = TestExtensions.GetServerOptionsWithAttempts(policy, shouldSucceedWithin: true, serverHandler);
+            options.DateTimeOffsetWrapper = mockDateTimeOffsetWrapper;
+            var authenticator = new MAuthAuthenticator(options, NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCoreV2();
 
             var authInfo = new PrivateKeyAuthenticationInfo()
@@ -183,9 +340,12 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await "GET".FromResource();
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = testData.SignedTime };
             var serverHandler = await MAuthServerHandler.CreateAsync();
-            var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
-                policy, shouldSucceedWithin: false, serverHandler), NullLogger<MAuthAuthenticator>.Instance);
+            var options =
+                TestExtensions.GetServerOptionsWithAttempts(policy, shouldSucceedWithin: false, serverHandler);
+            options.DateTimeOffsetWrapper = mockDateTimeOffsetWrapper;
+            var authenticator = new MAuthAuthenticator(options, NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCore();
 
             var authInfo = new PrivateKeyAuthenticationInfo()
@@ -222,11 +382,14 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await "GET".FromResource();
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = testData.SignedTime };
             var version = MAuthVersion.MWSV2;
             var serverHandler = await MAuthServerHandler.CreateAsync();
 
-            var authenticator = new MAuthAuthenticator(TestExtensions.GetServerOptionsWithAttempts(
-                policy, shouldSucceedWithin: false, serverHandler), NullLogger<MAuthAuthenticator>.Instance);
+            var options =
+                TestExtensions.GetServerOptionsWithAttempts(policy, shouldSucceedWithin: false, serverHandler);
+            options.DateTimeOffsetWrapper = mockDateTimeOffsetWrapper;
+            var authenticator = new MAuthAuthenticator(options, NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCoreV2();
 
             var authInfo = new PrivateKeyAuthenticationInfo()
@@ -359,8 +522,10 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await method.FromResource();
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = testData.SignedTime };
             var testOptions = TestExtensions.ServerOptions(await MAuthServerHandler.CreateAsync());
             testOptions.DisableV1 = true;
+            testOptions.DateTimeOffsetWrapper = mockDateTimeOffsetWrapper;
             var authenticator = new MAuthAuthenticator(testOptions, NullLogger<MAuthAuthenticator>.Instance);
             var mAuthCore = new MAuthCore();
 
@@ -435,9 +600,12 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await "GET".FromResource();
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = testData.SignedTime };
             var mockLogger = new Mock<ILogger>();
             var serverHandler = await MAuthServerHandler.CreateAsync();
-            var authenticator = new MAuthAuthenticator(TestExtensions.ServerOptions(serverHandler), mockLogger.Object);
+            var options = TestExtensions.ServerOptions(serverHandler);
+            options.DateTimeOffsetWrapper = mockDateTimeOffsetWrapper;
+            var authenticator = new MAuthAuthenticator(options, mockLogger.Object);
             var requestData = testData.ToDefaultHttpRequestMessage();
 
             // Act
@@ -452,9 +620,11 @@ namespace Medidata.MAuth.Tests
         {
             // Arrange
             var testData = await "GET".FromResource();
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = testData.SignedTime };
             var mockLogger = new Mock<ILogger>();
             var testOptions = TestExtensions.ServerOptions(await MAuthServerHandler.CreateAsync());
             testOptions.DisableV1 = true;
+            testOptions.DateTimeOffsetWrapper = mockDateTimeOffsetWrapper;
 
             var authenticator = new MAuthAuthenticator(testOptions, mockLogger.Object);
             var requestData = testData.ToDefaultHttpRequestMessage();
