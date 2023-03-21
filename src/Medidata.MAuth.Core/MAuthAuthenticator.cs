@@ -109,15 +109,15 @@ namespace Medidata.MAuth.Core
 
             var mAuthCore = MAuthCoreFactory.Instantiate(version);
             var authInfo = GetAuthenticationInfo(request, mAuthCore);
-            
-            var appInfo = await _cache.GetOrCreateWithLock(
-                    authInfo.ApplicationUuid.ToString(),
-                    () => SendApplicationInfoRequest(authInfo.ApplicationUuid)).ConfigureAwait(false);
 
             if (!IsSignatureTimeValid(authInfo.SignedTime))
             {
                 return false;
             }
+
+            var appInfo = await _cache.GetOrCreateWithLock(
+                    authInfo.ApplicationUuid.ToString(),
+                    () => SendApplicationInfoRequest(authInfo.ApplicationUuid)).ConfigureAwait(false);
 
             var signature = await mAuthCore.GetSignature(request, authInfo).ConfigureAwait(false);
             return mAuthCore.Verify(authInfo.Payload, signature, appInfo.PublicKey);
