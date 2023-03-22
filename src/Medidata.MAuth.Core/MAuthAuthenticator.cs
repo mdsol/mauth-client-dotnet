@@ -128,7 +128,18 @@ namespace Medidata.MAuth.Core
             var now = _dateTimeOffsetWrapper.GetUtcNow();
             var lowerBound = now - AllowedDriftTimeSpan;
             var upperBound = now + AllowedDriftTimeSpan;
-            return signedTime >= lowerBound && signedTime <= upperBound;
+            var isValid = signedTime >= lowerBound && signedTime <= upperBound;
+
+            if (!isValid)
+            {
+                _logger.LogInformation(
+                    "Time verification failed. {signedTime} is not within {AllowedDriftSeconds} seconds of #{now}",
+                    signedTime,
+                    AllowedDriftSeconds,
+                    now);
+            }
+
+            return isValid;
         }
         
         private async Task<CacheResult<ApplicationInfo>> SendApplicationInfoRequest(Guid applicationUuid)
