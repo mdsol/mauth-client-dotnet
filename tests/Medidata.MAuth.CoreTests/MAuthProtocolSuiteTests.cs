@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Medidata.MAuth.Tests.Common.Infrastructure;
 using Xunit;
 
 namespace Medidata.MAuth.Tests.ProtocolTestSuite
@@ -80,9 +81,10 @@ namespace Medidata.MAuth.Tests.ProtocolTestSuite
             }
             else
             {
+                var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = signConfig.RequestTime.FromUnixTimeSeconds() };
                 var serverOptions = TestExtensions.ServerOptions(await MAuthServerHandler.CreateAsync());
-                var authenticator = new MAuthAuthenticator(
-                    serverOptions, NullLogger<MAuthAuthenticator>.Instance);
+                serverOptions.DateTimeOffsetWrapper = mockDateTimeOffsetWrapper;
+                var authenticator = new MAuthAuthenticator(serverOptions, NullLogger<MAuthAuthenticator>.Instance);
 
                 var privateKeyAuthenticationInfo = new PrivateKeyAuthenticationInfo()
                 {
