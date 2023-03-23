@@ -50,5 +50,10 @@ namespace Medidata.MAuth.Core
         /// Determines the boolean value if V1 option of signing should be disabled or not with default value of false.
         /// </summary>
         public bool DisableV1 { get; set; } = false;
+
+        /// <summary>
+        /// Allow injection of a DateTimeOffset wrapper for testing purposes.
+        /// </summary>
+        public IDateTimeOffsetWrapper DateTimeOffsetWrapper { get; set; } = new DateTimeOffsetWrapper();
     }
 }

@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Medidata.MAuth.Core.Models;
+using Medidata.MAuth.Tests.Common.Infrastructure;
 using Medidata.MAuth.Tests.Infrastructure;
 using Medidata.MAuth.WebApi;
 using Xunit;
@@ -38,13 +39,15 @@ namespace Medidata.MAuth.Tests
             var testData = await method.FromResource();
             var actual = new AssertSigningHandler();
             var serverHandler = await MAuthServerHandler.CreateAsync();
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = testData.SignedTime };
 
             var handler = new MAuthAuthenticatingHandler(new MAuthWebApiOptions()
             {
                 ApplicationUuid = TestExtensions.ServerUuid,
                 MAuthServiceUrl = TestExtensions.TestUri,
                 PrivateKey = TestExtensions.ServerPrivateKey,
-                MAuthServerHandler = serverHandler
+                MAuthServerHandler = serverHandler,
+                DateTimeOffsetWrapper = mockDateTimeOffsetWrapper,
             }, actual);
 
             using (var server = new HttpClient(handler))
@@ -71,13 +74,15 @@ namespace Medidata.MAuth.Tests
             var actual = new AssertSigningHandler();
             var version = MAuthVersion.MWSV2;
             var serverHandler = await MAuthServerHandler.CreateAsync();
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = testData.SignedTime };
 
             var handler = new MAuthAuthenticatingHandler(new MAuthWebApiOptions()
             {
                 ApplicationUuid = TestExtensions.ServerUuid,
                 MAuthServiceUrl = TestExtensions.TestUri,
                 PrivateKey = TestExtensions.ServerPrivateKey,
-                MAuthServerHandler = serverHandler
+                MAuthServerHandler = serverHandler,
+                DateTimeOffsetWrapper = mockDateTimeOffsetWrapper,
             }, actual);
 
             using (var server = new HttpClient(handler))
@@ -102,13 +107,15 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await method.FromResource();
             var serverHandler = await MAuthServerHandler.CreateAsync();
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = testData.SignedTime };
 
             var handler = new MAuthAuthenticatingHandler(new MAuthWebApiOptions()
             {
                 ApplicationUuid = TestExtensions.ServerUuid,
                 MAuthServiceUrl = TestExtensions.TestUri,
                 PrivateKey = TestExtensions.ServerPrivateKey,
-                MAuthServerHandler = serverHandler
+                MAuthServerHandler = serverHandler,
+                DateTimeOffsetWrapper = mockDateTimeOffsetWrapper,
             });
 
             using (var server = new HttpClient(handler))
@@ -132,6 +139,7 @@ namespace Medidata.MAuth.Tests
             // Arrange
             var testData = await method.FromResource();
             var serverHandler = await MAuthServerHandler.CreateAsync();
+            var mockDateTimeOffsetWrapper = new MockDateTimeOffsetWrapper { MockedValue = testData.SignedTime };
 
             var handler = new MAuthAuthenticatingHandler(new MAuthWebApiOptions()
             {
@@ -139,7 +147,8 @@ namespace Medidata.MAuth.Tests
                 MAuthServiceUrl = TestExtensions.TestUri,
                 PrivateKey = TestExtensions.ServerPrivateKey,
                 MAuthServerHandler = serverHandler,
-                HideExceptionsAndReturnUnauthorized = false
+                HideExceptionsAndReturnUnauthorized = false,
+                DateTimeOffsetWrapper = mockDateTimeOffsetWrapper,
             });
 
             using (var server = new HttpClient(handler))
