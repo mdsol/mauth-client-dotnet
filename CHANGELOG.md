@@ -1,4 +1,7 @@
 # Changes in Medidata.MAuth
+## v5.1.6
+- **[Core]** Fix bug in MAuth verification.
+
 ## v5.1.5
 - **[Core]** Fix bug in MAuth caching response
 ## v5.1.4
