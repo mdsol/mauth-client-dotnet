@@ -51,7 +51,7 @@ namespace Medidata.MAuth.Core
         {
             try
             {
-                _logger.LogInformation("Initiating Authentication of the request.");
+                _logger.LogDebug("Initiating Authentication of the request.");
 
                 var authHeader = request.GetAuthHeaderValue();
                 var version = authHeader.GetVersionFromAuthenticationHeader();
@@ -103,9 +103,12 @@ namespace Medidata.MAuth.Core
 
         private async Task<bool> Authenticate(HttpRequestMessage request, MAuthVersion version, Guid signedAppUuid)
         {
-            var logMessage = "Mauth-client attempting to authenticate request from app with mauth app uuid " +
-                $"{signedAppUuid} to app with mauth app uuid {_options.ApplicationUuid} using version {version}";
-            _logger.LogInformation(logMessage);
+            _logger.LogDebug(
+                "Mauth-client attempting to authenticate request from app with mauth app uuid "+
+                "{signedAppUuid} to app with mauth app uuid {_options.ApplicationUuid} using version {version}",
+                signedAppUuid,
+                _options.ApplicationUuid,
+                version);
 
             var mAuthCore = MAuthCoreFactory.Instantiate(version);
             var authInfo = GetAuthenticationInfo(request, mAuthCore);
@@ -144,9 +147,10 @@ namespace Medidata.MAuth.Core
         
         private async Task<CacheResult<ApplicationInfo>> SendApplicationInfoRequest(Guid applicationUuid)
         {
-            var logMessage = "Mauth-client requesting from mAuth service application info not available " +
-                             $"in the local cache for app uuid {applicationUuid}.";
-            _logger.LogInformation(logMessage);
+            _logger.LogDebug(
+                "Mauth-client requesting from mAuth service application info not available " +
+                "in the local cache for app uuid {applicationUuid}.",
+                applicationUuid);
 
             var retrier = new MAuthRequestRetrier(_lazyHttpClient.Value);
             var response = await retrier.GetSuccessfulResponse(
@@ -157,8 +161,9 @@ namespace Medidata.MAuth.Core
 
             var result = await response.Content.FromResponse().ConfigureAwait(false);
             
-            logMessage = $"Mauth-client application info for app uuid {applicationUuid} cached in memory.";
-            _logger.LogInformation(logMessage);
+            _logger.LogDebug(
+                "Mauth-client application info for app uuid {applicationUuid} cached in memory.",
+                applicationUuid);
 
             var cacheResult = new CacheResult<ApplicationInfo>
             {
