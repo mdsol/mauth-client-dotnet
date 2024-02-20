@@ -1,4 +1,7 @@
 # Changes in Medidata.MAuth
+## v5.1.7
+- **[Core]** Fix preprocessor for sync methods
+
 ## v5.1.6
 - **[Core]** Fix bug in MAuth verification.
 

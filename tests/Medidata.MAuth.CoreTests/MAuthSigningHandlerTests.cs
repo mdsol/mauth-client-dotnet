@@ -94,7 +94,7 @@ namespace Medidata.MAuth.Tests
             Assert.Equal(testData.SignedTime, long.Parse(actual.MAuthTimeHeaderV2).FromUnixTimeSeconds());
         }
 
-#if NET5_0
+#if NET5_0_OR_GREATER
         [Theory]
         [InlineData("GET")]
         [InlineData("DELETE")]
