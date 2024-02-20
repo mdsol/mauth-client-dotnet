@@ -13,7 +13,7 @@ namespace Medidata.MAuth.Core
 
         (string mAuthHeaderKey, string mAuthTimeHeaderKey) GetHeaderKeys();
 
-#if NET5_0
+#if NET5_0_OR_GREATER
         HttpRequestMessage SignSync(HttpRequestMessage request, MAuthSigningOptions options);
 #endif
     }

@@ -416,7 +416,7 @@ namespace Medidata.MAuth.Tests
             Assert.Equal(HttpStatusCode.ServiceUnavailable, innerException.Responses.First().StatusCode);
         }
 
- #if NET5_0
+ #if NET5_0_OR_GREATER
         [Theory]
         [InlineData("GET")]
         [InlineData("DELETE")]

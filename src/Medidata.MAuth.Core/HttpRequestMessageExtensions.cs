@@ -14,7 +14,7 @@ namespace Medidata.MAuth.Core
                     : await request.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
         }
 
-#if NET5_0
+#if NET5_0_OR_GREATER
         public static byte[] GetRequestContentAsBytes(this HttpRequestMessage request)
         {
             using var memoryStream = new MemoryStream();
