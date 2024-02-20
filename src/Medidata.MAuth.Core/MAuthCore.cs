@@ -153,7 +153,7 @@ namespace Medidata.MAuth.Core
             return (Constants.MAuthHeaderKey, Constants.MAuthTimeHeaderKey);
         }
 
-#if NET5_0
+#if NET5_0_OR_GREATER
         public HttpRequestMessage SignSync(HttpRequestMessage request, MAuthSigningOptions options)
         {
             var authInfo = new PrivateKeyAuthenticationInfo()
