@@ -41,6 +41,24 @@ namespace Medidata.MAuth.Core
             _lazyHttpClient = new Lazy<HttpClient>(() => CreateHttpClient(options));
             _dateTimeOffsetWrapper = options.DateTimeOffsetWrapper;
         }
+        
+        public MAuthAuthenticator(MAuthOptionsBase options, ILogger logger, HttpClient httpClient, ICacheService cacheService = null)
+        {
+            if (options.ApplicationUuid == default)
+                throw new ArgumentException(nameof(options.ApplicationUuid));
+
+            if (options.MAuthServiceUrl == null)
+                throw new ArgumentNullException(nameof(options.MAuthServiceUrl));
+
+            if (string.IsNullOrWhiteSpace(options.PrivateKey))
+                throw new ArgumentNullException(nameof(options.PrivateKey));
+
+            _cache = cacheService ?? new MemoryCacheService(new MemoryCache(new MemoryCacheOptions()));
+            _options = options;
+            _logger = logger;
+            _lazyHttpClient = new Lazy<HttpClient>(() => httpClient);
+            _dateTimeOffsetWrapper = options.DateTimeOffsetWrapper;
+        }
 
         /// <summary>
         /// Verifies if the <see cref="HttpRequestMessage"/> request is authenticated or not.
