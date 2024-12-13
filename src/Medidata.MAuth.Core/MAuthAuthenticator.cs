@@ -11,7 +11,7 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Medidata.MAuth.Core
 {
-    internal class MAuthAuthenticator
+    public class MAuthAuthenticator : IMAuthAuthenticator
     {
         private const int AllowedDriftSeconds = 300;
         private static readonly TimeSpan AllowedDriftTimeSpan = TimeSpan.FromSeconds(AllowedDriftSeconds);
