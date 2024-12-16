@@ -1,4 +1,6 @@
 # Changes in Medidata.MAuth
+## v5.1.8
+- **[Core]** Updated MAuthenticator to be public
 ## v5.1.7
 - **[Core]** Fix preprocessor for sync methods
 

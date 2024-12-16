@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using Medidata.MAuth.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.Extensions.Logging;
 
 namespace Medidata.MAuth.AspNetCore
 {
-    internal static class MAuthAspNetCoreExtensions
+    /// <summary>
+    /// MAuth extension methods.
+    /// </summary>
+    public static class MAuthAspNetCoreExtensions
     {
         /// <summary>
         /// Converts an <see cref="HttpRequest"/> object to an equivalent <see cref="HttpRequestMessage"/> object. 
@@ -46,7 +48,7 @@ namespace Medidata.MAuth.AspNetCore
         /// will throw an exception if any errors occurred during the authentication.
         /// </returns>
         public static async Task<bool> TryAuthenticate(
-            this HttpContext context, MAuthAuthenticator authenticator, bool shouldIgnoreExceptions)
+            this HttpContext context, IMAuthAuthenticator authenticator, bool shouldIgnoreExceptions)
         {
             try
             {

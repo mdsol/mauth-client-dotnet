@@ -11,7 +11,10 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Medidata.MAuth.Core
 {
-    internal class MAuthAuthenticator
+    /// <summary>
+    /// MAuth service class to process authentication.
+    /// </summary>
+    public class MAuthAuthenticator : IMAuthAuthenticator
     {
         private const int AllowedDriftSeconds = 300;
         private static readonly TimeSpan AllowedDriftTimeSpan = TimeSpan.FromSeconds(AllowedDriftSeconds);
@@ -22,8 +25,17 @@ namespace Medidata.MAuth.Core
         private readonly IDateTimeOffsetWrapper _dateTimeOffsetWrapper;
         private readonly Lazy<HttpClient> _lazyHttpClient;
 
+        /// <summary>
+        /// MAuth application uuid.
+        /// </summary>
         public Guid ApplicationUuid => _options.ApplicationUuid;
 
+        /// <summary>
+        /// Create a new instance <see cref="MAuthAuthenticator"/>
+        /// </summary>
+        /// <param name="options">MAuth options</param>
+        /// <param name="logger">Logger</param>
+        /// <param name="cacheService">Cache service. (Optional)</param>
         public MAuthAuthenticator(MAuthOptionsBase options, ILogger logger, ICacheService cacheService = null)
         {
             if (options.ApplicationUuid == default)
@@ -39,6 +51,36 @@ namespace Medidata.MAuth.Core
             _options = options;
             _logger = logger;
             _lazyHttpClient = new Lazy<HttpClient>(() => CreateHttpClient(options));
+            _dateTimeOffsetWrapper = options.DateTimeOffsetWrapper;
+        }
+        
+        /// <summary>
+        /// Create a new instance <see cref="MAuthAuthenticator"/>
+        /// </summary>
+        /// <param name="options">MAuth options</param>
+        /// <param name="logger">Logger</param>
+        /// <param name="httpClient">Http Client</param>
+        /// <param name="cacheService">Cache service. (Optional)</param>
+        public MAuthAuthenticator(MAuthOptionsBase options, ILogger logger, HttpClient httpClient, ICacheService cacheService = null)
+        {
+            if (options.ApplicationUuid == default)
+                throw new ArgumentException(nameof(options.ApplicationUuid));
+
+            if (options.MAuthServiceUrl == null)
+                throw new ArgumentNullException(nameof(options.MAuthServiceUrl));
+
+            if (string.IsNullOrWhiteSpace(options.PrivateKey))
+                throw new ArgumentNullException(nameof(options.PrivateKey));
+
+            _cache = cacheService ?? new MemoryCacheService(new MemoryCache(new MemoryCacheOptions()));
+            _options = options;
+            _logger = logger;
+#if NET6_0_OR_GREATER
+            _lazyHttpClient = new Lazy<HttpClient>(httpClient);
+#else
+            _lazyHttpClient = new Lazy<HttpClient>(() => httpClient);
+#endif
+            
             _dateTimeOffsetWrapper = options.DateTimeOffsetWrapper;
         }
 
