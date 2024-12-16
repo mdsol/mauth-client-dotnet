@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 
 namespace Medidata.MAuth.Core;
 
+/// <summary>
+/// MAuth authenticator.
+/// </summary>
 public interface IMAuthAuthenticator
 {
     /// <summary>

@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Medidata.MAuth.AspNetCore
 {
+    /// <summary>
+    /// MAuth extension methods.
+    /// </summary>
     public static class MAuthAspNetCoreExtensions
     {
         /// <summary>

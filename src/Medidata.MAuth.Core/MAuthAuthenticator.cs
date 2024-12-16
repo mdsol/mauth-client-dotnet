@@ -11,6 +11,9 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Medidata.MAuth.Core
 {
+    /// <summary>
+    /// MAuth service class to process authentication.
+    /// </summary>
     public class MAuthAuthenticator : IMAuthAuthenticator
     {
         private const int AllowedDriftSeconds = 300;
@@ -22,8 +25,17 @@ namespace Medidata.MAuth.Core
         private readonly IDateTimeOffsetWrapper _dateTimeOffsetWrapper;
         private readonly Lazy<HttpClient> _lazyHttpClient;
 
+        /// <summary>
+        /// MAuth application uuid.
+        /// </summary>
         public Guid ApplicationUuid => _options.ApplicationUuid;
 
+        /// <summary>
+        /// Create a new instance <see cref="MAuthAuthenticator"/>
+        /// </summary>
+        /// <param name="options">MAuth options</param>
+        /// <param name="logger">Logger</param>
+        /// <param name="cacheService">Cache service. (Optional)</param>
         public MAuthAuthenticator(MAuthOptionsBase options, ILogger logger, ICacheService cacheService = null)
         {
             if (options.ApplicationUuid == default)
@@ -42,6 +54,13 @@ namespace Medidata.MAuth.Core
             _dateTimeOffsetWrapper = options.DateTimeOffsetWrapper;
         }
         
+        /// <summary>
+        /// Create a new instance <see cref="MAuthAuthenticator"/>
+        /// </summary>
+        /// <param name="options">MAuth options</param>
+        /// <param name="logger">Logger</param>
+        /// <param name="httpClient">Http Client</param>
+        /// <param name="cacheService">Cache service. (Optional)</param>
         public MAuthAuthenticator(MAuthOptionsBase options, ILogger logger, HttpClient httpClient, ICacheService cacheService = null)
         {
             if (options.ApplicationUuid == default)
