@@ -75,7 +75,12 @@ namespace Medidata.MAuth.Core
             _cache = cacheService ?? new MemoryCacheService(new MemoryCache(new MemoryCacheOptions()));
             _options = options;
             _logger = logger;
+#if NET6_0_OR_GREATER
+            _lazyHttpClient = new Lazy<HttpClient>(httpClient);
+#else
             _lazyHttpClient = new Lazy<HttpClient>(() => httpClient);
+#endif
+            
             _dateTimeOffsetWrapper = options.DateTimeOffsetWrapper;
         }
 
