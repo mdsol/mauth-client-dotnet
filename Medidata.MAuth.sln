@@ -37,6 +37,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Medidata.MAuth.Tests.Common
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Medidata.MAuth.AspNetCoreTests", "tests\Medidata.MAuth.AspNetCoreTests\Medidata.MAuth.AspNetCoreTests.csproj", "{D9608DB0-5C18-4C6A-95E2-FEB6F1C9D98B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Medidata.MAuth.AspNetCoreTrimTest", "tests\Medidata.MAuth.AspNetCoreTrimTest\Medidata.MAuth.AspNetCoreTrimTest.csproj", "{CCDD70C1-D80B-4F66-AD48-CF5384541EFC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -79,6 +81,10 @@ Global
 		{D9608DB0-5C18-4C6A-95E2-FEB6F1C9D98B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9608DB0-5C18-4C6A-95E2-FEB6F1C9D98B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9608DB0-5C18-4C6A-95E2-FEB6F1C9D98B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCDD70C1-D80B-4F66-AD48-CF5384541EFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCDD70C1-D80B-4F66-AD48-CF5384541EFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCDD70C1-D80B-4F66-AD48-CF5384541EFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCDD70C1-D80B-4F66-AD48-CF5384541EFC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -93,6 +99,7 @@ Global
 		{CBAEE752-2B48-405D-96B6-9893DB1BDB30} = {9ED6F311-EB68-440E-A178-5C5F140F2340}
 		{019393E9-6C95-4AA7-B7A2-D91B782A2A80} = {9ED6F311-EB68-440E-A178-5C5F140F2340}
 		{D9608DB0-5C18-4C6A-95E2-FEB6F1C9D98B} = {9ED6F311-EB68-440E-A178-5C5F140F2340}
+		{CCDD70C1-D80B-4F66-AD48-CF5384541EFC} = {9ED6F311-EB68-440E-A178-5C5F140F2340}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0A4D3258-5262-45FC-8A21-832CCBBB5878}
