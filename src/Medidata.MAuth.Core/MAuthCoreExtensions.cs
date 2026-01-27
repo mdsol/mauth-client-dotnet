@@ -197,15 +197,20 @@ namespace Medidata.MAuth.Core
             for (int i = 0; i < queryArray.Length; i++)
             {
                 var keyValue = queryArray[i].Split('=');
+                var key = keyValue[0];
+
+                // For the special case which only have the key but no '=' and value provided. 
+                var value = keyValue.Length > 1 ? keyValue[1] : null;
+
                 unescapedKeysAndValues[i] = new KeyValuePair<string, string>(
-                    Uri.UnescapeDataString(keyValue[0]), Uri.UnescapeDataString(keyValue[1]));
+                    Uri.UnescapeDataString(key), value == null ? null : Uri.UnescapeDataString(value));
             }
 
             // sorting and escaping
             var escapedKeyValues = unescapedKeysAndValues
                 .OrderBy(kv => kv.Key, StringComparer.Ordinal)
                 .ThenBy(kv => kv.Value, StringComparer.Ordinal)
-                .Select(kv => $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value)}");
+                .Select(kv => kv.Value == null ? Uri.EscapeDataString(kv.Key) : $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value)}");
 
             // Above encoding converts space as `%20` and `+` as `%2B`
             // But space and `+` both needs to be converted as `%20` as per
