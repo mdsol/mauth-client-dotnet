@@ -1,6 +1,12 @@
 # Changes in Medidata.MAuth
+
+## v5.1.9
+- **[Core]** Fix high vulnerability issue with `Microsoft.Extensions.Caching.Memory`
+- **[Owin]** Fix high vulnerability issue with `Microsoft.Owin`
+
 ## v5.1.8
 - **[Core]** Updated MAuthenticator to be public
+
 ## v5.1.7
 - **[Core]** Fix preprocessor for sync methods
 
