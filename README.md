@@ -136,6 +136,25 @@ The `MAuthSigningOptions` has the following properties to determine the required
 | **PrivateKey** | Determines the RSA private key of the client for signing a request. This key must be in a PEM ASN.1 format. The value of this property can be set as a valid path to a readable key file as well. |
 | **SignVersions** | (optional) Enumerations of MAuth protocol versions to sign requests. If not supplied, defaults to `MWS`.
 
+#### Powershell usage
+
+You can also sign outgoing requests with Powershell scripting by directly loading the DLLs. For example:
+
+```Powershell
+#Should have the .NET Standard version of these dlls:
+[System.Reflection.Assembly]::LoadFile("$PSScriptRoot/Medidata.MAuth.Core.dll")
+[System.Reflection.Assembly]::LoadFile("$PSScriptRoot/BouncyCastle.Crypto.dll")
+
+$mauth_signing_options = New-Object Medidata.MAuth.Core.MAuthSigningOptions 
+$mauth_signing_options.ApplicationUuid = [guid]::Parse($MAUTH_APPLICATION_UUID);
+$mauth_signing_options.PrivateKey = $MAUTH_PRIVATE_KEY;
+$mauth_signing_options.SignVersions = 0x1; #0x1 for MWS, 0x2 for MWSV2
+$mauth_signing_handler = New-Object Medidata.MAuth.Core.MAuthSigningHandler -ArgumentList $mauth_signing_options
+$http_client = [System.Net.Http.HttpClient]::new($mauth_signing_handler)
+$string_content = [System.Net.Http.StringContent]::new($JSON_STRING_TO_POST,[System.Text.Encoding]::UTF8,"application/json")
+$result = $http_client.PostAsync($URL_TO_POST_TO,$string_content).GetAwaiter().GetResult();
+```
+
 ### Authenticating Incoming Requests with the OWIN and ASP.NET Core Middlewares
 
 If your application implements the OWIN-specific or ASP.NET Core pipeline, you can wire in the `MAuthMiddleware`
